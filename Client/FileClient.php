@@ -13,7 +13,7 @@
 namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
-use Koded\Exceptions\CacheException;
+use Koded\Caching\CacheException;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 
@@ -177,9 +177,9 @@ class FileClient implements CacheInterface
     /**
      * Creates a cacheable content.
      *
-     * @param string $key The cache key
+     * @param string $key   The cache key
      * @param mixed  $value The value to be cached
-     * @param int    $ttl Time to live
+     * @param int    $ttl   Time to live
      * @return string
      */
     private function transform(string $key, $value, $ttl): string

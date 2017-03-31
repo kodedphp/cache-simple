@@ -10,9 +10,9 @@
  *
  */
 
-namespace Koded\Exceptions;
+namespace Koded\Caching;
 
-use Koded\Caching\Cache;
+use Koded\Exceptions\KodedException;
 use Psr\SimpleCache\InvalidArgumentException;
 
 class CacheException extends KodedException implements InvalidArgumentException
