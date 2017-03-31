@@ -1,0 +1,8 @@
+build
+vendor
+.DS_Store
+.idea
+composer.lock
+phpunit.phar
+*.yml
+!.travis.yml
