@@ -1,5 +1,5 @@
 {
-  "name": "kodedphp/cache-simple",
+  "name": "koded/cache-simple",
   "type": "library",
   "license": "BSD-3-Clause",
   "description": "A simple caching library for PHP 7 using several caching technologies.",
