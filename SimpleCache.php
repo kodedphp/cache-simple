@@ -37,7 +37,10 @@ class SimpleCache implements Cache
 
     public function set(string $key, $value, int $ttl = 0): bool
     {
-        return $this->client->set($key, $value, $ttl ?? $this->ttl);
+        if ($ttl < 0) {
+            throw new CacheException(Cache::E_INVALID_TTL, []);
+        }
+        return $this->client->set($key, $value, $ttl ?: $this->ttl);
     }
 
     public function delete(string $key): bool
@@ -57,7 +60,7 @@ class SimpleCache implements Cache
 
     public function setMultiple(iterable $values, int $ttl = 0): bool
     {
-        return $this->client->setMultiple($this->normalizeValues($values), $ttl ?? $this->ttl);
+        return $this->client->setMultiple($this->normalizeValues($values), $ttl ?: $this->ttl);
     }
 
     public function deleteMultiple(iterable $keys): bool

@@ -18,10 +18,12 @@ interface Cache
 {
 
     const E_INVALID_KEY = 1;
-    const E_UNSUPPORTED_LOGGER = 2;
-    const E_UNSUPPORTED_NORMALIZER = 3;
-    const E_EXTENSION_NOT_ENABLED = 4;
-    const E_DIRECTORY_NOT_CREATED = 5;
+    const E_INVALID_TTL = 2;
+    const E_UNSUPPORTED_LOGGER = 3;
+    const E_UNSUPPORTED_NORMALIZER = 4;
+    const E_EXTENSION_NOT_ENABLED = 5;
+    const E_DIRECTORY_NOT_CREATED = 6;
+
 
     /**
      * Fetches a value from the cache.
