@@ -41,6 +41,19 @@ class SimpleCacheWithFileClientTest extends TestCase
      * @dataProvider simpleData
      * @param $data
      */
+    public function testDelete($data)
+    {
+        $this->cache->setMultiple($data);
+
+        $this->assertTrue($this->cache->has('key1'));
+        $this->cache->delete('key1');
+        $this->assertFalse($this->cache->has('key1'));
+    }
+
+    /**
+     * @dataProvider simpleData
+     * @param $data
+     */
     public function testSetMultipleValues($data)
     {
         $this->cache->setMultiple($data);
@@ -74,7 +87,7 @@ class SimpleCacheWithFileClientTest extends TestCase
     {
         $this->cache->setMultiple($data);
 
-        $this->asserttrue($this->cache->deleteMultiple(['key1', 'key3']));
+        $this->assertTrue($this->cache->deleteMultiple(['key1', 'key3']));
         $this->assertSame([
             'key1' => 'default value',
             'key2' => false,
