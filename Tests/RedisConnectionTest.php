@@ -14,8 +14,9 @@ class RedisConnectionTest extends TestCase
         $this->expectExceptionMessage('[Cache Exception] Redis::connect()');
 
         putenv('CACHE_CLIENT=redis');
-        putenv('REDIS_SERVER_HOST=invalid-redis-host');
 
-        new SimpleCache((new ClientFactory(new ConfigFactory))->build());
+        new SimpleCache((new ClientFactory(new ConfigFactory([
+            'host' => 'invalid-redis-host'
+        ])))->build());
     }
 }

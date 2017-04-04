@@ -2,8 +2,8 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.0/phpunit.xsd"
          bootstrap="Tests/autoload.php"
+         backupGlobals="false"
          verbose="true"
-         processIsolation="true"
          colors="true">
     <testsuites>
         <testsuite name="Koded Simple Caching Library Test Suite">
