@@ -16,7 +16,8 @@ class FileTest extends TestCase
     public function test_should_create_file_client_without_configuration()
     {
         $client = new FileClient(new FileConfiguration([]), new NullLogger);
-        $this->assertAttributeEquals(sys_get_temp_dir() . DIRECTORY_SEPARATOR, 'dir', $client);
+        $expected = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR;
+        $this->assertAttributeEquals($expected, 'dir', $client);
     }
 
     protected function setUp()

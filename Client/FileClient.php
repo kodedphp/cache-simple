@@ -176,7 +176,8 @@ class FileClient implements CacheInterface
     {
         // overrule shell misconfiguration or the web server
         umask(umask() | 0002);
-        $dir = rtrim($directory ?: sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $dir = $directory ?: sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cache';
+        $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
         if (!is_dir($dir) and false === mkdir($dir, 0775, true)) {
             $e = new FileClientCacheException(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $dir]);
