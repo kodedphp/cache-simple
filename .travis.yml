@@ -10,7 +10,7 @@ services:
   - memcached
 
 env:
-  - REDIS_SERVER_HOST=localhost
+  - REDIS_SERVER_HOST=127.0.0.1
   - MEMCACHED_POOL=[["127.0.0.1", 11211]]
 
 before_script:
