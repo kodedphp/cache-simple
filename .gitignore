@@ -5,4 +5,5 @@ vendor
 composer.lock
 phpunit.phar
 *.yml
+.env
 !.travis.yml
