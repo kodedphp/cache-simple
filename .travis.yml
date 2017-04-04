@@ -16,7 +16,7 @@ before_script:
   - composer selfupdate
   - composer update -o --dev --no-interaction
   - pecl install redis
-  - pecl install memcached
+  - phpenv config-add memcached
 
 script:
   - mkdir -p build/logs
