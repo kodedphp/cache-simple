@@ -17,7 +17,6 @@ use FilesystemIterator;
 use Koded\Caching\Cache;
 use Koded\Caching\CacheException;
 use Koded\Caching\Configuration\FileConfiguration;
-use function Koded\Stdlib\dump;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;

@@ -15,7 +15,6 @@ namespace Koded\Caching\Client;
 use Koded\Caching\{
     Cache, CacheException, Configuration\RedisConfiguration
 };
-use function Koded\Stdlib\dump;
 use Psr\SimpleCache\CacheInterface;
 use Redis;
 use Throwable;
