@@ -16,14 +16,21 @@ use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\Configuration;
 use Memcached;
 
+/**
+ * Class MemcachedConfiguration
+ *
+ * @todo Implement this class properly
+ */
 class MemcachedConfiguration extends Immutable implements Configuration
 {
 
     public function getServers(): array
     {
-        return [
-            ['memcached', 11211]
-        ];
+        if (!$servers = json_decode(getenv('MEMCACHED_POOL'), true)) {
+            $servers = [['127.0.0.1', 11211]];
+        }
+
+        return $servers;
     }
 
     public function getOptions(): array

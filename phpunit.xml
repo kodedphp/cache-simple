@@ -25,6 +25,8 @@
 
         <env name="REDIS_SERVER_HOST" value="redis"/>
         <env name="REDIS_SERVER_PORT" value="6379"/>
+
+        <env name="MEMCACHED_POOL" value='[["memcached", 11211]]'/>
     </php>
 
     <logging>
