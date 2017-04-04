@@ -3,6 +3,7 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.0/phpunit.xsd"
          bootstrap="Tests/autoload.php"
          verbose="true"
+         processIsolation="true"
          colors="true">
     <testsuites>
         <testsuite name="Koded Simple Caching Library Test Suite">
