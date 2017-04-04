@@ -15,6 +15,7 @@ namespace Koded\Caching\Client;
 use Koded\Caching\{
     Cache, CacheException, Configuration\RedisConfiguration
 };
+use function Koded\Stdlib\dump;
 use Psr\SimpleCache\CacheInterface;
 use Redis;
 use Throwable;
@@ -87,12 +88,12 @@ class RedisClient implements CacheInterface
 
     public function setMultiple($values, $ttl = null)
     {
-        $cached = [];
+        $cached = 0;
         foreach ($values as $key => $value) {
-            $cached[] = $this->set($key, $value, $ttl);
+            $this->set($key, $value, $ttl) and ++$cached;
         }
 
-        return count($values) === count(array_filter($cached));
+        return count($values) === $cached;
     }
 
     public function deleteMultiple($keys)

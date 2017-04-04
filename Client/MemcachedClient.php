@@ -64,7 +64,10 @@ class MemcachedClient implements CacheInterface
 
     public function getMultiple($keys, $default = null)
     {
-        return array_replace(array_fill_keys($keys, $default), $this->client->getMulti($keys) ?: []);
+        return array_replace(
+            array_fill_keys($keys, $default),
+            $this->client->getMulti($keys) ?: []
+        );
     }
 
     public function setMultiple($values, $ttl = null)
@@ -84,7 +87,7 @@ class MemcachedClient implements CacheInterface
 
     public function has($key)
     {
-        // Memcached does not have exists, has or similar method
+        // Memcached does not have exists() or similar method
         $this->client->get($key);
 
         return $this->client->getResultCode() === Memcached::RES_SUCCESS;

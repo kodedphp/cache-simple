@@ -17,6 +17,7 @@ use FilesystemIterator;
 use Koded\Caching\Cache;
 use Koded\Caching\CacheException;
 use Koded\Caching\Configuration\FileConfiguration;
+use function Koded\Stdlib\dump;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
@@ -138,11 +139,12 @@ class FileClient implements CacheInterface
 
         $ttl = null === $ttl ? (new DateTime('31st December 2999'))->getTimestamp() : cache_ttl($ttl);
 
-        $items = array_filter($values, function($value, $key) use ($ttl) {
-            return $this->set($key, $value, $ttl);
-        }, ARRAY_FILTER_USE_BOTH);
+        $cached = 0;
+        foreach ($values as $key => $value) {
+            $this->set($key, $value, $ttl) and ++$cached;
+        }
 
-        return count($values) === count($items);
+        return count($values) === $cached;
     }
 
     /**
@@ -150,11 +152,12 @@ class FileClient implements CacheInterface
      */
     public function deleteMultiple($keys)
     {
-        $deleted = array_filter($keys, function($key) {
-            return $this->delete($key);
-        });
+        $deleted = 0;
+        foreach ($keys as $key) {
+            $this->delete($key) and ++$deleted;
+        }
 
-        return count($keys) === count($deleted);
+        return count($keys) === $deleted;
     }
 
     /**
