@@ -1,14 +1,27 @@
 language: php
+
 sudo: false
 
 php:
   - 7.1
 
+services:
+  - redis-server
+  - memcached
+
+env:
+  - REDIS_SERVER_HOST=localhost
+
 before_script:
   - composer selfupdate
-  - composer install -o --dev --no-interaction
+  - composer update -o --dev --no-interaction
+
 script:
   - mkdir -p build/logs
   - vendor/bin/phpunit
+
 after_success:
   - vendor/bin/coveralls
+
+matrix:
+  fast_finish: true
