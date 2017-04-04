@@ -15,32 +15,38 @@ namespace Koded\Caching;
 use Psr\SimpleCache\CacheInterface;
 use Traversable;
 
+/**
+ * Class SimpleCache
+ *
+ */
 class SimpleCache implements Cache
 {
 
-    /** @var int */
-    protected $ttl = 0;
+    /**
+     * @var int The TTL value is seconds, NULL for indefinite, zero or less for expired
+     */
+    protected $ttl = null;
 
-    /** @var CacheInterface */
+    /**
+     * @var CacheInterface
+     */
     protected $client;
 
-    public function __construct(CacheInterface $client, $config = null)
+    public function __construct(CacheInterface $client, int $ttl = null)
     {
         $this->client = $client;
-        $this->ttl = $config['ttl'] ?? 0;
     }
 
     public function get(string $key, $default = null)
     {
+        cache_key_guard($key);
         return $this->client->get($key, $default);
     }
 
-    public function set(string $key, $value, int $ttl = 0): bool
+    public function set(string $key, $value, int $ttl = null): bool
     {
-        if ($ttl < 0) {
-            throw new CacheException(Cache::E_INVALID_TTL, []);
-        }
-        return $this->client->set($key, $value, $ttl ?: $this->ttl);
+        cache_key_guard($key);
+        return $this->client->set($key, $value, $ttl);
     }
 
     public function delete(string $key): bool
@@ -58,9 +64,9 @@ class SimpleCache implements Cache
         return $this->client->getMultiple($this->normalizeValues($keys), $default);
     }
 
-    public function setMultiple(iterable $values, int $ttl = 0): bool
+    public function setMultiple(iterable $values, int $ttl = null): bool
     {
-        return $this->client->setMultiple($this->normalizeValues($values), $ttl ?: $this->ttl);
+        return $this->client->setMultiple($this->normalizeValues($values), $ttl);
     }
 
     public function deleteMultiple(iterable $keys): bool

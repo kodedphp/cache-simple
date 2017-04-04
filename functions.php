@@ -12,24 +12,74 @@
 
 namespace Koded\Caching;
 
-use Koded\Exceptions\CacheException;
+use DateInterval;
+use DateTime;
+use Koded\Caching\Configuration\ConfigFactory;
+use Koded\Stdlib\Interfaces\ConfigurationFactory;
 
-function cache_key(string $key): string
+/**
+ * Creates once an instance of SimpleCache.
+ *
+ * If configuration is not provided, defaults to NullClient (dummy) cache client,
+ * otherwise it will try to create one defined in the configuration.
+ *
+ * @param mixed $config [optional] Cache configuration
+ *
+ * @return SimpleCache
+ */
+function cache(ConfigurationFactory $config = null): SimpleCache
 {
-    if (empty($key)) {
+    static $cache;
+
+    if (null === $cache) {
+        $config or $config = new ConfigFactory;
+        $cache = new SimpleCache((new ClientFactory($config))->build());
+    }
+
+    return $cache;
+}
+
+/**
+ * Guards the cache key value.
+ *
+ * @param string $key
+ * @param string $regex [optional]
+ *
+ * @return string
+ * @throws CacheException
+ */
+function cache_key_guard(string $key, string $regex = '[^a-z0-9:_\-\/\{\}\[\]\\\.\+\* ]+'): string
+{
+    if (empty($key) or 1 === preg_match('~' . $regex . '~ui', $key)) {
         throw new CacheException(Cache::E_INVALID_KEY, [':key' => $key]);
     }
 
     return $key;
 }
 
-function cache($config = null): SimpleCache
+/**
+ * Calculates the TTL according to many things.
+ *
+ * @param null|int|DateInterval $ttl A gypsy "psr-16" argument that represents a TTL (instead a simple integer)
+ *
+ * @return int|null Returns a calculated TTL timestamp value, or NULL
+ */
+function cache_ttl($ttl): ?int
 {
-    static $cache;
-
-    if (null === $cache) {
-        $cache = new SimpleCache(CacheClientFactory::build($config), $config);
+    if (null === $ttl) {
+        // because things...
+        return null;
     }
 
-    return $cache;
+    if ($ttl instanceof DateInterval) {
+        return (new DateTime)->add($ttl)->getTimestamp();
+    }
+
+    $ttl = (int)$ttl;
+
+    if ($ttl > 0) {
+        return time() + $ttl;
+    }
+
+    return $ttl;
 }

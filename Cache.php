@@ -20,9 +20,9 @@ interface Cache
     const E_INVALID_KEY = 1;
     const E_INVALID_TTL = 2;
     const E_UNSUPPORTED_LOGGER = 3;
-    const E_UNSUPPORTED_NORMALIZER = 4;
-    const E_EXTENSION_NOT_ENABLED = 5;
-    const E_DIRECTORY_NOT_CREATED = 6;
+    const E_EXTENSION_NOT_ENABLED = 4;
+    const E_DIRECTORY_NOT_CREATED = 5;
+    const E_PHP_EXCEPTION = 6;
 
 
     /**
@@ -40,9 +40,9 @@ interface Cache
     /**
      * Persists data in the cache, uniquely referenced by a key with an optional expiration TTL time.
      *
-     * @param string       $key            The key of the item to store.
-     * @param mixed        $value          The value of the item to store, must be serializable.
-     * @param int $ttl            [optional] The TTL value of this item. If no value is sent and
+     * @param string $key                  The key of the item to store.
+     * @param mixed  $value                The value of the item to store, must be serializable.
+     * @param int    $ttl                  [optional] The TTL value of this item. If no value is sent and
      *                                     the driver supports TTL then the library may set a default value
      *                                     for it or let the driver take care of that.
      *
@@ -50,7 +50,7 @@ interface Cache
      *
      * @throws InvalidArgumentException MUST be thrown if the $key string is not a legal value.
      */
-    public function set(string $key, $value, int $ttl = 0): bool;
+    public function set(string $key, $value, int $ttl): bool;
 
     /**
      * Delete an item from the cache by its unique key.
@@ -87,8 +87,8 @@ interface Cache
     /**
      * Persists a set of key => value pairs in the cache, with an optional TTL.
      *
-     * @param iterable     $values          A list of key => value pairs for a multiple-set operation.
-     * @param int $ttl             [optional] The TTL value of this item. If no value is sent and
+     * @param iterable $values              A list of key => value pairs for a multiple-set operation.
+     * @param int      $ttl                 [optional] The TTL value of this item. If no value is sent and
      *                                      the driver supports TTL then the library may set a default value
      *                                      for it or let the driver take care of that.
      *
