@@ -12,23 +12,35 @@
 
 namespace Koded\Caching\Client;
 
+use DateTime;
+use FilesystemIterator;
 use Koded\Caching\Cache;
 use Koded\Caching\CacheException;
+use Koded\Caching\Configuration\FileConfiguration;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use Throwable;
 
 class FileClient implements CacheInterface
 {
 
+    use KeyTrait;
+
     const E_DIRECTORY_NOT_CREATED = 1;
 
+    /** @var string */
     private $dir = '';
+
+    /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(array $config, LoggerInterface $logger)
+    public function __construct(FileConfiguration $config, LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->initialize($config);
+        $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
+        $this->initialize((string)$config->dir);
     }
 
     /**
@@ -43,7 +55,7 @@ class FileClient implements CacheInterface
         }
 
         /** @noinspection PhpIncludeInspection */
-        $content = include($filename);
+        $content = @include $filename;
 
         if ($this->expired($content)) {
             $this->delete($key);
@@ -58,7 +70,12 @@ class FileClient implements CacheInterface
      */
     public function set($key, $value, $ttl = null)
     {
-        return (bool)file_put_contents($this->filename($key), $this->transform($key, $value, $ttl));
+        if ($ttl < 0 or $ttl === 0) {
+            // The item is considered expired and must be deleted
+            return $this->delete($key);
+        }
+
+        return (bool)file_put_contents($this->filename($key), $this->data($key, $value, $ttl));
     }
 
     /**
@@ -66,7 +83,13 @@ class FileClient implements CacheInterface
      */
     public function delete($key)
     {
-        return unlink($this->filename($key, false));
+        $filename = $this->filename($key, false);
+
+        if (is_file($filename)) {
+            return unlink($filename);
+        }
+
+        return true;
     }
 
     /**
@@ -74,12 +97,20 @@ class FileClient implements CacheInterface
      */
     public function clear()
     {
-        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->dir,
-            \FilesystemIterator::SKIP_DOTS), \RecursiveIteratorIterator::CHILD_FIRST) as $path) {
-            ($path->isDir() and !$path->isLink()) ? rmdir($path->getPathname()) : unlink($path->getPathname());
-        }
+        try {
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->dir,
+                FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $path) {
+                ($path->isDir() and !$path->isLink()) ? rmdir($path->getPathname()) : unlink($path->getPathname());
+            }
 
-        return true;
+            return true;
+            // @codeCoverageIgnoreStart
+        } catch (Throwable $e) {
+            $this->logger->critical($e->getMessage());
+
+            return false;
+        }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -100,13 +131,17 @@ class FileClient implements CacheInterface
      */
     public function setMultiple($values, $ttl = null)
     {
-        // TODO: Implement setMultiple() method.
+        if ($ttl < 0 or $ttl === 0) {
+            // All items are considered expired and must be deleted
+            return $this->deleteMultiple(array_keys($values));
+        }
 
-        $items = array_filter($values, function($value, $key) use ($ttl) {
-            return $this->set($key, $value, $ttl);
-        }, ARRAY_FILTER_USE_BOTH);
+        $cached = 0;
+        foreach ($values as $key => $value) {
+            $this->set($key, $value, $ttl) and ++$cached;
+        }
 
-        return count($values) === count($items);
+        return count($values) === $cached;
     }
 
     /**
@@ -114,11 +149,12 @@ class FileClient implements CacheInterface
      */
     public function deleteMultiple($keys)
     {
-        $deleted = array_filter($keys, function($key) {
-            return $this->delete($key);
-        });
+        $deleted = 0;
+        foreach ($keys as $key) {
+            $this->delete($key) and ++$deleted;
+        }
 
-        return count($keys) === count($deleted);
+        return count($keys) === $deleted;
     }
 
     /**
@@ -132,14 +168,16 @@ class FileClient implements CacheInterface
     /**
      * Prepares the cache directory.
      *
-     * @param array $config
+     * @param string $directory
+     *
      * @throws FileClientCacheException
      */
-    private function initialize(array $config = [])
+    protected function initialize(string $directory)
     {
         // overrule shell misconfiguration or the web server
         umask(umask() | 0002);
-        $dir = rtrim($config['dir'] ?? sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $dir = $directory ?: sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cache';
+        $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
         if (!is_dir($dir) and false === mkdir($dir, 0775, true)) {
             $e = new FileClientCacheException(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $dir]);
@@ -154,9 +192,10 @@ class FileClient implements CacheInterface
      *
      * @param string $key    The cache key
      * @param bool   $create [optional] Flag for dir/file mods
+     *
      * @return string
      */
-    private function filename(string $key, bool $create = true): string
+    protected function filename(string $key, bool $create = true): string
     {
         $filename = sha1($key);
         $dir = $this->dir . substr($filename, 0, 2);
@@ -167,28 +206,36 @@ class FileClient implements CacheInterface
 
         $filename = $dir . DIRECTORY_SEPARATOR . substr($filename, 2) . '.php';
 
-        if ($create) {
-            chmod($filename, 0664);
+        if ($create and !is_file($filename)) {
+            touch($filename);
+            chmod($filename, 0666);
         }
 
         return $filename;
     }
 
     /**
-     * Creates a cacheable content.
+     * Creates a cache content.
      *
      * @param string $key   The cache key
      * @param mixed  $value The value to be cached
-     * @param int    $ttl   Time to live
+     * @param int|null    $ttl   Time to live
+     *
      * @return string
      */
-    private function transform(string $key, $value, $ttl): string
+    protected function data(string $key, $value, $ttl): string
     {
+        if (null === $ttl) {
+            $ttl = (new DateTime('31st December 2999'))->getTimestamp();
+        } else {
+            $ttl += time();
+        }
+
         $cache = ['<?php'];
         $cache[] = 'return ' . var_export([
                 'timestamp' => $ttl,
-                'value' => $value,
                 'key' => $key,
+                'value' => $value,
             ], true);
         $cache[] = ';';
 
@@ -199,14 +246,19 @@ class FileClient implements CacheInterface
      * Checks the expiration timestamp in the cache.
      *
      * @param array $cache The cached content
+     *
      * @return bool
      */
-    private function expired(array $cache): bool
+    protected function expired(array $cache): bool
     {
-        return $cache['timestamp'] ?? time() > $cache['timestamp'];
+        return time() >= $cache['timestamp'];
     }
 }
 
+/**
+ * Class FileClientCacheException
+ *
+ */
 class FileClientCacheException extends CacheException
 {
 }

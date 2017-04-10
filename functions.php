@@ -12,24 +12,96 @@
 
 namespace Koded\Caching;
 
-use Koded\Exceptions\CacheException;
+use DateInterval;
+use DateTime;
+use Koded\Caching\Configuration\ConfigFactory;
+use Koded\Stdlib\Interfaces\ConfigurationFactory;
 
-function cache_key(string $key): string
+const CACHE_DEFAULT_KEY_REGEX = '[^a-z0-9:_\-\/\{\}\[\]\\\.\+\* ]+';
+/**
+ * Creates once an instance of SimpleCache.
+ *
+ * If configuration is not provided, defaults to NullClient (dummy) cache client,
+ * otherwise it will try to create one defined in the configuration.
+ *
+ * @param mixed $config [optional] Cache configuration
+ *
+ * @return SimpleCache
+ */
+function cache(ConfigurationFactory $config = null): SimpleCache
 {
-    if (empty($key)) {
+    static $cache;
+
+    if (null === $cache) {
+        $config or $config = new ConfigFactory;
+        $cache = new SimpleCache((new ClientFactory($config))->build(), $config->ttl);
+    }
+
+    return $cache;
+}
+
+/**
+ * Factory function for SimpleCache.
+ *
+ * Example:
+ *
+ * simple_cache_factory('redis', ['host' => 'redis']);
+ * simple_cache_factory()->get('foo');
+ *
+ * @param string $client [optional] The client name (ex. memcached, redis, etc)
+ * @param array  $arguments [optional] A configuration parameters for the client
+ *
+ * @return SimpleCache
+ */
+
+function simple_cache_factory(string $client = '', array $arguments = []): SimpleCache
+{
+    $config = new ConfigFactory($arguments);
+    return new SimpleCache((new ClientFactory($config))->build($client), $config->ttl);
+}
+
+/**
+ * Guards the cache key value.
+ *
+ * @param string $key   The cache key
+ * @param string $regex [optional] Allowed characters for the cache key
+ *
+ * @return string
+ * @throws CacheException
+ */
+function cache_key_guard(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): string
+{
+    if (empty($key) or 1 === preg_match('~' . $regex . '~ui', $key)) {
         throw new CacheException(Cache::E_INVALID_KEY, [':key' => $key]);
     }
 
     return $key;
 }
 
-function cache($config = null): SimpleCache
+/**
+ * Transforms the DateInterval TTL, or return the value as-is.
+ *
+ * @param null|int|DateInterval $ttl A gypsy "psr-16" argument
+ *                                   that represents a TTL (instead a simple integer)
+ *
+ * @return int|null Returns the TTL is seconds, or NULL. Can be a negative number to delete cache items
+ */
+function cache_ttl($ttl): ?int
 {
-    static $cache;
-
-    if (null === $cache) {
-        $cache = new SimpleCache(CacheClientFactory::build($config), $config);
+    if (null === $ttl or 0 === $ttl) {
+        // because things...
+        return $ttl;
     }
 
-    return $cache;
+    if ($ttl instanceof DateInterval) {
+        return (new DateTime)->add($ttl)->getTimestamp() - time();
+    }
+
+    $ttl = (int)$ttl;
+
+    if ($ttl > 0) {
+        return $ttl;
+    }
+
+    return $ttl;
 }

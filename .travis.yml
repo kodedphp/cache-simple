@@ -10,11 +10,13 @@ services:
   - memcached
 
 env:
-  - REDIS_SERVER_HOST=localhost
+  - REDIS_SERVER_HOST=127.0.0.1 REDIS_SERVER_PORT=6379 MEMCACHED_POOL=[["127.0.0.1", 11211]]
 
 before_script:
   - composer selfupdate
   - composer update -o --dev --no-interaction
+  - pecl install redis
+  - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 script:
   - mkdir -p build/logs
