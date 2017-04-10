@@ -25,7 +25,7 @@ class SimpleCache implements Cache
     /**
      * @var int The TTL value is seconds, NULL for indefinite, zero or less for expired
      */
-    protected $ttl = null;
+    protected $ttl;
 
     /**
      * @var CacheInterface
@@ -35,18 +35,19 @@ class SimpleCache implements Cache
     public function __construct(CacheInterface $client, int $ttl = null)
     {
         $this->client = $client;
+        $this->ttl = $ttl;
     }
 
     public function get(string $key, $default = null)
     {
-        cache_key_guard($key);
         return $this->client->get($key, $default);
     }
 
-    public function set(string $key, $value, int $ttl = null): bool
+    public function set(string $key, $value, $ttl = null): bool
     {
-        cache_key_guard($key);
-        return $this->client->set($key, $value, $ttl);
+        cache_key_guard($key, call_user_func([$this->client, 'keyRegex']));
+
+        return $this->client->set($key, $value, cache_ttl($ttl ?? $this->ttl));
     }
 
     public function delete(string $key): bool
@@ -64,9 +65,9 @@ class SimpleCache implements Cache
         return $this->client->getMultiple($this->normalizeValues($keys), $default);
     }
 
-    public function setMultiple(iterable $values, int $ttl = null): bool
+    public function setMultiple(iterable $values, $ttl = null): bool
     {
-        return $this->client->setMultiple($this->normalizeValues($values), $ttl);
+        return $this->client->setMultiple($this->normalizeValues($values), cache_ttl($ttl ?? $this->ttl));
     }
 
     public function deleteMultiple(iterable $keys): bool

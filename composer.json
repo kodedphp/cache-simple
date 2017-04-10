@@ -16,7 +16,7 @@
     "psr/simple-cache": "~1"
   },
   "autoload": {
-    "psr-4": {
+    "psr-0": {
       "Koded\\Caching\\": ""
     },
     "files": [
@@ -31,5 +31,11 @@
     "mikey179/vfsStream": "*",
     "satooshi/php-coveralls": "~1",
     "predis/predis": "dev-master"
+  },
+  "minimum-stability": "dev",
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.7-dev"
+    }
   }
 }

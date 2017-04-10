@@ -12,6 +12,7 @@
 
 namespace Koded\Caching\Client;
 
+use Closure;
 use Koded\Caching\{
     Cache, CacheException, Configuration\RedisConfiguration
 };
@@ -28,19 +29,22 @@ use Throwable;
 class RedisClient implements CacheInterface
 {
 
+    use KeyTrait;
+
     /** @var Redis */
     protected $client;
 
-    /** @var \Closure */
+    /** @var Closure */
     protected $serialize;
 
-    /** @var \Closure */
+    /** @var Closure */
     protected $unserialize;
 
     public function __construct(RedisConfiguration $config)
     {
         try {
             $this->client = new Redis;
+            $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
 
             if ($this->client->connect(...$config->getConnectionParams())) {
                 $this->client->setOption(Redis::OPT_PREFIX, $config->get('prefix'));
@@ -145,6 +149,7 @@ class RedisClient implements CacheInterface
                 if (null === $ttl) {
                     return $this->client->set($key, $value);
                 }
+
                 return $this->client->setex($key, $ttl, $value);
             };
 

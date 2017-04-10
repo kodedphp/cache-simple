@@ -17,6 +17,7 @@ use DateTime;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Interfaces\ConfigurationFactory;
 
+const CACHE_DEFAULT_KEY_REGEX = '[^a-z0-9:_\-\/\{\}\[\]\\\.\+\* ]+';
 /**
  * Creates once an instance of SimpleCache.
  *
@@ -33,22 +34,42 @@ function cache(ConfigurationFactory $config = null): SimpleCache
 
     if (null === $cache) {
         $config or $config = new ConfigFactory;
-        $cache = new SimpleCache((new ClientFactory($config))->build());
+        $cache = new SimpleCache((new ClientFactory($config))->build(), $config->ttl);
     }
 
     return $cache;
 }
 
 /**
+ * Factory function for SimpleCache.
+ *
+ * Example:
+ *
+ * simple_cache_factory('redis', ['host' => 'redis']);
+ * simple_cache_factory()->get('foo');
+ *
+ * @param string $client [optional] The client name (ex. memcached, redis, etc)
+ * @param array  $arguments [optional] A configuration parameters for the client
+ *
+ * @return SimpleCache
+ */
+
+function simple_cache_factory(string $client = '', array $arguments = []): SimpleCache
+{
+    $config = new ConfigFactory($arguments);
+    return new SimpleCache((new ClientFactory($config))->build($client), $config->ttl);
+}
+
+/**
  * Guards the cache key value.
  *
- * @param string $key
- * @param string $regex [optional]
+ * @param string $key   The cache key
+ * @param string $regex [optional] Allowed characters for the cache key
  *
  * @return string
  * @throws CacheException
  */
-function cache_key_guard(string $key, string $regex = '[^a-z0-9:_\-\/\{\}\[\]\\\.\+\* ]+'): string
+function cache_key_guard(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): string
 {
     if (empty($key) or 1 === preg_match('~' . $regex . '~ui', $key)) {
         throw new CacheException(Cache::E_INVALID_KEY, [':key' => $key]);
@@ -58,27 +79,28 @@ function cache_key_guard(string $key, string $regex = '[^a-z0-9:_\-\/\{\}\[\]\\\
 }
 
 /**
- * Calculates the TTL according to many things.
+ * Transforms the DateInterval TTL, or return the value as-is.
  *
- * @param null|int|DateInterval $ttl A gypsy "psr-16" argument that represents a TTL (instead a simple integer)
+ * @param null|int|DateInterval $ttl A gypsy "psr-16" argument
+ *                                   that represents a TTL (instead a simple integer)
  *
- * @return int|null Returns a calculated TTL timestamp value, or NULL
+ * @return int|null Returns the TTL is seconds, or NULL. Can be a negative number to delete cache items
  */
 function cache_ttl($ttl): ?int
 {
-    if (null === $ttl) {
+    if (null === $ttl or 0 === $ttl) {
         // because things...
-        return null;
+        return $ttl;
     }
 
     if ($ttl instanceof DateInterval) {
-        return (new DateTime)->add($ttl)->getTimestamp();
+        return (new DateTime)->add($ttl)->getTimestamp() - time();
     }
 
     $ttl = (int)$ttl;
 
     if ($ttl > 0) {
-        return time() + $ttl;
+        return $ttl;
     }
 
     return $ttl;

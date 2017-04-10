@@ -10,7 +10,7 @@ services:
   - memcached
 
 env:
-  - REDIS_SERVER_HOST=127.0.0.1 MEMCACHED_POOL=[["127.0.0.1", 11211]]
+  - REDIS_SERVER_HOST=127.0.0.1 REDIS_SERVER_HOST=6379 MEMCACHED_POOL=[["127.0.0.1", 11211]]
 
 before_script:
   - composer selfupdate

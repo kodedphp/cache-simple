@@ -31,20 +31,19 @@ class FunctionsTest extends TestCase
         $this->assertSame(-1, cache_ttl(-1));
     }
 
-    public function test_should_extend_the_time()
-    {
-        $now = time();
-        $this->assertSame(100 + $now, cache_ttl(100));
-    }
-
     public function test_should_return_null_if_ttl_is_null()
     {
         $this->assertNull(cache_ttl(null));
     }
 
-    public function test_should_extend_ttl_from_date_interval()
+    public function test_should_return_the_same_ttl()
+    {
+        $this->assertSame(100, cache_ttl(100));
+    }
+
+    public function test_should_set_ttl_from_date_interval()
     {
         $interval = new \DateInterval('PT42S');
-        $this->assertGreaterThan(time(), cache_ttl($interval));
+        $this->assertSame(42, cache_ttl($interval));
     }
 }

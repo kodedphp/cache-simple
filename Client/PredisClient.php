@@ -34,6 +34,7 @@ class PredisClient extends RedisClient implements CacheInterface
      */
     public function __construct(PredisConfiguration $config)
     {
+        $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
         $this->setNormalizers($config->get('normalizer', ''));
         $this->client = new Client($config->getParameters(), $config->getOptions());
     }

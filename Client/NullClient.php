@@ -22,6 +22,8 @@ use Psr\SimpleCache\CacheInterface;
 class NullClient implements CacheInterface
 {
 
+    use KeyTrait;
+
     public function get($key, $default = null)
     {
         return $default;
@@ -44,7 +46,7 @@ class NullClient implements CacheInterface
 
     public function getMultiple($keys, $default = null)
     {
-        return true;
+        return array_fill_keys($keys, $default);
     }
 
     public function setMultiple($values, $ttl = null)

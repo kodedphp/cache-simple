@@ -10,11 +10,6 @@ trait SimpleCacheTestCaseTrait
     /** @var SimpleCache */
     protected $cache;
 
-    protected function tearDown()
-    {
-        $this->cache->clear();
-    }
-
     public function test_client_should_implement_cache_interface()
     {
         $this->assertAttributeInstanceOf(CacheInterface::class, 'client', $this->cache);
@@ -105,6 +100,7 @@ trait SimpleCacheTestCaseTrait
         $this->cache->setMultiple($data);
 
         $this->assertTrue($this->cache->deleteMultiple(['key1', 'key3']));
+
         $this->assertSame([
             'key1' => 'default value',
             'key2' => false,
@@ -137,6 +133,7 @@ trait SimpleCacheTestCaseTrait
 
         // but after some time it is deleted
         sleep(2);
+
         $this->assertSame('expired', $this->cache->get('foo', 'expired'));
         $this->assertFalse($this->cache->has('foo'));
     }
@@ -168,5 +165,11 @@ trait SimpleCacheTestCaseTrait
                 ]
             ]
         ];
+    }
+
+    protected function tearDown()
+    {
+        $this->cache->clear();
+        putenv('CACHE_CLIENT=');
     }
 }

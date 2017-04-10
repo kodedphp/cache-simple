@@ -15,16 +15,19 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Configuration\MemcachedConfiguration;
 use Memcached;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\cache_ttl;
 
 class MemcachedClient implements CacheInterface
 {
+
+    use KeyTrait;
 
     /** @var Memcached */
     private $client;
 
     public function __construct(MemcachedConfiguration $config)
     {
+        $this->keyRegex = $config->pull('keyRegex', $this->keyRegex);
+
         $this->client = new Memcached($config->get('id'));
         $this->client->setOptions($config->getOptions());
 
@@ -49,7 +52,7 @@ class MemcachedClient implements CacheInterface
             return true;
         }
 
-        return $this->client->set($key, $value, cache_ttl($ttl));
+        return $this->client->set($key, $value, $ttl);
     }
 
     public function delete($key)
@@ -76,7 +79,7 @@ class MemcachedClient implements CacheInterface
             return $this->deleteMultiple(array_keys($values));
         }
 
-        return $this->client->setMulti($values, cache_ttl($ttl));
+        return $this->client->setMulti($values, $ttl);
     }
 
     public function deleteMultiple($keys)

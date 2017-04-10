@@ -22,10 +22,11 @@ use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Throwable;
-use function Koded\Caching\cache_ttl;
 
 class FileClient implements CacheInterface
 {
+
+    use KeyTrait;
 
     const E_DIRECTORY_NOT_CREATED = 1;
 
@@ -38,6 +39,7 @@ class FileClient implements CacheInterface
     public function __construct(FileConfiguration $config, LoggerInterface $logger)
     {
         $this->logger = $logger;
+        $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
         $this->initialize((string)$config->dir);
     }
 
@@ -53,7 +55,7 @@ class FileClient implements CacheInterface
         }
 
         /** @noinspection PhpIncludeInspection */
-        $content = include($filename);
+        $content = @include $filename;
 
         if ($this->expired($content)) {
             $this->delete($key);
@@ -72,8 +74,6 @@ class FileClient implements CacheInterface
             // The item is considered expired and must be deleted
             return $this->delete($key);
         }
-
-        $ttl = null === $ttl ? (new DateTime('31st December 2999'))->getTimestamp() : cache_ttl($ttl);
 
         return (bool)file_put_contents($this->filename($key), $this->data($key, $value, $ttl));
     }
@@ -135,8 +135,6 @@ class FileClient implements CacheInterface
             // All items are considered expired and must be deleted
             return $this->deleteMultiple(array_keys($values));
         }
-
-        $ttl = null === $ttl ? (new DateTime('31st December 2999'))->getTimestamp() : cache_ttl($ttl);
 
         $cached = 0;
         foreach ($values as $key => $value) {
@@ -221,12 +219,18 @@ class FileClient implements CacheInterface
      *
      * @param string $key   The cache key
      * @param mixed  $value The value to be cached
-     * @param int    $ttl   Time to live
+     * @param int|null    $ttl   Time to live
      *
      * @return string
      */
     protected function data(string $key, $value, $ttl): string
     {
+        if (null === $ttl) {
+            $ttl = (new DateTime('31st December 2999'))->getTimestamp();
+        } else {
+            $ttl += time();
+        }
+
         $cache = ['<?php'];
         $cache[] = 'return ' . var_export([
                 'timestamp' => $ttl,
@@ -247,7 +251,7 @@ class FileClient implements CacheInterface
      */
     protected function expired(array $cache): bool
     {
-        return time() > $cache['timestamp'];
+        return time() >= $cache['timestamp'];
     }
 }
 
