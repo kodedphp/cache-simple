@@ -2,6 +2,9 @@
 
 namespace Koded\Caching;
 
+use Koded\Caching\Client\MemcachedClient;
+use Koded\Caching\Client\NullClient;
+use function Koded\Stdlib\dump;
 use PHPUnit\Framework\TestCase;
 
 class FunctionsTest extends TestCase
@@ -45,5 +48,20 @@ class FunctionsTest extends TestCase
     {
         $interval = new \DateInterval('PT42S');
         $this->assertSame(42, cache_ttl($interval));
+    }
+
+    public function test_should_create_new_simplecache_instance_with_null_client()
+    {
+        $cache = simple_cache_factory();
+        $this->assertAttributeInstanceOf(NullClient::class, 'client', $cache);
+    }
+
+    public function test_should_create_new_simplecache_instance_with_memcached_client()
+    {
+        $cache1 = simple_cache_factory('memcached');
+        $this->assertAttributeInstanceOf(MemcachedClient::class, 'client', $cache1);
+
+        $cache2 = simple_cache_factory('memcached');
+        $this->assertNotSame($cache1, $cache2);
     }
 }
