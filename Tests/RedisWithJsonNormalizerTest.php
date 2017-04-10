@@ -3,13 +3,18 @@
 namespace Koded\Caching;
 
 use Koded\Caching\Configuration\ConfigFactory;
-use function Koded\Stdlib\dump;
 use PHPUnit\Framework\TestCase;
+use Redis;
 
 class RedisWithJsonNormalizerTest extends TestCase
 {
 
     use SimpleCacheTestCaseTrait;
+
+    public function test_should_return_redis_instance()
+    {
+        $this->assertInstanceOf(Redis::class, $this->cache->client());
+    }
 
     protected function setUp()
     {

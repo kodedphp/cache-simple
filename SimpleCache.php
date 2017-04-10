@@ -80,6 +80,11 @@ class SimpleCache implements Cache
         return $this->client->has($key);
     }
 
+    public function client()
+    {
+        return call_user_func([$this->client, 'client']);
+    }
+
     protected function normalizeValues(iterable $values): array
     {
         return ($values instanceof Traversable) ? iterator_to_array($values) : $values;

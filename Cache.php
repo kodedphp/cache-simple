@@ -126,4 +126,11 @@ interface Cache
      * @throws InvalidArgumentException MUST be thrown if the $key string is not a legal value.
      */
     public function has(string $key): bool;
+
+    /**
+     * Returns the underlying cache client.
+     *
+     * @return \Memcached | \Redis | \Koded\Caching\Client\FileClient | \Predis\Client
+     */
+    public function client();
 }

@@ -154,6 +154,11 @@ trait SimpleCacheTestCaseTrait
         $this->assertFalse($this->cache->has('foo'));
     }
 
+    public function test_should_return_memcached_instance()
+    {
+        $this->assertNotNull($this->cache->client());
+    }
+
     public function simpleData()
     {
         return [
