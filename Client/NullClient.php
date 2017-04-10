@@ -22,7 +22,7 @@ use Psr\SimpleCache\CacheInterface;
 class NullClient implements CacheInterface
 {
 
-    use KeyTrait;
+    use KeyTrait, ClientTrait;
 
     public function get($key, $default = null)
     {

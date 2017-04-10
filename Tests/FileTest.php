@@ -20,6 +20,11 @@ class FileTest extends TestCase
         $this->assertAttributeEquals($expected, 'dir', $client);
     }
 
+    public function test_should_return_self()
+    {
+        $this->assertInstanceOf(FileClient::class, $this->cache->client());
+    }
+
     protected function setUp()
     {
         $dir = vfsStream::setup();

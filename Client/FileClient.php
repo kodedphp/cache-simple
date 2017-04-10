@@ -26,14 +26,18 @@ use Throwable;
 class FileClient implements CacheInterface
 {
 
-    use KeyTrait;
+    use KeyTrait, ClientTrait;
 
     const E_DIRECTORY_NOT_CREATED = 1;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     private $dir = '';
 
-    /** @var LoggerInterface */
+    /**
+     * @var LoggerInterface
+     */
     private $logger;
 
     public function __construct(FileConfiguration $config, LoggerInterface $logger)
@@ -43,9 +47,6 @@ class FileClient implements CacheInterface
         $this->initialize((string)$config->dir);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function get($key, $default = null)
     {
         $filename = $this->filename($key, false);
@@ -65,9 +66,6 @@ class FileClient implements CacheInterface
         return $content['value'] ?? $default;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function set($key, $value, $ttl = null)
     {
         if ($ttl < 0 or $ttl === 0) {
@@ -78,9 +76,6 @@ class FileClient implements CacheInterface
         return (bool)file_put_contents($this->filename($key), $this->data($key, $value, $ttl));
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function delete($key)
     {
         $filename = $this->filename($key, false);
@@ -92,9 +87,6 @@ class FileClient implements CacheInterface
         return true;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function clear()
     {
         try {
@@ -113,9 +105,6 @@ class FileClient implements CacheInterface
         // @codeCoverageIgnoreEnd
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getMultiple($keys, $default = null)
     {
         $items = [];
@@ -126,9 +115,6 @@ class FileClient implements CacheInterface
         return $items;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setMultiple($values, $ttl = null)
     {
         if ($ttl < 0 or $ttl === 0) {
@@ -144,9 +130,6 @@ class FileClient implements CacheInterface
         return count($values) === $cached;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function deleteMultiple($keys)
     {
         $deleted = 0;
@@ -157,9 +140,6 @@ class FileClient implements CacheInterface
         return count($keys) === $deleted;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function has($key)
     {
         return is_file($this->filename($key, false));

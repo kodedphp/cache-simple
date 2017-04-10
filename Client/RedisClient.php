@@ -13,9 +13,9 @@
 namespace Koded\Caching\Client;
 
 use Closure;
-use Koded\Caching\{
-    Cache, CacheException, Configuration\RedisConfiguration
-};
+use Koded\Caching\Cache;
+use Koded\Caching\CacheException;
+use Koded\Caching\Configuration\RedisConfiguration;
 use Psr\SimpleCache\CacheInterface;
 use Redis;
 use Throwable;
@@ -29,15 +29,21 @@ use Throwable;
 class RedisClient implements CacheInterface
 {
 
-    use KeyTrait;
+    use KeyTrait, ClientTrait;
 
-    /** @var Redis */
+    /**
+     * @var Redis instance
+     */
     protected $client;
 
-    /** @var Closure */
+    /**
+     * @var Closure Data serializer
+     */
     protected $serialize;
 
-    /** @var Closure */
+    /**
+     * @var Closure Data normalizer
+     */
     protected $unserialize;
 
     public function __construct(RedisConfiguration $config)
@@ -71,7 +77,7 @@ class RedisClient implements CacheInterface
 
     public function delete($key)
     {
-        return $this->client->del([$key]) > 0;
+        return $this->client->del($key) > 0;
     }
 
     public function clear()

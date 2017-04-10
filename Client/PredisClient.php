@@ -17,13 +17,15 @@ use Predis\Client;
 use Psr\SimpleCache\CacheInterface;
 
 /**
- * Class PredisClient uses the userland Predis library.
+ * Class PredisClient uses the Predis library.
  *
  */
 class PredisClient extends RedisClient implements CacheInterface
 {
 
-    /** @var Client */
+    /**
+     * @var Client
+     */
     protected $client;
 
     /** @noinspection PhpMissingParentConstructorInspection

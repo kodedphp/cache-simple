@@ -3,12 +3,18 @@
 namespace Koded\Caching;
 
 use Koded\Caching\Configuration\ConfigFactory;
+use Memcached;
 use PHPUnit\Framework\TestCase;
 
 class MemcachedTest extends TestCase
 {
 
     use SimpleCacheTestCaseTrait;
+
+    public function test_should_return_memcached_instance()
+    {
+        $this->assertInstanceOf(Memcached::class, $this->cache->client());
+    }
 
     protected function setUp()
     {

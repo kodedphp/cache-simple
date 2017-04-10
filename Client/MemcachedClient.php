@@ -19,9 +19,11 @@ use Psr\SimpleCache\CacheInterface;
 class MemcachedClient implements CacheInterface
 {
 
-    use KeyTrait;
+    use KeyTrait, ClientTrait;
 
-    /** @var Memcached */
+    /**
+     * @var Memcached instance
+     */
     private $client;
 
     public function __construct(MemcachedConfiguration $config)
