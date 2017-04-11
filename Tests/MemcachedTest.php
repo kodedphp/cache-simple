@@ -19,7 +19,10 @@ class MemcachedTest extends TestCase
     protected function setUp()
     {
         putenv('CACHE_CLIENT=memcached');
-        putenv('MEMCACHED_POOL=[["memcached", 11211]]');
+
+        if (!getenv('MEMCACHED_POOL')) {
+            putenv('MEMCACHED_POOL=[["memcached", 11211]]');
+        }
 
         if (false === extension_loaded('memcached')) {
             $this->markTestSkipped('Memcached extension is not loaded.');
