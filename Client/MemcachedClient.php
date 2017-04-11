@@ -28,8 +28,8 @@ class MemcachedClient implements CacheInterface
 
     public function __construct(MemcachedConfiguration $config)
     {
-        $this->keyRegex = $config->pull('keyRegex', $this->keyRegex);
-        $this->client = new Memcached($config->pull('id'));
+        $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
+        $this->client = new Memcached($config->get('id'));
 
         if (empty($this->client->getServerList())) {
             $this->client->addServers($config->getServers());

@@ -15,6 +15,7 @@ namespace Koded\Caching\Configuration;
 use Koded\Stdlib\Arguments;
 use Koded\Stdlib\Interfaces\Configuration;
 use Memcached;
+use function Koded\Stdlib\dump;
 
 /**
  * Class MemcachedConfiguration
@@ -34,15 +35,17 @@ class MemcachedConfiguration extends Arguments implements Configuration
     public function __construct(array $options = [])
     {
         parent::__construct([
-            Memcached::OPT_DISTRIBUTION => Memcached::DISTRIBUTION_CONSISTENT,
-            Memcached::OPT_SERVER_FAILURE_LIMIT => 2,
-            Memcached::OPT_REMOVE_FAILED_SERVERS => true,
-            Memcached::OPT_RETRY_TIMEOUT => 1,
-            Memcached::OPT_LIBKETAMA_COMPATIBLE => true,
-            Memcached::OPT_PREFIX_KEY => null
+            'id' => $options['id'] ?? null,
+            'servers' => $options['servers'] ?? [],
+            'options' => array_replace([
+                Memcached::OPT_DISTRIBUTION => Memcached::DISTRIBUTION_CONSISTENT,
+                Memcached::OPT_SERVER_FAILURE_LIMIT => 2,
+                Memcached::OPT_REMOVE_FAILED_SERVERS => true,
+                Memcached::OPT_RETRY_TIMEOUT => 1,
+                Memcached::OPT_LIBKETAMA_COMPATIBLE => true,
+                Memcached::OPT_PREFIX_KEY => null
+            ], $options['options'] ?? [])
         ]);
-
-        $this->import($options);
     }
 
     /**
@@ -59,7 +62,7 @@ class MemcachedConfiguration extends Arguments implements Configuration
      */
     public function getServers(): array
     {
-        if ($servers = $this->pull('servers')) {
+        if ($servers = $this->get('servers')) {
             return $servers;
         }
 
@@ -67,7 +70,9 @@ class MemcachedConfiguration extends Arguments implements Configuration
             return $servers;
         }
 
-        return [['127.0.0.1', 11211]];
+        return [
+            ['127.0.0.1', 11211]
+        ];
     }
 
     /**
@@ -86,7 +91,7 @@ class MemcachedConfiguration extends Arguments implements Configuration
      */
     public function getOptions(): array
     {
-        return array_filter($this->toArray(), function($value) {
+        return array_filter($this->toArray()['options'], function($value) {
             return null !== $value;
         });
     }
