@@ -14,13 +14,13 @@ env:
 
 before_script:
   - composer selfupdate
-  - composer update -o --dev --no-interaction
+  - composer update -o --no-interaction --prefer-stable
   - pecl install redis
   - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 script:
   - mkdir -p build/logs
-  - vendor/bin/phpunit
+  - vendor/bin/phpunit -c phpunit.xml
 
 after_success:
   - vendor/bin/coveralls
