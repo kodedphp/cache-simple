@@ -59,7 +59,7 @@ class MemcachedConfiguration extends Arguments implements Configuration
      */
     public function getServers(): array
     {
-        if ($servers = $this->get('servers')) {
+        if ($servers = $this->pull('servers')) {
             return $servers;
         }
 
