@@ -20,7 +20,9 @@ class MemcachedTest extends TestCase
     {
         putenv('CACHE_CLIENT=memcached');
 
-        if (!getenv('MEMCACHED_POOL')) {
+        if (getenv('CI')) {
+            putenv('MEMCACHED_POOL=[["127.0.0.1", 11211]]');
+        } else {
             putenv('MEMCACHED_POOL=[["memcached", 11211]]');
         }
 
