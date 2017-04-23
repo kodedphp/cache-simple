@@ -56,7 +56,7 @@ class FileClient implements CacheInterface
         }
 
         /** @noinspection PhpIncludeInspection */
-        $content = @include $filename;
+        $content = include $filename;
 
         if ($this->expired($content)) {
             $this->delete($key);
