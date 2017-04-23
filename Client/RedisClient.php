@@ -99,7 +99,7 @@ class RedisClient implements CacheInterface
     {
         $cached = 0;
         foreach ($values as $key => $value) {
-            $this->set($key, $value, $ttl) and ++$cached;
+            $this->set($key, $value, $ttl) && ++$cached;
         }
 
         return count($values) === $cached;
@@ -123,7 +123,7 @@ class RedisClient implements CacheInterface
             $this->serialize = function(string $key, $value, $ttl = null): bool {
                 $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
 
-                if ($ttl < 0 or $ttl === 0) {
+                if ($ttl < 0 || $ttl === 0) {
                     // The item is considered expired and must be deleted
                     $this->delete($key);
 
@@ -145,7 +145,7 @@ class RedisClient implements CacheInterface
             $this->client->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
 
             $this->serialize = function(string $key, $value, $ttl = null): bool {
-                if ($ttl < 0 or $ttl === 0) {
+                if ($ttl < 0 || $ttl === 0) {
                     // The item is considered expired and must be deleted
                     $this->delete($key);
 

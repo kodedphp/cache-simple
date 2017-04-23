@@ -68,7 +68,7 @@ class FileClient implements CacheInterface
 
     public function set($key, $value, $ttl = null)
     {
-        if ($ttl < 0 or $ttl === 0) {
+        if ($ttl < 0 || $ttl === 0) {
             // The item is considered expired and must be deleted
             return $this->delete($key);
         }
@@ -117,14 +117,14 @@ class FileClient implements CacheInterface
 
     public function setMultiple($values, $ttl = null)
     {
-        if ($ttl < 0 or $ttl === 0) {
+        if ($ttl < 0 || $ttl === 0) {
             // All items are considered expired and must be deleted
             return $this->deleteMultiple(array_keys($values));
         }
 
         $cached = 0;
         foreach ($values as $key => $value) {
-            $this->set($key, $value, $ttl) and ++$cached;
+            $this->set($key, $value, $ttl) && ++$cached;
         }
 
         return count($values) === $cached;
@@ -134,7 +134,7 @@ class FileClient implements CacheInterface
     {
         $deleted = 0;
         foreach ($keys as $key) {
-            $this->delete($key) and ++$deleted;
+            $this->delete($key) && ++$deleted;
         }
 
         return count($keys) === $deleted;
@@ -159,11 +159,12 @@ class FileClient implements CacheInterface
         $dir = $directory ?: sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cache';
         $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-        if (!is_dir($dir) and false === mkdir($dir, 0775, true)) {
+        if (!is_dir($dir) && false === mkdir($dir, 0775, true)) {
             $e = new FileClientCacheException(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $dir]);
             $this->logger->error($e->getMessage());
             throw $e;
         }
+
         $this->dir = $dir;
     }
 
@@ -180,13 +181,13 @@ class FileClient implements CacheInterface
         $filename = sha1($key);
         $dir = $this->dir . substr($filename, 0, 2);
 
-        if ($create and !is_dir($dir)) {
+        if ($create && !is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
 
         $filename = $dir . DIRECTORY_SEPARATOR . substr($filename, 2) . '.php';
 
-        if ($create and !is_file($filename)) {
+        if ($create && !is_file($filename)) {
             touch($filename);
             chmod($filename, 0666);
         }

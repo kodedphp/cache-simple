@@ -52,7 +52,7 @@ class PredisClient extends RedisClient implements CacheInterface
             $this->serialize = function(string $key, $value, $ttl = null): bool {
                 $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
 
-                if ($ttl < 0 or $ttl === 0) {
+                if ($ttl < 0 || $ttl === 0) {
                     // The item is considered expired and must be deleted
                     $this->delete($key);
 
@@ -72,7 +72,7 @@ class PredisClient extends RedisClient implements CacheInterface
 
         } else {
             $this->serialize = function(string $key, $value, $ttl = null): bool {
-                if ($ttl < 0 or $ttl === 0) {
+                if ($ttl < 0 || $ttl === 0) {
                     // The item is considered expired and must be deleted
                     $this->delete($key);
 

@@ -48,7 +48,7 @@ class MemcachedClient implements CacheInterface
 
     public function set($key, $value, $ttl = null)
     {
-        if ($ttl < 0 or $ttl === 0) {
+        if ($ttl < 0 || $ttl === 0) {
             $this->client->delete($key);
 
             return true;
@@ -77,7 +77,7 @@ class MemcachedClient implements CacheInterface
 
     public function setMultiple($values, $ttl = null)
     {
-        if ($ttl < 0 or $ttl === 0) {
+        if ($ttl < 0 || $ttl === 0) {
             return $this->deleteMultiple(array_keys($values));
         }
 

@@ -18,6 +18,7 @@ use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Interfaces\ConfigurationFactory;
 
 const CACHE_DEFAULT_KEY_REGEX = '[^a-z0-9:_\-\/\{\}\[\]\\\.\+\* ]+';
+
 /**
  * Creates once an instance of SimpleCache.
  *
@@ -33,7 +34,7 @@ function cache(ConfigurationFactory $config = null): SimpleCache
     static $cache;
 
     if (null === $cache) {
-        $config or $config = new ConfigFactory;
+        $config || $config = new ConfigFactory;
         $cache = new SimpleCache((new ClientFactory($config))->build(), $config->ttl);
     }
 
@@ -71,7 +72,7 @@ function simple_cache_factory(string $client = '', array $arguments = []): Simpl
  */
 function cache_key_guard(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): string
 {
-    if (empty($key) or 1 === preg_match('~' . $regex . '~ui', $key)) {
+    if (empty($key) || 1 === preg_match('~' . $regex . '~ui', $key)) {
         throw new CacheException(Cache::E_INVALID_KEY, [':key' => $key]);
     }
 
@@ -81,14 +82,14 @@ function cache_key_guard(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): 
 /**
  * Transforms the DateInterval TTL, or return the value as-is.
  *
- * @param null|int|DateInterval $ttl A gypsy "psr-16" argument
- *                                   that represents a TTL (instead a simple integer)
+ * @param null|int|DateInterval $ttl A gypsy argument that want to be a TTL
+ *                                   (a simple integer is not enough)
  *
  * @return int|null Returns the TTL is seconds, or NULL. Can be a negative number to delete cache items
  */
 function cache_ttl($ttl): ?int
 {
-    if (null === $ttl or 0 === $ttl) {
+    if (null === $ttl || 0 === $ttl) {
         // because things...
         return $ttl;
     }
