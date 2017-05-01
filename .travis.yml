@@ -15,7 +15,6 @@ env:
 before_script:
   - composer selfupdate
   - composer update -o --no-interaction --prefer-stable
-  - pecl install redis
   - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 script:
