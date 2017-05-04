@@ -15,7 +15,6 @@ namespace Koded\Caching\Configuration;
 use Koded\Stdlib\Arguments;
 use Koded\Stdlib\Interfaces\Configuration;
 use Memcached;
-use function Koded\Stdlib\dump;
 
 /**
  * Class MemcachedConfiguration
