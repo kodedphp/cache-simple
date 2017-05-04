@@ -28,8 +28,6 @@ class FileClient implements CacheInterface
 
     use KeyTrait, ClientTrait;
 
-    const E_DIRECTORY_NOT_CREATED = 1;
-
     /**
      * @var string
      */
@@ -73,7 +71,7 @@ class FileClient implements CacheInterface
             return $this->delete($key);
         }
 
-        return (bool)file_put_contents($this->filename($key), $this->data($key, $value, $ttl));
+        return (bool)file_put_contents($this->filename($key), $this->content($key, $value, $ttl));
     }
 
     public function delete($key)
@@ -198,13 +196,13 @@ class FileClient implements CacheInterface
     /**
      * Creates a cache content.
      *
-     * @param string $key   The cache key
-     * @param mixed  $value The value to be cached
-     * @param int|null    $ttl   Time to live
+     * @param string   $key   The cache key
+     * @param mixed    $value The value to be cached
+     * @param int|null $ttl   Time to live
      *
      * @return string
      */
-    protected function data(string $key, $value, $ttl): string
+    protected function content(string $key, $value, $ttl): string
     {
         if (null === $ttl) {
             $ttl = (new DateTime('31st December 2999'))->getTimestamp();
@@ -212,15 +210,11 @@ class FileClient implements CacheInterface
             $ttl += time();
         }
 
-        $cache = ['<?php'];
-        $cache[] = 'return ' . var_export([
+        return '<?php return ' . var_export([
                 'timestamp' => $ttl,
                 'key' => $key,
                 'value' => $value,
-            ], true);
-        $cache[] = ';';
-
-        return join(PHP_EOL, $cache);
+            ], true) . ';';
     }
 
     /**
@@ -232,7 +226,7 @@ class FileClient implements CacheInterface
      */
     protected function expired(array $cache): bool
     {
-        return time() >= $cache['timestamp'];
+        return $cache['timestamp'] <= time();
     }
 }
 
