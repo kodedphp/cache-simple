@@ -37,7 +37,13 @@ class PredisClient extends RedisClient implements CacheInterface
     public function __construct(PredisConfiguration $config)
     {
         $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
-        $this->setNormalizers($config->get('normalizer', ''));
+
+        if ('json' === $config->get('normalizer', '')) {
+            $this->setJsonNormalizers();
+        } else {
+            $this->setPhpNormalizers();
+        }
+
         $this->client = new Client($config->getParameters(), $config->getOptions());
     }
 
@@ -46,49 +52,49 @@ class PredisClient extends RedisClient implements CacheInterface
         return $this->client->flushall()->getPayload() === 'OK';
     }
 
-    protected function setNormalizers(string $normalizer)
+    protected function setJsonNormalizers(): void
     {
-        if ('json' === $normalizer) {
-            $this->serialize = function(string $key, $value, $ttl = null): bool {
-                $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
+        $this->serialize = function(string $key, $value, $ttl = null): bool {
+            $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
 
-                if ($ttl < 0 || $ttl === 0) {
-                    // The item is considered expired and must be deleted
-                    $this->delete($key);
+            if ($ttl < 0 || $ttl === 0) {
+                // The item is considered expired and must be deleted
+                $this->delete($key);
 
-                    return true;
-                }
+                return true;
+            }
 
-                if (null === $ttl) {
-                    return $this->client->set($key, json_encode($value, $options))->getPayload() === 'OK';
-                }
+            if (null === $ttl) {
+                return $this->client->set($key, json_encode($value, $options))->getPayload() === 'OK';
+            }
 
-                return $this->client->setex($key, $ttl, json_encode($value))->getPayload() === 'OK';
-            };
+            return $this->client->setex($key, $ttl, json_encode($value))->getPayload() === 'OK';
+        };
 
-            $this->unserialize = function(string $key) {
-                return json_decode($this->client->get($key), true);
-            };
+        $this->unserialize = function(string $key) {
+            return json_decode($this->client->get($key), true);
+        };
+    }
 
-        } else {
-            $this->serialize = function(string $key, $value, $ttl = null): bool {
-                if ($ttl < 0 || $ttl === 0) {
-                    // The item is considered expired and must be deleted
-                    $this->delete($key);
+    protected function setPhpNormalizers(): void
+    {
+        $this->serialize = function(string $key, $value, $ttl = null): bool {
+            if ($ttl < 0 || $ttl === 0) {
+                // The item is considered expired and must be deleted
+                $this->delete($key);
 
-                    return true;
-                }
+                return true;
+            }
 
-                if (null === $ttl) {
-                    return $this->client->set($key, serialize($value))->getPayload() === 'OK';
-                }
+            if (null === $ttl) {
+                return $this->client->set($key, serialize($value))->getPayload() === 'OK';
+            }
 
-                return $this->client->setex($key, $ttl, unserialize($value))->getPayload() === 'OK';
-            };
+            return $this->client->setex($key, $ttl, unserialize($value))->getPayload() === 'OK';
+        };
 
-            $this->unserialize = function(string $key) {
-                return unserialize($this->client->get($key));
-            };
-        }
+        $this->unserialize = function(string $key) {
+            return unserialize($this->client->get($key));
+        };
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Koded\Caching;
 
+use Koded\Caching\Client\RedisClient;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 use Redis;
@@ -11,9 +12,14 @@ class RedisWithJsonNormalizerTest extends TestCase
 
     use SimpleCacheTestCaseTrait;
 
-    public function test_should_return_redis_instance()
+    public function test_should_return_redis_client()
     {
         $this->assertInstanceOf(Redis::class, $this->cache->client());
+    }
+
+    public function test_should_return_redis_instance()
+    {
+        $this->assertInstanceOf(RedisClient::class, $this->cache->instance());
     }
 
     protected function setUp()

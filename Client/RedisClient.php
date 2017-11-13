@@ -54,7 +54,12 @@ class RedisClient implements CacheInterface
 
             if ($this->client->connect(...$config->getConnectionParams())) {
                 $this->client->setOption(Redis::OPT_PREFIX, $config->get('prefix'));
-                $this->setNormalizers($config->get('normalizer', ''));
+
+                if ('json' === $config->get('normalizer', '')) {
+                    $this->setJsonNormalizers();
+                } else {
+                    $this->setPhpNormalizers();
+                }
             }
         } catch (Throwable $e) {
             throw new CacheException(Cache::E_PHP_EXCEPTION, [
@@ -115,53 +120,53 @@ class RedisClient implements CacheInterface
         return (bool)$this->client->exists($key);
     }
 
-    private function setNormalizers(string $normalizer)
+    protected function setJsonNormalizers(): void
     {
-        if ('json' === $normalizer) {
-            $this->client->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_NONE);
+        $this->client->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_NONE);
 
-            $this->serialize = function(string $key, $value, $ttl = null): bool {
-                $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
+        $this->serialize = function(string $key, $value, $ttl = null): bool {
+            $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
 
-                if ($ttl < 0 || $ttl === 0) {
-                    // The item is considered expired and must be deleted
-                    $this->delete($key);
+            if ($ttl < 0 || $ttl === 0) {
+                // The item is considered expired and must be deleted
+                $this->delete($key);
 
-                    return true;
-                }
+                return true;
+            }
 
-                if (null === $ttl) {
-                    return $this->client->set($key, json_encode($value, $options));
-                }
+            if (null === $ttl) {
+                return $this->client->set($key, json_encode($value, $options));
+            }
 
-                return $this->client->setex($key, $ttl, json_encode($value));
-            };
+            return $this->client->setex($key, $ttl, json_encode($value));
+        };
 
-            $this->unserialize = function(string $key) {
-                return json_decode($this->client->get($key), true);
-            };
+        $this->unserialize = function(string $key) {
+            return json_decode($this->client->get($key), true);
+        };
+    }
 
-        } else {
-            $this->client->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
+    protected function setPhpNormalizers(): void
+    {
+        $this->client->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
 
-            $this->serialize = function(string $key, $value, $ttl = null): bool {
-                if ($ttl < 0 || $ttl === 0) {
-                    // The item is considered expired and must be deleted
-                    $this->delete($key);
+        $this->serialize = function(string $key, $value, $ttl = null): bool {
+            if ($ttl < 0 || $ttl === 0) {
+                // The item is considered expired and must be deleted
+                $this->delete($key);
 
-                    return true;
-                }
+                return true;
+            }
 
-                if (null === $ttl) {
-                    return $this->client->set($key, $value);
-                }
+            if (null === $ttl) {
+                return $this->client->set($key, $value);
+            }
 
-                return $this->client->setex($key, $ttl, $value);
-            };
+            return $this->client->setex($key, $ttl, $value);
+        };
 
-            $this->unserialize = function(string $key) {
-                return $this->client->get($key);
-            };
-        }
+        $this->unserialize = function(string $key) {
+            return $this->client->get($key);
+        };
     }
 }

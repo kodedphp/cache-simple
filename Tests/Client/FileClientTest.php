@@ -20,7 +20,7 @@ class FileClientTest extends TestCase
     public function test_nonwritable_cache_directory()
     {
         $dir = $this->dir->url() . '/fubar';
-        $this->expectException(FileClientCacheException::class);
+        $this->expectException(FileCacheClientException::class);
         $this->expectExceptionMessage('Failed to create a cache directory "' . $dir . '/"');
 
         vfsStreamWrapper::getRoot()->chmod(0400);

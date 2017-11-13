@@ -12,6 +12,7 @@
 
 namespace Koded\Caching;
 
+use Psr\SimpleCache\CacheInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 
 interface Cache
@@ -133,4 +134,11 @@ interface Cache
      * @return \Memcached | \Redis | \Koded\Caching\Client\FileClient | \Predis\Client
      */
     public function client();
+
+    /**
+     * Returns the corresponding implementation of the CacheInterface client.
+     *
+     * @return CacheInterface
+     */
+    public function instance(): CacheInterface;
 }

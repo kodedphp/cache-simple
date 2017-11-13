@@ -96,7 +96,7 @@ class FileClient implements CacheInterface
             return true;
             // @codeCoverageIgnoreStart
         } catch (Throwable $e) {
-            $this->logger->critical($e->getMessage());
+            $this->logger->error($e->getMessage());
 
             return false;
         }
@@ -148,7 +148,7 @@ class FileClient implements CacheInterface
      *
      * @param string $directory
      *
-     * @throws FileClientCacheException
+     * @throws FileCacheClientException
      */
     protected function initialize(string $directory)
     {
@@ -158,7 +158,7 @@ class FileClient implements CacheInterface
         $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
         if (!is_dir($dir) && false === mkdir($dir, 0775, true)) {
-            $e = new FileClientCacheException(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $dir]);
+            $e = new FileCacheClientException(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $dir]);
             $this->logger->error($e->getMessage());
             throw $e;
         }
@@ -231,9 +231,9 @@ class FileClient implements CacheInterface
 }
 
 /**
- * Class FileClientCacheException
+ * Class FileCacheClientException
  *
  */
-class FileClientCacheException extends CacheException
+class FileCacheClientException extends CacheException
 {
 }

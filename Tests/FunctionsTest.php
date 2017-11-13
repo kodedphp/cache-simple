@@ -15,7 +15,7 @@ class FunctionsTest extends TestCase
         $this->assertInstanceOf(SimpleCache::class, cache());
     }
 
-    public function test_should_guard_proper_cache_key()
+    public function test_should_guard_a_proper_cache_key()
     {
         $this->assertSame('Proper-Key:1', cache_key_guard('Proper-Key:1'));
     }

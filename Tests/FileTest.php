@@ -25,6 +25,11 @@ class FileTest extends TestCase
         $this->assertInstanceOf(FileClient::class, $this->cache->client());
     }
 
+    public function test_should_return_file_client_instance()
+    {
+        $this->assertInstanceOf(FileClient::class, $this->cache->instance());
+    }
+
     protected function setUp()
     {
         $dir = vfsStream::setup();

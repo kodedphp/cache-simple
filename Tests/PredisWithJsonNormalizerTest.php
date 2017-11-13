@@ -2,6 +2,7 @@
 
 namespace Koded\Caching;
 
+use Koded\Caching\Client\PredisClient;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 use Predis\Client;
@@ -11,9 +12,14 @@ class PredisWithJsonNormalizerTest extends TestCase
 
     use SimpleCacheTestCaseTrait;
 
-    public function test_should_return_predis_client_instance()
+    public function test_should_return_predis_client()
     {
         $this->assertInstanceOf(Client::class, $this->cache->client());
+    }
+
+    public function test_should_return_predis_instance()
+    {
+        $this->assertInstanceOf(PredisClient::class, $this->cache->instance());
     }
 
     protected function setUp()

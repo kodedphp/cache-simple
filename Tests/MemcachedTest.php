@@ -2,18 +2,25 @@
 
 namespace Koded\Caching;
 
+use Koded\Caching\Client\MemcachedClient;
 use Koded\Caching\Configuration\ConfigFactory;
 use Memcached;
 use PHPUnit\Framework\TestCase;
+use Psr\SimpleCache\CacheInterface;
 
 class MemcachedTest extends TestCase
 {
 
     use SimpleCacheTestCaseTrait;
 
-    public function test_should_return_memcached_instance()
+    public function test_should_return_memcached_client()
     {
         $this->assertInstanceOf(Memcached::class, $this->cache->client());
+    }
+
+    public function test_should_return_memcached_instance()
+    {
+        $this->assertInstanceOf(MemcachedClient::class, $this->cache->instance());
     }
 
     protected function setUp()
