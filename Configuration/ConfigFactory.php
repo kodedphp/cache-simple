@@ -15,6 +15,12 @@ namespace Koded\Caching\Configuration;
 use const Koded\Caching\CACHE_DEFAULT_KEY_REGEX;
 use Koded\Stdlib\{ Arguments, Config, Interfaces\Configuration };
 
+/**
+ * Class ConfigFactory
+ *
+ * @property int $ttl Default Time-To-Live seconds for the cached items
+ * @property string $keyRegex Regex for validating the cache item key
+ */
 class ConfigFactory extends Config
 {
 

@@ -23,8 +23,13 @@ interface Cache
     const E_UNSUPPORTED_LOGGER = 3;
     const E_EXTENSION_NOT_ENABLED = 4;
     const E_DIRECTORY_NOT_CREATED = 5;
-    const E_PHP_EXCEPTION = 6;
+    const E_INVALID_SERIALIZER = 6;
+    const E_PHP_EXCEPTION = 7;
 
+    const SERIALIZER_JSON = 'json';
+    const SERIALIZER_PHP = 'php';
+    const SERIALIZER_BINARY = 'binary';
+    const SERIALIZER_NONE = '';
 
     /**
      * Fetches a value from the cache.

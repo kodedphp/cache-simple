@@ -47,7 +47,7 @@ $cache = simple_cache_factory('memcached');
  
 $cache = simple_cache_factory('redis', [
     'host'       => 'redis',
-    'normalizer' => 'json',
+    'serializer' => 'json',
     'prefix'     => 'test:',
     'ttl'        => 3600 // 1 hour global TTL
 ]);

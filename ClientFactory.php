@@ -40,6 +40,7 @@ class ClientFactory
      *
      * @return CacheInterface
      * @throws CacheException
+     * @throws \Exception
      */
     public function build(string $client = ''): CacheInterface
     {
@@ -47,30 +48,22 @@ class ClientFactory
         $config = $this->config->build($client);
 
         if ('redis' === $client) {
-            if (false === extension_loaded('redis')) {
-                // @codeCoverageIgnoreStart
-                throw new CacheException(Cache::E_EXTENSION_NOT_ENABLED, [':name' => 'Redis']);
-                // @codeCoverageIgnoreEnd
-            }
-
+            /** @var \Koded\Caching\Configuration\RedisConfiguration $config */
             return new RedisClient($config);
         }
 
         if ('memcached' === $client) {
-            if (false === extension_loaded('memcached')) {
-                // @codeCoverageIgnoreStart
-                throw new CacheException(Cache::E_EXTENSION_NOT_ENABLED, [':name' => 'Memcached']);
-                // @codeCoverageIgnoreEnd
-            }
-
+            /** @var \Koded\Caching\Configuration\MemcachedConfiguration $config */
             return new MemcachedClient($config);
         }
 
         if ('predis' === $client) {
+            /** @var \Koded\Caching\Configuration\PredisConfiguration $config */
             return new PredisClient($config);
         }
 
         if ('file' === $client) {
+            /** @var \Koded\Caching\Configuration\FileConfiguration $config */
             return new FileClient($config, $this->getLogger($config));
         }
 

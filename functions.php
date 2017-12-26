@@ -28,6 +28,8 @@ const CACHE_DEFAULT_KEY_REGEX = '[^a-z0-9:_\-\/\{\}\[\]\\\.\+\* ]+';
  * @param mixed $config [optional] Cache configuration
  *
  * @return SimpleCache
+ * @throws CacheException
+ * @throws \Exception
  */
 function cache(ConfigurationFactory $config = null): SimpleCache
 {
@@ -46,13 +48,15 @@ function cache(ConfigurationFactory $config = null): SimpleCache
  *
  * Example:
  *
- * simple_cache_factory('redis', ['host' => 'redis']);
- * simple_cache_factory()->get('foo');
+ * $cache = simple_cache_factory('redis', ['host' => 'redis']);
+ * $cache->get('foo');
  *
- * @param string $client [optional] The client name (ex. memcached, redis, etc)
+ * @param string $client    [optional] The client name (ex. memcached, redis, etc)
  * @param array  $arguments [optional] A configuration parameters for the client
  *
  * @return SimpleCache
+ * @throws CacheException
+ * @throws \Exception
  */
 
 function simple_cache_factory(string $client = '', array $arguments = []): SimpleCache
@@ -83,7 +87,7 @@ function cache_key_guard(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): 
  * Transforms the DateInterval TTL, or return the value as-is.
  *
  * @param null|int|DateInterval $ttl A gypsy argument that want to be a TTL
- *                                   (a simple integer is not enough)
+ *                                   (apparently a simple integer is not enough)
  *
  * @return int|null Returns the TTL is seconds, or NULL. Can be a negative number to delete cache items
  */

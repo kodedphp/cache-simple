@@ -34,7 +34,8 @@ class ClientFactoryTest extends TestCase
         }
 
         $client = (new ClientFactory(new ConfigFactory([
-            'host' => getenv('REDIS_SERVER_HOST')
+            'host' => getenv('REDIS_SERVER_HOST'),
+            'auth' => 'fubar'
         ])))->build('redis');
 
         $this->assertInstanceOf(RedisClient::class, $client);

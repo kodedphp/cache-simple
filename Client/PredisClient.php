@@ -38,7 +38,7 @@ class PredisClient extends RedisClient implements CacheInterface
     {
         $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
 
-        if ('json' === $config->get('normalizer', '')) {
+        if ('json' === $config->get('serializer', '')) {
             $this->setJsonNormalizers();
         } else {
             $this->setPhpNormalizers();

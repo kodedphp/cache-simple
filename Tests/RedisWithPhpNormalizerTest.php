@@ -19,7 +19,7 @@ class RedisWithPhpNormalizerTest extends TestCase
         }
 
         $this->cache = new SimpleCache((new ClientFactory(new ConfigFactory([
-            'normalizer' => 'php',
+            'serializer' => Cache::SERIALIZER_PHP,
             'host' => getenv('REDIS_SERVER_HOST'),
         ])))->build());
     }

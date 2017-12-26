@@ -7,7 +7,7 @@ use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 use Redis;
 
-class RedisWithJsonNormalizerTest extends TestCase
+class RedisWithBinaryNormalizerTest extends TestCase
 {
 
     use SimpleCacheTestCaseTrait;
@@ -30,8 +30,12 @@ class RedisWithJsonNormalizerTest extends TestCase
             $this->markTestSkipped('Redis extension is not loaded.');
         }
 
+        if (false === function_exists('igbinary_serialize')) {
+            $this->markTestSkipped('"igbinary" extension is not loaded. Redis serializer fallback to PHP');
+        }
+
         $this->cache = new SimpleCache((new ClientFactory(new ConfigFactory([
-            'serializer' => Cache::SERIALIZER_JSON,
+            'serializer' => Cache::SERIALIZER_BINARY,
             'host' => getenv('REDIS_SERVER_HOST'),
         ])))->build());
     }

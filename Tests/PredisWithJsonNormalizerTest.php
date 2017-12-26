@@ -27,7 +27,7 @@ class PredisWithJsonNormalizerTest extends TestCase
         putenv('CACHE_CLIENT=predis');
 
         $this->cache = new SimpleCache((new ClientFactory(new ConfigFactory([
-            'normalizer' => 'json',
+            'serializer' => Cache::SERIALIZER_JSON,
 
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),

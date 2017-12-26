@@ -13,9 +13,7 @@
 namespace Koded\Caching\Client;
 
 use Closure;
-use Koded\Caching\Cache;
-use Koded\Caching\CacheException;
-use Koded\Caching\Configuration\RedisConfiguration;
+use Koded\Caching\{ Cache, CacheException, Configuration\RedisConfiguration };
 use Psr\SimpleCache\CacheInterface;
 use Redis;
 use Throwable;
@@ -53,12 +51,11 @@ class RedisClient implements CacheInterface
             $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
 
             if ($this->client->connect(...$config->getConnectionParams())) {
+                $this->setSerializers(...$config->getSerializerParams());
                 $this->client->setOption(Redis::OPT_PREFIX, $config->get('prefix'));
 
-                if ('json' === $config->get('normalizer', '')) {
-                    $this->setJsonNormalizers();
-                } else {
-                    $this->setPhpNormalizers();
+                if ($auth = $config->get('auth')) {
+                    $this->client->auth($auth);
                 }
             }
         } catch (Throwable $e) {
@@ -120,13 +117,11 @@ class RedisClient implements CacheInterface
         return (bool)$this->client->exists($key);
     }
 
-    protected function setJsonNormalizers(): void
+    protected function setSerializers(int $serializer, Closure $setter, Closure $getter): void
     {
-        $this->client->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_NONE);
+        $this->client->setOption(Redis::OPT_SERIALIZER, $serializer);
 
-        $this->serialize = function(string $key, $value, $ttl = null): bool {
-            $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
-
+        $this->serialize = function(string $key, $value, $ttl = null) use ($setter): bool {
             if ($ttl < 0 || $ttl === 0) {
                 // The item is considered expired and must be deleted
                 $this->delete($key);
@@ -135,38 +130,14 @@ class RedisClient implements CacheInterface
             }
 
             if (null === $ttl) {
-                return $this->client->set($key, json_encode($value, $options));
+                return $this->client->set($key, $setter($value));
             }
 
-            return $this->client->setex($key, $ttl, json_encode($value));
+            return $this->client->setex($key, $ttl, $setter($value));
         };
 
-        $this->unserialize = function(string $key) {
-            return json_decode($this->client->get($key), true);
-        };
-    }
-
-    protected function setPhpNormalizers(): void
-    {
-        $this->client->setOption(Redis::OPT_SERIALIZER, Redis::SERIALIZER_PHP);
-
-        $this->serialize = function(string $key, $value, $ttl = null): bool {
-            if ($ttl < 0 || $ttl === 0) {
-                // The item is considered expired and must be deleted
-                $this->delete($key);
-
-                return true;
-            }
-
-            if (null === $ttl) {
-                return $this->client->set($key, $value);
-            }
-
-            return $this->client->setex($key, $ttl, $value);
-        };
-
-        $this->unserialize = function(string $key) {
-            return $this->client->get($key);
+        $this->unserialize = function(string $key) use ($getter) {
+            return $getter($this->client->get($key));
         };
     }
 }
