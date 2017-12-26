@@ -56,11 +56,9 @@ class RedisConfiguration extends Immutable implements Configuration
             return [
                 \Redis::SERIALIZER_PHP,
                 function($value) {
-                    return serialize($value);
                     return $value;
                 },
-                function(string $value) {
-                    return unserialize($value);
+                function($value) {
                     return $value;
                 }
             ];
@@ -72,7 +70,7 @@ class RedisConfiguration extends Immutable implements Configuration
                 function($value) {
                     return igbinary_serialize($value);
                 },
-                function(string $value) {
+                function($value) {
                     return igbinary_unserialize($value);
                 }
             ];
@@ -84,7 +82,7 @@ class RedisConfiguration extends Immutable implements Configuration
                 function($value) {
                     return json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
                 },
-                function(string $value) {
+                function($value) {
                     return json_decode($value, true);
                 }
             ];
