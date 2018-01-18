@@ -12,8 +12,7 @@
 
 namespace Koded\Caching;
 
-use Psr\SimpleCache\CacheInterface;
-use Psr\SimpleCache\InvalidArgumentException;
+use Psr\SimpleCache\{ CacheInterface, InvalidArgumentException };
 
 interface Cache
 {
@@ -25,11 +24,10 @@ interface Cache
     const E_DIRECTORY_NOT_CREATED = 5;
     const E_INVALID_SERIALIZER = 6;
     const E_PHP_EXCEPTION = 7;
+    const E_CONNECTION_ERROR = 8;
 
     const SERIALIZER_JSON = 'json';
     const SERIALIZER_PHP = 'php';
-    const SERIALIZER_BINARY = 'binary';
-    const SERIALIZER_NONE = '';
 
     /**
      * Fetches a value from the cache.
@@ -146,4 +144,28 @@ interface Cache
      * @return CacheInterface
      */
     public function instance(): CacheInterface;
+}
+
+interface CacheSerializer
+{
+
+    const SERIALIZED = ':__serialized__';
+
+    /**
+     * Generates a string representation of a value.
+     *
+     * @param mixed $value
+     *
+     * @return string Should return a byte-stream representation of the value
+     */
+    public function serialize($value): string;
+
+    /**
+     * Creates a PHP value from a string representation.
+     *
+     * @param string $value The serialized value
+     *
+     * @return mixed The converted value
+     */
+    public function unserialize(string $value);
 }

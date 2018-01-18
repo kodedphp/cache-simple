@@ -14,8 +14,7 @@ namespace Koded\Caching\Client;
 
 use DateTime;
 use FilesystemIterator;
-use Koded\Caching\Cache;
-use Koded\Caching\CacheException;
+use Koded\Caching\{ Cache, CacheException };
 use Koded\Caching\Configuration\FileConfiguration;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -26,7 +25,7 @@ use Throwable;
 class FileClient implements CacheInterface
 {
 
-    use KeyTrait, ClientTrait;
+    use ClientTrait;
 
     /**
      * @var string
@@ -42,7 +41,7 @@ class FileClient implements CacheInterface
     {
         $this->logger = $logger;
         $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
-        $this->initialize((string)$config->dir);
+        $this->initialize((string)$config->get('dir'));
     }
 
     public function get($key, $default = null)
@@ -61,7 +60,7 @@ class FileClient implements CacheInterface
             return $default;
         }
 
-        return $content['value'] ?? $default;
+        return $content['value'] ? unserialize($content['value']) : $default;
     }
 
     public function set($key, $value, $ttl = null)
@@ -90,7 +89,7 @@ class FileClient implements CacheInterface
         try {
             foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->dir,
                 FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $path) {
-                ($path->isDir() and !$path->isLink()) ? rmdir($path->getPathname()) : unlink($path->getPathname());
+                ($path->isDir() && !$path->isLink()) ? rmdir($path->getPathname()) : unlink($path->getPathname());
             }
 
             return true;
@@ -152,7 +151,7 @@ class FileClient implements CacheInterface
      */
     protected function initialize(string $directory)
     {
-        // overrule shell misconfiguration or the web server
+        // Overrule shell misconfiguration or the web server
         umask(umask() | 0002);
         $dir = $directory ?: sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cache';
         $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
@@ -213,7 +212,7 @@ class FileClient implements CacheInterface
         return '<?php return ' . var_export([
                 'timestamp' => $ttl,
                 'key' => $key,
-                'value' => $value,
+                'value' => serialize($value),
             ], true) . ';';
     }
 

@@ -12,13 +12,10 @@
 
 namespace Koded\Caching\Configuration;
 
-use Koded\Stdlib\Immutable;
-use Koded\Stdlib\Interfaces\Configuration;
-
-class PredisConfiguration extends Immutable implements Configuration
+class PredisConfiguration extends RedisConfiguration
 {
 
-    public function getParameters(): array
+    public function getConnectionParams(): array
     {
         return [
             'scheme' => $this->get('scheme', 'tcp'),

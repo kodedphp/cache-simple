@@ -2,8 +2,17 @@
   "name": "koded/cache-simple",
   "type": "library",
   "license": "BSD-3-Clause",
-  "description": "A simple caching library for PHP 7 using several caching technologies.",
-  "keywords": ["caching", "cache", "memcached", "redis", "file-cache", "psr-16", "php7"],
+  "description": "A simple caching library for PHP 7 using several caching technologies. Supports JSON data caching for Redis.",
+  "keywords": [
+    "caching",
+    "cache",
+    "memcached",
+    "redis",
+    "json",
+    "file-cache",
+    "psr-16",
+    "php7"
+  ],
   "authors": [
     {
       "name": "Mihail Binev",

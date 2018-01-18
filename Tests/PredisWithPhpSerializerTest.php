@@ -5,18 +5,16 @@ namespace Koded\Caching;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
-class PredisWithPhpNormalizerTest extends TestCase
+class PredisWithPhpSerializerTest extends TestCase
 {
 
     use SimpleCacheTestCaseTrait;
 
     public function test_expired_cache()
     {
-        $this->markTestSkipped('Temporary skip Predis test until Travis CI is figured out...');
-
         $this->assertTrue($this->cache->set('foo', 'bar', 1));
 
-        // at this point the cached item exists
+        // At this point the cached item exists
         $this->assertTrue($this->cache->has('foo'));
 
         // but after some time it is deleted
@@ -27,6 +25,8 @@ class PredisWithPhpNormalizerTest extends TestCase
 
     protected function setUp()
     {
+        //$this->markTestSkipped('Temporary skip Predis test until Travis CI is figured out...');
+
         putenv('CACHE_CLIENT=predis');
 
         $this->cache = new SimpleCache((new ClientFactory(new ConfigFactory([

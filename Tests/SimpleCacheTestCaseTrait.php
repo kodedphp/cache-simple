@@ -2,6 +2,7 @@
 
 namespace Koded\Caching;
 
+use Koded\Stdlib\Arguments;
 use Psr\SimpleCache\CacheInterface;
 
 trait SimpleCacheTestCaseTrait
@@ -55,7 +56,8 @@ trait SimpleCacheTestCaseTrait
         $this->assertSame(false, $this->cache->get('key2'));
         $this->assertSame(['bar' => true], $this->cache->get('key3'));
 
-        $this->assertSame($data, $this->cache->getMultiple(['key1', 'key2', 'key3']));
+        $this->assertEquals(new Arguments(['foo' => 'bar']), $this->cache->get('key4'));
+        $this->assertEquals($data, $this->cache->getMultiple(['key1', 'key2', 'key3', 'key4']));
     }
 
     /**
@@ -128,7 +130,7 @@ trait SimpleCacheTestCaseTrait
     {
         $this->assertTrue($this->cache->set('foo', 'bar', 1));
 
-        // at this point the cached item exists
+        // At this point the cached item exists
         $this->assertTrue($this->cache->has('foo'));
 
         // but after some time it is deleted
@@ -154,9 +156,18 @@ trait SimpleCacheTestCaseTrait
         $this->assertFalse($this->cache->has('foo'));
     }
 
-    public function test_should_return_memcached_instance()
+    public function test_should_return_cache_instance()
     {
         $this->assertNotNull($this->cache->client());
+    }
+
+    /**
+     * @dataProvider simpleData
+     */
+    public function test_should_store_and_retrieve_the_same_cache_item($data)
+    {
+        $this->assertTrue($this->cache->set('foo', $data));
+        $this->assertEquals($data, $this->cache->get('foo'));
     }
 
     public function simpleData()
@@ -166,7 +177,8 @@ trait SimpleCacheTestCaseTrait
                 [
                     'key1' => 'foo',
                     'key2' => false,
-                    'key3' => ['bar' => true]
+                    'key3' => ['bar' => true],
+                    'key4' => new Arguments(['foo' => 'bar'])
                 ]
             ]
         ];

@@ -15,14 +15,12 @@ namespace Koded\Caching\Client;
 use Psr\SimpleCache\CacheInterface;
 
 /**
- * Class NullClient
- *
  * @codeCoverageIgnore
  */
 class NullClient implements CacheInterface
 {
 
-    use KeyTrait, ClientTrait;
+    use ClientTrait;
 
     public function get($key, $default = null)
     {

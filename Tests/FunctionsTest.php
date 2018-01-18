@@ -4,7 +4,6 @@ namespace Koded\Caching;
 
 use Koded\Caching\Client\MemcachedClient;
 use Koded\Caching\Client\NullClient;
-use function Koded\Stdlib\dump;
 use PHPUnit\Framework\TestCase;
 
 class FunctionsTest extends TestCase

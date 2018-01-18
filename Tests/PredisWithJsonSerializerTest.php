@@ -7,7 +7,7 @@ use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 use Predis\Client;
 
-class PredisWithJsonNormalizerTest extends TestCase
+class PredisWithJsonSerializerTest extends TestCase
 {
 
     use SimpleCacheTestCaseTrait;

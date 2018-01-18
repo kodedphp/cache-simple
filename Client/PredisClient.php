@@ -12,89 +12,82 @@
 
 namespace Koded\Caching\Client;
 
+use Exception;
+use Koded\Caching\{ Cache, CacheException };
 use Koded\Caching\Configuration\PredisConfiguration;
+use Koded\Caching\Serializer\PhpSerializer;
 use Predis\Client;
+use Predis\Connection\ConnectionException;
 use Psr\SimpleCache\CacheInterface;
 
 /**
  * Class PredisClient uses the Predis library.
  *
  */
-class PredisClient extends RedisClient implements CacheInterface
+class PredisClient implements CacheInterface
 {
+
+    use ClientTrait, RedisTrait;
 
     /**
      * @var Client
      */
     protected $client;
 
-    /** @noinspection PhpMissingParentConstructorInspection
-     *
-     * PredisClient constructor.
-     *
-     * @param PredisConfiguration $config
+    /**
+     * @var PhpSerializer
      */
-    public function __construct(PredisConfiguration $config)
+    protected $phpSerializer;
+
+    public function __construct(Client $client, PredisConfiguration $config)
     {
+        $this->client = $client;
         $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
 
-        if ('json' === $config->get('serializer', '')) {
-            $this->setJsonNormalizers();
-        } else {
-            $this->setPhpNormalizers();
+        try {
+            $this->client->connect();
+
+            if ($auth = $config->get('auth')) {
+                $this->client->auth($auth);
+            }
+
+            $this->phpSerializer = new PhpSerializer($config->get('binary', false));
+
+        } /** @noinspection PhpRedundantCatchClauseInspection */
+        catch (ConnectionException $e) {
+            throw new CacheException(Cache::E_CONNECTION_ERROR, [':client' => 'Predis']);
+        } catch (Exception $e) {
+            throw new CacheException(Cache::E_PHP_EXCEPTION, [':message' => $e->getMessage()], $e);
+        }
+    }
+
+    public function get($key, $default = null)
+    {
+        if ($this->has($key)) {
+            return $this->phpSerializer->unserialize($this->client->get($key));
         }
 
-        $this->client = new Client($config->getParameters(), $config->getOptions());
+        return $default;
+    }
+
+    public function set($key, $value, $ttl = null)
+    {
+        if (null === $ttl) {
+            return 'OK' === $this->client->set($key, $this->phpSerializer->serialize($value))->getPayload();
+        }
+
+        if ($ttl > 0) {
+            return 'OK' === $this->client->setex($key, $ttl, $this->phpSerializer->serialize($value))->getPayload();
+        }
+
+        // The item is considered expired and must be deleted
+        $this->client->del($key);
+
+        return !$this->has($key);
     }
 
     public function clear()
     {
-        return $this->client->flushall()->getPayload() === 'OK';
-    }
-
-    protected function setJsonNormalizers(): void
-    {
-        $this->serialize = function(string $key, $value, $ttl = null): bool {
-            $options = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES;
-
-            if ($ttl < 0 || $ttl === 0) {
-                // The item is considered expired and must be deleted
-                $this->delete($key);
-
-                return true;
-            }
-
-            if (null === $ttl) {
-                return $this->client->set($key, json_encode($value, $options))->getPayload() === 'OK';
-            }
-
-            return $this->client->setex($key, $ttl, json_encode($value))->getPayload() === 'OK';
-        };
-
-        $this->unserialize = function(string $key) {
-            return json_decode($this->client->get($key), true);
-        };
-    }
-
-    protected function setPhpNormalizers(): void
-    {
-        $this->serialize = function(string $key, $value, $ttl = null): bool {
-            if ($ttl < 0 || $ttl === 0) {
-                // The item is considered expired and must be deleted
-                $this->delete($key);
-
-                return true;
-            }
-
-            if (null === $ttl) {
-                return $this->client->set($key, serialize($value))->getPayload() === 'OK';
-            }
-
-            return $this->client->setex($key, $ttl, unserialize($value))->getPayload() === 'OK';
-        };
-
-        $this->unserialize = function(string $key) {
-            return unserialize($this->client->get($key));
-        };
+        return 'OK' === $this->client->flushall()->getPayload();
     }
 }

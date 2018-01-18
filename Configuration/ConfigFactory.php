@@ -20,6 +20,8 @@ use Koded\Stdlib\{ Arguments, Config, Interfaces\Configuration };
  *
  * @property int $ttl Default Time-To-Live seconds for the cached items
  * @property string $keyRegex Regex for validating the cache item key
+ *
+ * @noinspection PhpIncompatibleReturnTypeInspection
  */
 class ConfigFactory extends Config
 {

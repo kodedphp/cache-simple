@@ -5,7 +5,7 @@ namespace Koded\Caching;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
-class RedisWithPhpNormalizerTest extends TestCase
+class RedisWithPhpSerializerTest extends TestCase
 {
 
     use SimpleCacheTestCaseTrait;
@@ -19,8 +19,7 @@ class RedisWithPhpNormalizerTest extends TestCase
         }
 
         $this->cache = new SimpleCache((new ClientFactory(new ConfigFactory([
-            'serializer' => Cache::SERIALIZER_PHP,
-            'host' => getenv('REDIS_SERVER_HOST'),
+            'host' => getenv('REDIS_SERVER_HOST')
         ])))->build());
     }
 }

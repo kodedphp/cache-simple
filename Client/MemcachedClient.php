@@ -19,17 +19,17 @@ use Psr\SimpleCache\CacheInterface;
 class MemcachedClient implements CacheInterface
 {
 
-    use KeyTrait, ClientTrait;
+    use ClientTrait;
 
     /**
      * @var Memcached instance
      */
     private $client;
 
-    public function __construct(MemcachedConfiguration $config)
+    public function __construct(Memcached $client, MemcachedConfiguration $config)
     {
+        $this->client = $client;
         $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
-        $this->client = new Memcached($config->get('id'));
 
         if (empty($this->client->getServerList())) {
             $this->client->addServers($config->getServers());

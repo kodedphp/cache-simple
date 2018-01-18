@@ -17,7 +17,7 @@ use DateTime;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Interfaces\ConfigurationFactory;
 
-const CACHE_DEFAULT_KEY_REGEX = '[^a-z0-9:_\-\/\{\}\[\]\\\.\+\* ]+';
+const CACHE_DEFAULT_KEY_REGEX = '[^a-z0-9:_\-\.]+';
 
 /**
  * Creates once an instance of SimpleCache.
@@ -76,7 +76,7 @@ function simple_cache_factory(string $client = '', array $arguments = []): Simpl
  */
 function cache_key_guard(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): string
 {
-    if (empty($key) || 1 === preg_match('~' . $regex . '~ui', $key)) {
+    if (empty($key) || 1 === preg_match('~' . $regex . '~i', $key)) {
         throw new CacheException(Cache::E_INVALID_KEY, [':key' => $key]);
     }
 
@@ -86,7 +86,7 @@ function cache_key_guard(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): 
 /**
  * Transforms the DateInterval TTL, or return the value as-is.
  *
- * @param null|int|DateInterval $ttl A gypsy argument that want to be a TTL
+ * @param null|int|DateInterval $ttl A gypsy argument that wants to be a TTL
  *                                   (apparently a simple integer is not enough)
  *
  * @return int|null Returns the TTL is seconds, or NULL. Can be a negative number to delete cache items

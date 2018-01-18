@@ -15,6 +15,7 @@ namespace Koded\Caching\Configuration;
 use Koded\Caching\{ Cache, CacheException };
 use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\Configuration;
+use Redis;
 
 class RedisConfiguration extends Immutable implements Configuration
 {
@@ -42,50 +43,18 @@ class RedisConfiguration extends Immutable implements Configuration
     }
 
     /**
-     * @return array [
-     * int $serializer The serializer type
-     * callable $setter The setter
-     * callable $getter The getter
-     * ]
+     * @return int Redis serializer type
      */
-    public function getSerializerParams(): array
+    public function getSerializerType(): int
     {
         $serializer = $this->get('serializer', Cache::SERIALIZER_PHP);
 
         if (Cache::SERIALIZER_PHP === $serializer) {
-            return [
-                \Redis::SERIALIZER_PHP,
-                function($value) {
-                    return $value;
-                },
-                function($value) {
-                    return $value;
-                }
-            ];
-        }
-
-        if (Cache::SERIALIZER_BINARY === $serializer) {
-            return [
-                \Redis::SERIALIZER_IGBINARY,
-                function($value) {
-                    return igbinary_serialize($value);
-                },
-                function($value) {
-                    return igbinary_unserialize($value);
-                }
-            ];
+            return true === $this->get('binary', false) ? Redis::SERIALIZER_IGBINARY : Redis::SERIALIZER_PHP;
         }
 
         if (Cache::SERIALIZER_JSON === $serializer) {
-            return [
-                \Redis::SERIALIZER_NONE,
-                function($value) {
-                    return json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-                },
-                function($value) {
-                    return json_decode($value, true);
-                }
-            ];
+            return Redis::SERIALIZER_NONE;
         }
 
         throw new CacheException(Cache::E_INVALID_SERIALIZER, [':type' => $serializer]);

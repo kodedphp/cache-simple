@@ -12,7 +12,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\{ FileClient, MemcachedClient, PredisClient, RedisClient, NullClient };
+use Koded\Caching\Client\{ FileClient, MemcachedClient, NullClient, PredisClient, RedisClient, RedisJsonClient };
 use Koded\Stdlib\Interfaces\ConfigurationFactory;
 use Psr\Log\{ LoggerInterface, NullLogger };
 use Psr\SimpleCache\CacheInterface;
@@ -22,44 +22,45 @@ class ClientFactory
 
     const CACHE_CLIENT = 'CACHE_CLIENT';
 
-    /** @var ConfigurationFactory */
+    /**
+     * @var ConfigurationFactory
+     */
     private $config;
 
-    /**
-     * ClientFactory constructor.
-     *
-     * @param ConfigurationFactory $config
-     */
     public function __construct(ConfigurationFactory $config)
     {
         $this->config = $config;
     }
 
     /**
-     * @param string $client
+     * @param string $client The required cache client
      *
-     * @return CacheInterface
+     * @return CacheInterface An instance of the cache client
      * @throws CacheException
      * @throws \Exception
      */
     public function build(string $client = ''): CacheInterface
     {
-        $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: null);
+        $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: '');
         $config = $this->config->build($client);
 
         if ('redis' === $client) {
             /** @var \Koded\Caching\Configuration\RedisConfiguration $config */
-            return new RedisClient($config);
+            if (Cache::SERIALIZER_JSON === $config->get('serializer')) {
+                return new RedisJsonClient(new \Redis, $config);
+            }
+
+            return new RedisClient(new \Redis, $config);
         }
 
         if ('memcached' === $client) {
             /** @var \Koded\Caching\Configuration\MemcachedConfiguration $config */
-            return new MemcachedClient($config);
+            return new MemcachedClient(new \Memcached($config->get('id')), $config);
         }
 
         if ('predis' === $client) {
             /** @var \Koded\Caching\Configuration\PredisConfiguration $config */
-            return new PredisClient($config);
+            return new PredisClient(new \Predis\Client($config->getConnectionParams(), $config->getOptions()), $config);
         }
 
         if ('file' === $client) {

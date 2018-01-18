@@ -6,7 +6,6 @@ use Koded\Caching\Client\MemcachedClient;
 use Koded\Caching\Configuration\ConfigFactory;
 use Memcached;
 use PHPUnit\Framework\TestCase;
-use Psr\SimpleCache\CacheInterface;
 
 class MemcachedTest extends TestCase
 {

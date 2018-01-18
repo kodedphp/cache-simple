@@ -51,7 +51,7 @@ class MemcachedConfiguration extends Arguments implements Configuration
      * Order of precedence when selecting the servers array
      *
      *  1. "servers" directive that holds an array of memcached servers
-     *  2. environment variable "MEMCACHED_POOL" serialized as JSON
+     *  2. environment variable "MEMCACHED_POOL" serialized as JSON [['ip', port],...]
      *  3. defaults to one server at localhost:11211
      *
      * @return array Memcached options.

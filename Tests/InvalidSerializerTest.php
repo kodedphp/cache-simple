@@ -14,8 +14,8 @@ class InvalidSerializerTest extends TestCase
     public function test_should_fail_on_invalid_serializer_in_configuration()
     {
         $this->expectException(CacheException::class);
+        $this->expectExceptionCode(Cache::E_INVALID_SERIALIZER);
         $this->expectExceptionMessage('Invalid cache serializer "junk"');
-        $this->expectExceptionCode(7);
 
         putenv('CACHE_CLIENT=redis');
 
