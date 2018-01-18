@@ -182,15 +182,13 @@ $cache = simple_cache_factory('redis', [
     'serializer' => 'json|php',
     'binary' => true
 ]);
-
-// otherwise
 ```
 The `binary` directive is effective if `igbinary` extension is installed and loaded.
 Otherwise it defaults to PHP un/serialize() functions.
 
 > If you want to change the binary flag on already cached data, you must invalidate
-all corresponding cached items, since they are serialized previously with the other
-serializer and are not valid for the next one.
+all corresponding cached items, since they are already serialized and are not valid
+for the other serializer.
 
 
 ### PredisConfiguration
