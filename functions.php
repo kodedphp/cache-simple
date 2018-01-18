@@ -25,7 +25,7 @@ const CACHE_DEFAULT_KEY_REGEX = '[^a-z0-9:_\-\.]+';
  * If configuration is not provided, defaults to NullClient (dummy) cache client,
  * otherwise it will try to create one defined in the configuration.
  *
- * @param mixed $config [optional] Cache configuration
+ * @param ConfigurationFactory|null $config [optional] Cache configuration
  *
  * @return SimpleCache
  * @throws CacheException
