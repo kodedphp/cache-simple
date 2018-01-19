@@ -99,14 +99,9 @@ function cache_ttl($ttl): ?int
     }
 
     if ($ttl instanceof DateInterval) {
-        return (new DateTime)->add($ttl)->getTimestamp() - time();
+        // Supports negative timestamps before unix epoch on 32bit systems
+        return (int)((new DateTime)->add($ttl)->format('U')) - time();
     }
 
-    $ttl = (int)$ttl;
-
-    if ($ttl > 0) {
-        return $ttl;
-    }
-
-    return $ttl;
+    return (int)$ttl;
 }
