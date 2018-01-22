@@ -204,7 +204,7 @@ class FileClient implements CacheInterface
     protected function content(string $key, $value, $ttl): string
     {
         if (null === $ttl) {
-            $ttl = (new DateTime('31st December 2999'))->getTimestamp();
+            $ttl = (int)(new DateTime('31st December 2999'))->format('U');
         } else {
             $ttl += time();
         }

@@ -49,6 +49,12 @@ class FunctionsTest extends TestCase
         $this->assertSame(42, cache_ttl($interval));
     }
 
+    public function test_should_support_timestamps_before_unix_epoch_on_32bit_systems()
+    {
+        $interval = \DateInterval::createFromDateString('-2000 years');
+        $this->assertLessThan(-63100000000, cache_ttl($interval));
+    }
+
     public function test_should_create_new_simplecache_instance_with_null_client()
     {
         $cache = simple_cache_factory();
