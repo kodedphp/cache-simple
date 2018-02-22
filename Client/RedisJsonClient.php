@@ -43,7 +43,7 @@ class RedisJsonClient extends RedisClient
     public function __construct(Redis $client, RedisConfiguration $config)
     {
         parent::__construct($client, $config);
-        $this->jsonSerializer = new JsonSerializer;
+        $this->jsonSerializer = new JsonSerializer($config->get('options'));
         $this->phpSerializer = new PhpSerializer($config->get('binary', false));
     }
 
