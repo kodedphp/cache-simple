@@ -13,7 +13,8 @@
 namespace Koded\Caching\Client;
 
 use Exception;
-use Koded\Caching\{ Cache, CacheException };
+use Koded\Caching\CacheException;
+use Koded\Caching\CacheSerializer;
 use Koded\Caching\Configuration\PredisConfiguration;
 use Koded\Caching\Serializer\PhpSerializer;
 use Predis\Client;
@@ -24,7 +25,7 @@ use Psr\SimpleCache\CacheInterface;
  * Class PredisClient uses the Predis library.
  *
  */
-class PredisClient implements CacheInterface
+final class PredisClient implements CacheInterface
 {
 
     use ClientTrait, RedisTrait;
@@ -39,25 +40,24 @@ class PredisClient implements CacheInterface
      */
     protected $phpSerializer;
 
-    public function __construct(Client $client, PredisConfiguration $config)
+    public function __construct(Client $client, PredisConfiguration $config, CacheSerializer $phpSerializer)
     {
         $this->client = $client;
         $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
+        $this->phpSerializer = $phpSerializer;
 
         try {
             $this->client->connect();
+            $this->client->select((int)$this->get('db'));
 
             if ($auth = $config->get('auth')) {
                 $this->client->auth($auth);
             }
-
-            $this->phpSerializer = new PhpSerializer($config->get('binary', false));
-
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (ConnectionException $e) {
-            throw new CacheException(Cache::E_CONNECTION_ERROR, [':client' => 'Predis']);
+            throw CacheException::withConnectionErrorFor('Predis', $e);
         } catch (Exception $e) {
-            throw new CacheException(Cache::E_PHP_EXCEPTION, [':message' => $e->getMessage()], $e);
+            throw CacheException::generic($e->getMessage(), $e);
         }
     }
 

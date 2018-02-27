@@ -2,11 +2,10 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\RedisClient;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
-class RedisAuthExceptionTest extends TestCase
+class RedisJsonClientExceptionTest extends TestCase
 {
 
     public function test_should_throw_exception_on_invalid_option()
@@ -18,6 +17,7 @@ class RedisAuthExceptionTest extends TestCase
         putenv('CACHE_CLIENT=redis');
 
         (new ClientFactory(new ConfigFactory([
+            'serializer' => Cache::SERIALIZER_JSON,
             'prefix' => new \stdClass(), // some crap prefix to test the catch block
 
             'host' => getenv('REDIS_SERVER_HOST'),

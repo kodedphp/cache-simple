@@ -4,7 +4,7 @@ namespace Koded\Caching\Serializer;
 
 use Koded\Caching\CacheSerializer;
 
-class PhpSerializer implements CacheSerializer
+final class PhpSerializer implements CacheSerializer
 {
 
     private $binary;

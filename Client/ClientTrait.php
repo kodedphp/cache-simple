@@ -17,7 +17,7 @@ use const Koded\Caching\CACHE_DEFAULT_KEY_REGEX;
 trait ClientTrait
 {
 
-    protected $keyRegex = CACHE_DEFAULT_KEY_REGEX;
+    private $keyRegex = CACHE_DEFAULT_KEY_REGEX;
 
     public function client()
     {

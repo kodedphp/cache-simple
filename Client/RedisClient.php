@@ -13,7 +13,7 @@
 namespace Koded\Caching\Client;
 
 use Exception;
-use Koded\Caching\{ Cache, CacheException };
+use Koded\Caching\CacheException;
 use Koded\Caching\Configuration\RedisConfiguration;
 use Psr\SimpleCache\CacheInterface;
 use Redis;
@@ -29,7 +29,7 @@ class RedisClient implements CacheInterface
     /**
      * @var Redis instance
      */
-    protected $client;
+    private $client;
 
     public function __construct(Redis $client, RedisConfiguration $config)
     {
@@ -39,20 +39,20 @@ class RedisClient implements CacheInterface
         try {
             // Because connect() does not throw exception, but E_WARNING
             if (false === @$this->client->connect(...$config->getConnectionParams())) {
-                throw new CacheException(Cache::E_CONNECTION_ERROR, [':client' => 'Redis']);
+                throw CacheException::withConnectionErrorFor('Redis');
             }
 
             $this->client->setOption(Redis::OPT_SERIALIZER, $config->getSerializerType());
             $this->client->setOption(Redis::OPT_PREFIX, $config->get('prefix'));
+            $this->client->select((int)$config->get('db', 0));
 
             if ($auth = $config->get('auth')) {
                 $this->client->auth($auth);
             }
-
         } catch (CacheException $e) {
             throw $e;
         } catch (Exception $e) {
-            throw new CacheException(Cache::E_PHP_EXCEPTION, [':message' => $e->getMessage()], $e);
+            throw CacheException::generic($e->getMessage(), $e);
         }
     }
 

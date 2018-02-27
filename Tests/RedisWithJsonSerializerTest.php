@@ -2,7 +2,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\RedisClient;
+use Koded\Caching\Client\RedisJsonClient;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 use Redis;
@@ -19,7 +19,7 @@ class RedisWithJsonSerializerTest extends TestCase
 
     public function test_should_return_redis_instance()
     {
-        $this->assertInstanceOf(RedisClient::class, $this->cache->instance());
+        $this->assertInstanceOf(RedisJsonClient::class, $this->cache->instance());
     }
 
     protected function setUp()

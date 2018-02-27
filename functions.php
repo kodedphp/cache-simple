@@ -77,7 +77,7 @@ function simple_cache_factory(string $client = '', array $arguments = []): Simpl
 function cache_key_guard(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): string
 {
     if (empty($key) || 1 === preg_match('~' . $regex . '~i', $key)) {
-        throw new CacheException(Cache::E_INVALID_KEY, [':key' => $key]);
+        throw CacheException::forInvalidKey($key);
     }
 
     return $key;

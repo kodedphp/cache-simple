@@ -14,7 +14,7 @@ namespace Koded\Caching\Client;
 
 use DateTime;
 use FilesystemIterator;
-use Koded\Caching\{ Cache, CacheException };
+use Koded\Caching\CacheException;
 use Koded\Caching\Configuration\FileConfiguration;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -22,7 +22,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Throwable;
 
-class FileClient implements CacheInterface
+final class FileClient implements CacheInterface
 {
 
     use ClientTrait;
@@ -157,7 +157,7 @@ class FileClient implements CacheInterface
         $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
         if (!is_dir($dir) && false === mkdir($dir, 0775, true)) {
-            $e = new FileCacheClientException(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $dir]);
+            $e = FileCacheClientException::forCreatingDirectory($dir);
             $this->logger->error($e->getMessage());
             throw $e;
         }
