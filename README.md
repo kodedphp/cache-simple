@@ -64,7 +64,7 @@ The factory function always creates a new instance of `SimpleCache` with the des
  * Creates a SimpleCache instance
  * with MemcachedClient and default configuration
  */
- 
+
 $cache = simple_cache_factory('memcached');
 ```
 
@@ -73,7 +73,7 @@ $cache = simple_cache_factory('memcached');
  * Some configuration directives for the cache client
  * are passed in the second argument as array
  */
- 
+
 $cache = simple_cache_factory('redis', [
     'host'       => '127.0.0.1',
     'serializer' => 'json',
@@ -179,7 +179,6 @@ functions to either PHP native un/serialize() or igbinary_un/serialize().
 
 ```php
 $cache = simple_cache_factory('redis', [
-    'serializer' => 'json|php',
     'binary' => true
 ]);
 ```
@@ -190,6 +189,22 @@ Otherwise it defaults to PHP un/serialize() functions.
 all corresponding cached items, since they are already serialized and are not valid
 for the other serializer.
 
+##### JSON serializer options
+
+The **default** options for [json_encode()][9] function are:
+- JSON_PRESERVE_ZERO_FRACTION
+- JSON_NUMERIC_CHECK
+- JSON_UNESCAPED_SLASHES
+- JSON_UNESCAPED_UNICODE
+
+To set your desired options, use the `options` configuration directive:
+
+```php
+$cache = simple_cache_factory('redis', [
+    'serializer' => 'json',
+    'options' => JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT
+]);
+```
 
 ### PredisConfiguration
 
@@ -252,3 +267,4 @@ The code is distributed under the terms of [The 3-Clause BSD license](LICENSE).
 [6]: https://github.com/nrk/predis#client-configuration
 [7]: https://github.com/phpredis/phpredis#connect-open
 [8]: http://php.net/sys_get_temp_dir
+[9]: http://php.net/json_encode

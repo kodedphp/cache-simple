@@ -7,14 +7,28 @@ use Koded\Caching\{ CacheException, CacheSerializer };
 final class JsonSerializer implements CacheSerializer
 {
 
-    public function serialize($value): string
+    /**
+     * @var int JSON encode options. Defaults to (1376):
+     *          - JSON_PRESERVE_ZERO_FRACTION
+     *          - JSON_NUMERIC_CHECK
+     *          - JSON_UNESCAPED_SLASHES
+     *          - JSON_UNESCAPED_UNICODE
+     */
+    private $options;
+
+    public function __construct(int $options = null)
     {
-        return json_encode($value,
+        $this->options = $options ??
             JSON_PRESERVE_ZERO_FRACTION
             | JSON_NUMERIC_CHECK
             | JSON_UNESCAPED_SLASHES
             | JSON_UNESCAPED_UNICODE
-        );
+        ;
+    }
+
+    public function serialize($value): string
+    {
+        return json_encode($value, $this->options);
     }
 
     public function unserialize(string $value)
