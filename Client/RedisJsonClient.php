@@ -12,8 +12,12 @@
 
 namespace Koded\Caching\Client;
 
+use Exception;
+use Koded\Caching\CacheException;
+use Koded\Caching\CacheSerializer;
 use Koded\Caching\Configuration\RedisConfiguration;
 use Koded\Caching\Serializer\{ JsonSerializer, PhpSerializer };
+use Psr\SimpleCache\CacheInterface;
 use Redis;
 
 /**
@@ -25,26 +29,57 @@ use Redis;
  * where the cached item is handled with serialization.
  *
  */
-class RedisJsonClient extends RedisClient
+final class RedisJsonClient implements CacheInterface
 {
+
+    use ClientTrait, RedisTrait;
 
     const SERIALIZED = '__serialized__';
 
     /**
+     * @var Redis
+     */
+    private $client;
+
+    /**
      * @var JsonSerializer
      */
-    protected $jsonSerializer;
+    private $jsonSerializer;
 
     /**
      * @var PhpSerializer
      */
-    protected $phpSerializer;
+    private $phpSerializer;
 
-    public function __construct(Redis $client, RedisConfiguration $config)
-    {
-        parent::__construct($client, $config);
-        $this->jsonSerializer = new JsonSerializer($config->get('options'));
-        $this->phpSerializer = new PhpSerializer($config->get('binary', false));
+    public function __construct(
+        Redis $client,
+        RedisConfiguration $config,
+        CacheSerializer $jsonSerializer,
+        CacheSerializer $phpSerializer
+    ) {
+        $this->client = $client;
+        $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
+        $this->jsonSerializer = $jsonSerializer;
+        $this->phpSerializer = $phpSerializer;
+
+        try {
+            // Because connect() does not throw exception, but E_WARNING
+            if (false === @$this->client->connect(...$config->getConnectionParams())) {
+                throw CacheException::withConnectionErrorFor('Redis');
+            }
+
+            $this->client->setOption(Redis::OPT_SERIALIZER, $config->getSerializerType());
+            $this->client->setOption(Redis::OPT_PREFIX, $config->get('prefix'));
+            $this->client->select((int)$this->get('db'));
+
+            if ($auth = $config->get('auth')) {
+                $this->client->auth($auth);
+            }
+        } catch (CacheException $e) {
+            throw $e;
+        } catch (Exception $e) {
+            throw CacheException::generic($e->getMessage(), $e);
+        }
     }
 
     public function get($key, $default = null)
@@ -86,5 +121,11 @@ class RedisJsonClient extends RedisClient
         }
 
         return $this->client->del($keys) > 0;
+    }
+
+    public function has($key)
+    {
+        return (bool)$this->client->exists($key)
+            && (bool)$this->client->exists($key . self::SERIALIZED);
     }
 }

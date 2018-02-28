@@ -17,7 +17,7 @@ use Psr\SimpleCache\CacheInterface;
 /**
  * @codeCoverageIgnore
  */
-class NullClient implements CacheInterface
+final class NullClient implements CacheInterface
 {
 
     use ClientTrait;

@@ -40,18 +40,19 @@ class SimpleCache implements Cache
 
     public function get(string $key, $default = null)
     {
+        guard_cache_key($key, call_user_func([$this->client, 'keyRegex']));
         return $this->client->get($key, $default);
     }
 
     public function set(string $key, $value, $ttl = null): bool
     {
-        cache_key_guard($key, call_user_func([$this->client, 'keyRegex']));
-
+        guard_cache_key($key, call_user_func([$this->client, 'keyRegex']));
         return $this->client->set($key, $value, cache_ttl($ttl ?? $this->ttl));
     }
 
     public function delete(string $key): bool
     {
+        guard_cache_key($key, call_user_func([$this->client, 'keyRegex']));
         return $this->client->delete($key);
     }
 
@@ -77,6 +78,7 @@ class SimpleCache implements Cache
 
     public function has(string $key): bool
     {
+        guard_cache_key($key, call_user_func([$this->client, 'keyRegex']));
         return $this->client->has($key);
     }
 

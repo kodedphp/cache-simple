@@ -18,13 +18,11 @@ interface Cache
 {
 
     const E_INVALID_KEY = 1;
-    const E_INVALID_TTL = 2;
-    const E_UNSUPPORTED_LOGGER = 3;
-    const E_EXTENSION_NOT_ENABLED = 4;
-    const E_DIRECTORY_NOT_CREATED = 5;
-    const E_INVALID_SERIALIZER = 6;
-    const E_PHP_EXCEPTION = 7;
-    const E_CONNECTION_ERROR = 8;
+    const E_UNSUPPORTED_LOGGER = 2;
+    const E_DIRECTORY_NOT_CREATED = 3;
+    const E_INVALID_SERIALIZER = 4;
+    const E_PHP_EXCEPTION = 5;
+    const E_CONNECTION_ERROR = 6;
 
     const SERIALIZER_JSON = 'json';
     const SERIALIZER_PHP = 'php';

@@ -28,21 +28,6 @@ trait RedisTrait
         return count($values) === $cached;
     }
 
-    public function deleteMultiple($keys)
-    {
-        return $this->client->del($keys);
-    }
-
-    public function has($key)
-    {
-        return (bool)$this->client->exists($key);
-    }
-
-    public function delete($key)
-    {
-        return $this->client->del($key) > 0;
-    }
-
     public function clear()
     {
         return $this->client->flushAll();

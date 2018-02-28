@@ -16,7 +16,7 @@ use Koded\Caching\Configuration\MemcachedConfiguration;
 use Memcached;
 use Psr\SimpleCache\CacheInterface;
 
-class MemcachedClient implements CacheInterface
+final class MemcachedClient implements CacheInterface
 {
 
     use ClientTrait;

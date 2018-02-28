@@ -21,7 +21,7 @@ use Memcached;
  *
  * @see https://github.com/kodedphp/stdlib/blob/master/Interfaces.php#L158
  */
-class MemcachedConfiguration extends Arguments implements Configuration
+final class MemcachedConfiguration extends Arguments implements Configuration
 {
 
     /**

@@ -2,11 +2,9 @@
 
 namespace Koded\Caching\Serializer;
 
-use Koded\Caching\{
-    Cache, CacheException, CacheSerializer
-};
+use Koded\Caching\{ CacheException, CacheSerializer };
 
-class JsonSerializer implements CacheSerializer
+final class JsonSerializer implements CacheSerializer
 {
 
     /**
@@ -38,7 +36,7 @@ class JsonSerializer implements CacheSerializer
         $json = json_decode($value, true);
 
         if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new CacheException(Cache::E_PHP_EXCEPTION, [':message' => json_last_error_msg()]);
+            throw CacheException::generic(json_last_error_msg());
         }
 
         return $json;

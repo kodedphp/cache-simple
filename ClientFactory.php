@@ -13,6 +13,8 @@
 namespace Koded\Caching;
 
 use Koded\Caching\Client\{ FileClient, MemcachedClient, NullClient, PredisClient, RedisClient, RedisJsonClient };
+use Koded\Caching\Serializer\JsonSerializer;
+use Koded\Caching\Serializer\PhpSerializer;
 use Koded\Stdlib\Interfaces\ConfigurationFactory;
 use Psr\Log\{ LoggerInterface, NullLogger };
 use Psr\SimpleCache\CacheInterface;
@@ -47,7 +49,12 @@ class ClientFactory
         if ('redis' === $client) {
             /** @var \Koded\Caching\Configuration\RedisConfiguration $config */
             if (Cache::SERIALIZER_JSON === $config->get('serializer')) {
-                return new RedisJsonClient(new \Redis, $config);
+                return new RedisJsonClient(
+                    new \Redis,
+                    $config,
+                    new JsonSerializer,
+                    new PhpSerializer($config->get('binary', false))
+                );
             }
 
             return new RedisClient(new \Redis, $config);
@@ -60,7 +67,11 @@ class ClientFactory
 
         if ('predis' === $client) {
             /** @var \Koded\Caching\Configuration\PredisConfiguration $config */
-            return new PredisClient(new \Predis\Client($config->getConnectionParams(), $config->getOptions()), $config);
+            return new PredisClient(
+                new \Predis\Client($config->getConnectionParams(), $config->getOptions()),
+                $config,
+                new PhpSerializer($config->get('binary', false))
+            );
         }
 
         if ('file' === $client) {
@@ -76,10 +87,7 @@ class ClientFactory
         $logger = $config->logger ?? new NullLogger;
 
         if (!$logger instanceof LoggerInterface) {
-            throw new CacheException(Cache::E_UNSUPPORTED_LOGGER, [
-                ':supported' => LoggerInterface::class,
-                ':given' => get_class($logger)
-            ]);
+            throw CacheException::forUnsupportedLogger(LoggerInterface::class, get_class($logger));
         }
 
         return $logger;

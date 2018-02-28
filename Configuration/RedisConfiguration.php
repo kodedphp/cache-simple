@@ -17,7 +17,7 @@ use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\Configuration;
 use Redis;
 
-class RedisConfiguration extends Immutable implements Configuration
+final class RedisConfiguration extends Immutable implements Configuration
 {
 
     /**
@@ -57,6 +57,6 @@ class RedisConfiguration extends Immutable implements Configuration
             return Redis::SERIALIZER_NONE;
         }
 
-        throw new CacheException(Cache::E_INVALID_SERIALIZER, [':type' => $serializer]);
+        throw CacheException::forUnknownSerializer((string)$serializer);
     }
 }
