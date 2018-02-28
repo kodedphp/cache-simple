@@ -90,4 +90,19 @@ final class PredisClient implements CacheInterface
     {
         return 'OK' === $this->client->flushall()->getPayload();
     }
+
+    public function delete($key)
+    {
+        return $this->client->del($key) > 0;
+    }
+
+    public function deleteMultiple($keys)
+    {
+        return $this->client->del($keys) === count($keys);
+    }
+
+    public function has($key)
+    {
+        return (bool)$this->client->exists($key);
+    }
 }

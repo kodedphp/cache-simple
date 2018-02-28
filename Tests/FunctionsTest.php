@@ -16,7 +16,7 @@ class FunctionsTest extends TestCase
 
     public function test_should_guard_a_proper_cache_key()
     {
-        $this->assertSame('Proper-Key:1', cache_key_guard('Proper-Key:1'));
+        $this->assertSame('Proper-Key:1', guard_cache_key('Proper-Key:1'));
     }
 
     public function test_should_reject_invalid_cache_key()
@@ -24,7 +24,7 @@ class FunctionsTest extends TestCase
         $invalidKey = 'w#4T |5 tH1~';
         $this->expectException(CacheException::class);
         $this->expectExceptionMessage(sprintf('The cache key is invalid, "%s" given', $invalidKey));
-        cache_key_guard($invalidKey);
+        guard_cache_key($invalidKey);
     }
 
     public function test_should_return_the_same_ttl_if_less_then_one()

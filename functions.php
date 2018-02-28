@@ -28,8 +28,7 @@ const CACHE_DEFAULT_KEY_REGEX = '[^a-z0-9:_\-\.]+';
  * @param ConfigurationFactory|null $config [optional] Cache configuration
  *
  * @return SimpleCache
- * @throws CacheException
- * @throws \Exception
+ * @throws CacheException | \Exception
  */
 function cache(ConfigurationFactory $config = null): SimpleCache
 {
@@ -55,8 +54,7 @@ function cache(ConfigurationFactory $config = null): SimpleCache
  * @param array  $arguments [optional] A configuration parameters for the client
  *
  * @return SimpleCache
- * @throws CacheException
- * @throws \Exception
+ * @throws CacheException | \Exception
  */
 
 function simple_cache_factory(string $client = '', array $arguments = []): SimpleCache
@@ -74,7 +72,7 @@ function simple_cache_factory(string $client = '', array $arguments = []): Simpl
  * @return string
  * @throws CacheException
  */
-function cache_key_guard(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): string
+function guard_cache_key(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): string
 {
     if (empty($key) || 1 === preg_match('~' . $regex . '~i', $key)) {
         throw CacheException::forInvalidKey($key);

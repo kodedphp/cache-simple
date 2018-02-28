@@ -32,7 +32,7 @@ use Redis;
 final class RedisJsonClient implements CacheInterface
 {
 
-    use RedisTrait, ClientTrait;
+    use ClientTrait, RedisTrait;
 
     const SERIALIZED = '__serialized__';
 
@@ -109,12 +109,6 @@ final class RedisJsonClient implements CacheInterface
         return !$this->has($key);
     }
 
-    public function has($key)
-    {
-        return (bool)$this->client->exists($key)
-            && (bool)$this->client->exists($key . self::SERIALIZED);
-    }
-
     public function delete($key)
     {
         return $this->client->del($key, $key . self::SERIALIZED) > 0;
@@ -127,5 +121,11 @@ final class RedisJsonClient implements CacheInterface
         }
 
         return $this->client->del($keys) > 0;
+    }
+
+    public function has($key)
+    {
+        return (bool)$this->client->exists($key)
+            && (bool)$this->client->exists($key . self::SERIALIZED);
     }
 }

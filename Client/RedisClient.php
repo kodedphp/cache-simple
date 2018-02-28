@@ -76,4 +76,19 @@ class RedisClient implements CacheInterface
 
         return !$this->has($key);
     }
+
+    public function delete($key)
+    {
+        return $this->client->del($key) > 0;
+    }
+
+    public function deleteMultiple($keys)
+    {
+        return $this->client->del($keys) === count($keys);
+    }
+
+    public function has($key)
+    {
+        return (bool)$this->client->exists($key);
+    }
 }
