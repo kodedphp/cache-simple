@@ -15,6 +15,8 @@ namespace Koded\Caching\Client;
 use Psr\SimpleCache\CacheInterface;
 
 /**
+ * @property-read NullClient client
+ *
  * @codeCoverageIgnore
  */
 final class NullClient implements CacheInterface

@@ -20,16 +20,13 @@ use Redis;
 
 /**
  * Class RedisClient uses the Redis PHP extension.
+ *
+ * @property-read Redis client
  */
 class RedisClient implements CacheInterface
 {
 
-    use ClientTrait, RedisTrait;
-
-    /**
-     * @var Redis instance
-     */
-    private $client;
+    use ClientTrait, MultiplesTrait;
 
     public function __construct(Redis $client, RedisConfiguration $config)
     {
@@ -84,6 +81,11 @@ class RedisClient implements CacheInterface
     public function deleteMultiple($keys)
     {
         return $this->client->del($keys) === count($keys);
+    }
+
+    public function clear()
+    {
+        return $this->client->flushAll();
     }
 
     public function has($key)

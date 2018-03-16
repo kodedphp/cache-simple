@@ -15,6 +15,8 @@ namespace Koded\Caching\Client;
 trait ClientTrait
 {
 
+    private $client;
+
     public function client()
     {
         return $this->client ?? $this;

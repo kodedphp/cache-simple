@@ -22,10 +22,13 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Throwable;
 
+/**
+ * @property-read FileClient client
+ */
 final class FileClient implements CacheInterface
 {
 
-    use ClientTrait;
+    use ClientTrait, MultiplesTrait;
 
     /**
      * @var string
@@ -101,31 +104,6 @@ final class FileClient implements CacheInterface
         // @codeCoverageIgnoreEnd
     }
 
-    public function getMultiple($keys, $default = null)
-    {
-        $items = [];
-        foreach ($keys as $key) {
-            $items[$key] = $this->get($key, $default);
-        }
-
-        return $items;
-    }
-
-    public function setMultiple($values, $ttl = null)
-    {
-        if ($ttl < 0 || $ttl === 0) {
-            // All items are considered expired and must be deleted
-            return $this->deleteMultiple(array_keys($values));
-        }
-
-        $cached = 0;
-        foreach ($values as $key => $value) {
-            $this->set($key, $value, $ttl) && ++$cached;
-        }
-
-        return count($values) === $cached;
-    }
-
     public function deleteMultiple($keys)
     {
         $deleted = 0;
@@ -148,7 +126,7 @@ final class FileClient implements CacheInterface
      *
      * @throws FileCacheClientException
      */
-    protected function initialize(string $directory)
+    private function initialize(string $directory)
     {
         // Overrule shell misconfiguration or the web server
         umask(umask() | 0002);
@@ -172,7 +150,7 @@ final class FileClient implements CacheInterface
      *
      * @return string
      */
-    protected function filename(string $key, bool $create = true): string
+    private function filename(string $key, bool $create = true): string
     {
         $filename = sha1($key);
         $dir = $this->dir . substr($filename, 0, 2);
@@ -200,7 +178,7 @@ final class FileClient implements CacheInterface
      *
      * @return string
      */
-    protected function content(string $key, $value, $ttl): string
+    private function content(string $key, $value, $ttl): string
     {
         if (null === $ttl) {
             $ttl = (int)(new DateTime('31st December 2999'))->format('U');
@@ -222,7 +200,7 @@ final class FileClient implements CacheInterface
      *
      * @return bool
      */
-    protected function expired(array $cache): bool
+    private function expired(array $cache): bool
     {
         return $cache['timestamp'] <= time();
     }

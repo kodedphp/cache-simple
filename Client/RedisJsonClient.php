@@ -30,18 +30,14 @@ use Redis;
  * and the PHP serialized variant is useful only for PHP applications
  * where the cached item is handled by PHP serialization.
  *
+ * @property-read Redis client
  */
 final class RedisJsonClient implements CacheInterface
 {
 
-    use ClientTrait, RedisTrait;
+    use ClientTrait, MultiplesTrait;
 
     const SERIALIZED = '__serialized__';
-
-    /**
-     * @var Redis
-     */
-    private $client;
 
     /**
      * @var JsonSerializer
@@ -122,6 +118,11 @@ final class RedisJsonClient implements CacheInterface
         }
 
         return $this->client->del($keys) > 0;
+    }
+
+    public function clear()
+    {
+        return $this->client->flushAll();
     }
 
     public function has($key)

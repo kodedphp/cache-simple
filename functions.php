@@ -41,13 +41,16 @@ function simple_cache_factory(string $client = '', array $arguments = []): Simpl
 /**
  * Guards the cache key value.
  *
+ * Differs from PSR-16 "reserved" characters by adding the ":" to the list.
+ * The colon is a wide accepted convention for Redis to separate the key.
+ *
  * @param string $key   The cache key
  *
  * @throws CacheException
  */
 function guard_cache_key(string $key): void
 {
-    if (preg_match('/[^a-z0-9:\-_.]/i', $key, $matches)) {
+    if (1 === preg_match('/[^a-z0-9:\-_.]/i', $key)) {
         throw CacheException::forInvalidKey($key);
     }
 }
