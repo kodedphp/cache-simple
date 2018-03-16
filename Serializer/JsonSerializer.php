@@ -22,8 +22,7 @@ final class JsonSerializer implements CacheSerializer
             JSON_PRESERVE_ZERO_FRACTION
             | JSON_NUMERIC_CHECK
             | JSON_UNESCAPED_SLASHES
-            | JSON_UNESCAPED_UNICODE
-        ;
+            | JSON_UNESCAPED_UNICODE;
     }
 
     public function serialize($value): string

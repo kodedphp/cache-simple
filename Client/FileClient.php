@@ -40,7 +40,6 @@ final class FileClient implements CacheInterface
     public function __construct(FileConfiguration $config, LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
         $this->initialize((string)$config->get('dir'));
     }
 

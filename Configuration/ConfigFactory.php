@@ -12,7 +12,6 @@
 
 namespace Koded\Caching\Configuration;
 
-use const Koded\Caching\CACHE_DEFAULT_KEY_REGEX;
 use Koded\Stdlib\{ Arguments, Config, Interfaces\Configuration };
 
 /**
@@ -28,8 +27,6 @@ class ConfigFactory extends Config
     public function __construct(array $parameters = [])
     {
         parent::__construct();
-
-        $this->set('keyRegex', CACHE_DEFAULT_KEY_REGEX);
         $this->import($parameters);
     }
 

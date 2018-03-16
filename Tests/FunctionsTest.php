@@ -16,7 +16,7 @@ class FunctionsTest extends TestCase
 
     public function test_should_guard_a_proper_cache_key()
     {
-        $this->assertSame('Proper-Key:1', guard_cache_key('Proper-Key:1'));
+        $this->assertNull(guard_cache_key('Proper-Key:1'));
     }
 
     public function test_should_reject_invalid_cache_key()

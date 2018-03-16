@@ -34,7 +34,6 @@ class RedisClient implements CacheInterface
     public function __construct(Redis $client, RedisConfiguration $config)
     {
         $this->client = $client;
-        $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
 
         try {
             // Because connect() does not throw exception, but E_WARNING
@@ -74,7 +73,7 @@ class RedisClient implements CacheInterface
         // The item is considered expired and must be deleted
         $this->client->del($key);
 
-        return !$this->has($key);
+        return false === $this->has($key);
     }
 
     public function delete($key)

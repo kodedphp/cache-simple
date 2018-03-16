@@ -13,8 +13,7 @@
 namespace Koded\Caching\Client;
 
 use Exception;
-use Koded\Caching\CacheException;
-use Koded\Caching\CacheSerializer;
+use Koded\Caching\{ CacheException, CacheSerializer };
 use Koded\Caching\Configuration\RedisConfiguration;
 use Koded\Caching\Serializer\{ JsonSerializer, PhpSerializer };
 use Psr\SimpleCache\CacheInterface;
@@ -23,10 +22,13 @@ use Redis;
 /**
  * Class RedisJsonClient uses the Redis PHP extension to save the cache item as JSON.
  *
- * It will create 2 entries in Redis, one as JSON cache item and other as serialized PHP value.
+ * It will create 2 entries in Redis
+ * - one as JSON cache item
+ * - and other as serialized PHP value.
+ *
  * The first is useful for other programming languages to use it,
  * and the PHP serialized variant is useful only for PHP applications
- * where the cached item is handled with serialization.
+ * where the cached item is handled by PHP serialization.
  *
  */
 final class RedisJsonClient implements CacheInterface
@@ -58,7 +60,6 @@ final class RedisJsonClient implements CacheInterface
         CacheSerializer $phpSerializer
     ) {
         $this->client = $client;
-        $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
         $this->jsonSerializer = $jsonSerializer;
         $this->phpSerializer = $phpSerializer;
 
@@ -84,7 +85,7 @@ final class RedisJsonClient implements CacheInterface
 
     public function get($key, $default = null)
     {
-        if ($this->client->exists($key . self::SERIALIZED)) {
+        if ($this->has($key)) {
             return $this->phpSerializer->unserialize($this->client->get($key . self::SERIALIZED));
         }
 
@@ -106,7 +107,7 @@ final class RedisJsonClient implements CacheInterface
         // The item is considered expired and must be deleted
         $this->client->del($key, $key . self::SERIALIZED);
 
-        return !$this->has($key);
+        return false === $this->has($key);
     }
 
     public function delete($key)

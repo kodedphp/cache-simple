@@ -27,24 +27,24 @@ class CacheException extends KodedException implements InvalidArgumentException
         Cache::E_CONNECTION_ERROR => '[Cache Exception] Failed to connect the :client client',
     ];
 
-    public static function forInvalidKey(string $key, Exception $previous = null)
+    public static function forInvalidKey(string $key)
     {
-        return new self(Cache::E_INVALID_KEY, [':key' => $key], $previous);
+        return new self(Cache::E_INVALID_KEY, [':key' => $key]);
     }
 
-    public static function forUnsupportedLogger(string $supported, string $given, Exception $previous = null)
+    public static function forUnsupportedLogger(string $supported, string $given)
     {
-        return new self(Cache::E_UNSUPPORTED_LOGGER, [':supported' => $supported, ':given' => $given], $previous);
+        return new self(Cache::E_UNSUPPORTED_LOGGER, [':supported' => $supported, ':given' => $given]);
     }
     
-    public static function forCreatingDirectory(string $directory, Exception $previous = null)
+    public static function forCreatingDirectory(string $directory)
     {
-        return new static(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $directory], $previous);
+        return new static(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $directory]);
     }
 
-    public static function forUnknownSerializer(string $type, Exception $previous = null)
+    public static function forUnknownSerializer(string $type)
     {
-        return new self(Cache::E_INVALID_SERIALIZER, [':type' => $type], $previous);
+        return new self(Cache::E_INVALID_SERIALIZER, [':type' => $type]);
     }
 
     public static function generic(string $message, Exception $previous = null)
