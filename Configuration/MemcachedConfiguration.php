@@ -12,7 +12,7 @@
 
 namespace Koded\Caching\Configuration;
 
-use Koded\Stdlib\Arguments;
+use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\Configuration;
 use Memcached;
 
@@ -21,7 +21,7 @@ use Memcached;
  *
  * @see https://github.com/kodedphp/stdlib/blob/master/Interfaces.php#L158
  */
-final class MemcachedConfiguration extends Arguments implements Configuration
+final class MemcachedConfiguration extends Immutable implements Configuration
 {
 
     /**

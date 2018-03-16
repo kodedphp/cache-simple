@@ -23,16 +23,12 @@ use Psr\SimpleCache\CacheInterface;
 /**
  * Class PredisClient uses the Predis library.
  *
+ * @property Client client
  */
 final class PredisClient implements CacheInterface
 {
 
-    use ClientTrait, RedisTrait;
-
-    /**
-     * @var Client
-     */
-    protected $client;
+    use ClientTrait, MultiplesTrait;
 
     /**
      * @var PhpSerializer

@@ -16,15 +16,13 @@ use Koded\Caching\Configuration\MemcachedConfiguration;
 use Memcached;
 use Psr\SimpleCache\CacheInterface;
 
+/**
+ * @property Memcached client
+ */
 final class MemcachedClient implements CacheInterface
 {
 
     use ClientTrait;
-
-    /**
-     * @var Memcached instance
-     */
-    private $client;
 
     public function __construct(Memcached $client, MemcachedConfiguration $config)
     {

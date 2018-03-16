@@ -2,10 +2,7 @@
 
 namespace Koded\Caching\Client;
 
-/**
- * @property \Redis client
- */
-trait RedisTrait
+trait MultiplesTrait
 {
 
     public function getMultiple($keys, $default = null)
@@ -20,16 +17,16 @@ trait RedisTrait
 
     public function setMultiple($values, $ttl = null)
     {
+        if ($ttl < 0 || $ttl === 0) {
+            // All items are considered expired and must be deleted
+            return $this->deleteMultiple(array_keys($values));
+        }
+
         $cached = 0;
         foreach ($values as $key => $value) {
             $this->set($key, $value, $ttl) && ++$cached;
         }
 
         return count($values) === $cached;
-    }
-
-    public function clear()
-    {
-        return $this->client->flushAll();
     }
 }
