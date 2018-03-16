@@ -23,7 +23,7 @@ use RecursiveIteratorIterator;
 use Throwable;
 
 /**
- * @property-read FileClient client
+ * @property FileClient client
  */
 final class FileClient implements CacheInterface
 {

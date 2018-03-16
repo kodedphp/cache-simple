@@ -21,7 +21,7 @@ use Redis;
 /**
  * Class RedisClient uses the Redis PHP extension.
  *
- * @property-read Redis client
+ * @property Redis client
  */
 class RedisClient implements CacheInterface
 {

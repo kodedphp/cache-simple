@@ -17,7 +17,7 @@ use Memcached;
 use Psr\SimpleCache\CacheInterface;
 
 /**
- * @property-read Memcached client
+ * @property Memcached client
  */
 final class MemcachedClient implements CacheInterface
 {

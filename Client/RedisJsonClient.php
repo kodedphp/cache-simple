@@ -30,7 +30,7 @@ use Redis;
  * and the PHP serialized variant is useful only for PHP applications
  * where the cached item is handled by PHP serialization.
  *
- * @property-read Redis client
+ * @property Redis client
  */
 final class RedisJsonClient implements CacheInterface
 {

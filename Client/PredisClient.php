@@ -23,7 +23,7 @@ use Psr\SimpleCache\CacheInterface;
 /**
  * Class PredisClient uses the Predis library.
  *
- * @property-read Client client
+ * @property Client client
  */
 final class PredisClient implements CacheInterface
 {
