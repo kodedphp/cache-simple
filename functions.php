@@ -17,31 +17,6 @@ use DateTime;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Interfaces\ConfigurationFactory;
 
-const CACHE_DEFAULT_KEY_REGEX = '[^a-z0-9:_\-\.]+';
-
-/**
- * Creates once an instance of SimpleCache.
- *
- * If configuration is not provided, defaults to NullClient (dummy) cache client,
- * otherwise it will try to create one defined in the configuration.
- *
- * @param ConfigurationFactory|null $config [optional] Cache configuration
- *
- * @return SimpleCache
- * @throws CacheException | \Exception
- */
-function cache(ConfigurationFactory $config = null): SimpleCache
-{
-    static $cache;
-
-    if (null === $cache) {
-        $config || $config = new ConfigFactory;
-        $cache = new SimpleCache((new ClientFactory($config))->build(), $config->ttl);
-    }
-
-    return $cache;
-}
-
 /**
  * Factory function for SimpleCache.
  *
@@ -67,27 +42,23 @@ function simple_cache_factory(string $client = '', array $arguments = []): Simpl
  * Guards the cache key value.
  *
  * @param string $key   The cache key
- * @param string $regex [optional] Allowed characters for the cache key
  *
- * @return string
  * @throws CacheException
  */
-function guard_cache_key(string $key, string $regex = CACHE_DEFAULT_KEY_REGEX): string
+function guard_cache_key(string $key): void
 {
-    if (empty($key) || 1 === preg_match('~' . $regex . '~i', $key)) {
+    if (preg_match('/[^a-z0-9:\-_.]/i', $key, $matches)) {
         throw CacheException::forInvalidKey($key);
     }
-
-    return $key;
 }
 
 /**
  * Transforms the DateInterval TTL, or return the value as-is.
  *
  * @param null|int|DateInterval $ttl A gypsy argument that wants to be a TTL
- *                                   (apparently a simple integer is not enough)
+ *                                   (apparently a simple timestamp is not enough)
  *
- * @return int|null Returns the TTL is seconds, or NULL. Can be a negative number to delete cache items
+ * @return int|null Returns the TTL is seconds, or NULL. Can be a negative number to delete the cached items
  */
 function cache_ttl($ttl): ?int
 {
@@ -97,9 +68,31 @@ function cache_ttl($ttl): ?int
     }
 
     if ($ttl instanceof DateInterval) {
-        // Supports negative timestamps before unix epoch on 32bit systems
         return (int)((new DateTime)->add($ttl)->format('U')) - time();
     }
 
     return (int)$ttl;
+}
+
+/**
+ * Creates once an instance of SimpleCache.
+ *
+ * If configuration is not provided, defaults to NullClient (dummy) cache client,
+ * otherwise it will try to create one defined in the configuration.
+ *
+ * @param ConfigurationFactory|null $config [optional] Cache configuration
+ *
+ * @return SimpleCache
+ * @throws CacheException | \Exception
+ */
+function cache(ConfigurationFactory $config = null): SimpleCache
+{
+    static $cache;
+
+    if (null === $cache) {
+        $config || $config = new ConfigFactory;
+        $cache = new SimpleCache((new ClientFactory($config))->build(), $config->ttl);
+    }
+
+    return $cache;
 }

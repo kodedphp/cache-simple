@@ -13,8 +13,7 @@
 namespace Koded\Caching\Client;
 
 use Exception;
-use Koded\Caching\CacheException;
-use Koded\Caching\CacheSerializer;
+use Koded\Caching\{ CacheException, CacheSerializer };
 use Koded\Caching\Configuration\PredisConfiguration;
 use Koded\Caching\Serializer\PhpSerializer;
 use Predis\Client;
@@ -43,7 +42,6 @@ final class PredisClient implements CacheInterface
     public function __construct(Client $client, PredisConfiguration $config, CacheSerializer $phpSerializer)
     {
         $this->client = $client;
-        $this->keyRegex = $config->get('keyRegex', $this->keyRegex);
         $this->phpSerializer = $phpSerializer;
 
         try {

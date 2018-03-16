@@ -147,8 +147,6 @@ interface Cache
 interface CacheSerializer
 {
 
-    const SERIALIZED = ':__serialized__';
-
     /**
      * Generates a string representation of a value.
      *
