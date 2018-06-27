@@ -12,6 +12,7 @@
 
 namespace Koded\Caching;
 
+use Koded\Stdlib\Interfaces\StringSerializable;
 use Psr\SimpleCache\{ CacheInterface, InvalidArgumentException };
 
 interface Cache
@@ -144,24 +145,6 @@ interface Cache
     public function instance(): CacheInterface;
 }
 
-interface CacheSerializer
+interface CacheSerializer extends StringSerializable
 {
-
-    /**
-     * Generates a string representation of a value.
-     *
-     * @param mixed $value
-     *
-     * @return string Should return a byte-stream representation of the value
-     */
-    public function serialize($value): string;
-
-    /**
-     * Creates a PHP value from a string representation.
-     *
-     * @param string $value The serialized value
-     *
-     * @return mixed The converted value
-     */
-    public function unserialize(string $value);
 }

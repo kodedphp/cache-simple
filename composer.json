@@ -20,8 +20,8 @@
     }
   ],
   "require": {
-    "php": "~7.1",
-    "koded/stdlib": "~2",
+    "php": "^7.1.4",
+    "koded/stdlib": "~3",
     "psr/simple-cache": "~1"
   },
   "autoload": {
