@@ -252,6 +252,14 @@ function [sys_get_temp_dir()][8] is used to determine where to store the cached 
 $cache = simple_cache_factory('file', ['dir' => '/tmp']);
 ```
 
+### MemoryClient
+
+This client will store the cached items in the memory for the duration of the script's lifetime.
+It is useful for development, but not for production.
+
+```php
+$cache = simple_cache_factory('memory');
+```
 
 License
 -------

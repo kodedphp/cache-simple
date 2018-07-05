@@ -2,9 +2,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\{
-    FileClient, MemcachedClient, NullClient, PredisClient, RedisClient
-};
+use Koded\Caching\Client\{ FileClient, MemcachedClient, MemoryClient, NullClient, PredisClient, RedisClient };
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -56,6 +54,12 @@ class ClientFactoryTest extends TestCase
         $this->assertInstanceOf(FileClient::class, $client);
     }
 
+    public function test_should_create_memory_client()
+    {
+        $client = (new ClientFactory(new ConfigFactory))->build('memory');
+        $this->assertInstanceOf(MemoryClient::class, $client);
+    }
+
 
     public function test_non_supported_logger_exception()
     {
@@ -63,7 +67,8 @@ class ClientFactoryTest extends TestCase
         $this->expectExceptionMessage('The cache logger should be NULL or an instance of Psr\Log\LoggerInterface, Closure given');
 
         (new ClientFactory(new ConfigFactory([
-            'logger' => function() {}
+            'logger' => function() {
+            }
         ])))->build('file');
     }
 }
