@@ -12,7 +12,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\{ FileClient, MemcachedClient, NullClient, PredisClient, RedisClient, RedisJsonClient };
+use Koded\Caching\Client\{ FileClient, MemcachedClient, MemoryClient, NullClient, PredisClient, RedisClient, RedisJsonClient };
 use Koded\Caching\Serializer\{ JsonSerializer, PhpSerializer };
 use Koded\Stdlib\Interfaces\ConfigurationFactory;
 use Psr\Log\{ LoggerInterface, NullLogger };
@@ -76,6 +76,10 @@ class ClientFactory
         if ('file' === $client) {
             /** @var \Koded\Caching\Configuration\FileConfiguration $config */
             return new FileClient($config, $this->getLogger($config));
+        }
+
+        if ('memory' === $client) {
+            return new MemoryClient;
         }
 
         return new NullClient;
