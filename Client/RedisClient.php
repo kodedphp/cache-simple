@@ -36,7 +36,7 @@ class RedisClient implements CacheInterface
 
         try {
             // Because connect() does not throw exception, but E_WARNING
-            if (false === $this->client->connect(...$config->getConnectionParams())) {
+            if (false === @$this->client->connect(...$config->getConnectionParams())) {
                 // @codeCoverageIgnoreStart
                 throw CacheException::withConnectionErrorFor('Redis');
                 // @codeCoverageIgnoreEnd
