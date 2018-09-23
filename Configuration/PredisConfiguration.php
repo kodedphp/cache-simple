@@ -15,7 +15,7 @@ namespace Koded\Caching\Configuration;
 use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\Configuration;
 
-final class PredisConfiguration  extends Immutable implements Configuration
+final class PredisConfiguration extends Immutable implements Configuration
 {
 
     public function getConnectionParams(): array

@@ -12,10 +12,16 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\{ FileClient, MemcachedClient, MemoryClient, NullClient, PredisClient, RedisClient, RedisJsonClient };
-use Koded\Caching\Serializer\{ JsonSerializer, PhpSerializer };
+use Koded\Caching\Client\{FileClient,
+    MemcachedClient,
+    MemoryClient,
+    NullClient,
+    PredisClient,
+    RedisClient,
+    RedisJsonClient};
+use Koded\Caching\Serializer\{JsonSerializer, PhpSerializer};
 use Koded\Stdlib\Interfaces\ConfigurationFactory;
-use Psr\Log\{ LoggerInterface, NullLogger };
+use Psr\Log\{LoggerInterface, NullLogger};
 use Psr\SimpleCache\CacheInterface;
 
 class ClientFactory

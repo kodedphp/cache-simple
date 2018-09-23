@@ -13,7 +13,7 @@
 namespace Koded\Caching;
 
 use Koded\Stdlib\Interfaces\StringSerializable;
-use Psr\SimpleCache\{ CacheInterface, InvalidArgumentException };
+use Psr\SimpleCache\{CacheInterface, InvalidArgumentException};
 
 interface Cache
 {

@@ -12,12 +12,13 @@
 
 namespace Koded\Caching\Configuration;
 
-use Koded\Stdlib\{ Arguments, Config, Interfaces\Configuration };
+use Koded\Stdlib\{Arguments, Config};
+use Koded\Stdlib\Interfaces\Configuration;
 
 /**
  * Class ConfigFactory
  *
- * @property int $ttl Default Time-To-Live seconds for the cached items
+ * @property int    $ttl      Default Time-To-Live seconds for the cached items
  * @property string $keyRegex Regex for validating the cache item key
  *
  */

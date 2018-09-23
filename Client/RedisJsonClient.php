@@ -18,6 +18,7 @@ use Koded\Caching\Configuration\RedisConfiguration;
 use Koded\Caching\Serializer\{ JsonSerializer, PhpSerializer };
 use Psr\SimpleCache\CacheInterface;
 use Redis;
+use RedisException;
 
 /**
  * Class RedisJsonClient uses the Redis PHP extension to save the cache item as JSON.
@@ -62,7 +63,9 @@ final class RedisJsonClient implements CacheInterface
         try {
             // Because connect() does not throw exception, but E_WARNING
             if (false === @$this->client->connect(...$config->getConnectionParams())) {
+                // @codeCoverageIgnoreStart
                 throw CacheException::withConnectionErrorFor('Redis');
+                // @codeCoverageIgnoreEnd
             }
 
             $this->client->setOption(Redis::OPT_SERIALIZER, $config->getSerializerType());
@@ -72,8 +75,14 @@ final class RedisJsonClient implements CacheInterface
             if ($auth = $config->get('auth')) {
                 $this->client->auth($auth);
             }
+
+        } catch (RedisException $e) {
+            error_log($e->getMessage());
+            throw CacheException::withConnectionErrorFor('Redis');
         } catch (CacheException $e) {
+            // @codeCoverageIgnoreStart
             throw $e;
+            // @codeCoverageIgnoreEnd
         } catch (Exception $e) {
             throw CacheException::generic($e->getMessage(), $e);
         }

@@ -12,7 +12,7 @@
 
 namespace Koded\Caching\Configuration;
 
-use Koded\Caching\{ Cache, CacheException };
+use Koded\Caching\{Cache, CacheException};
 use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\Configuration;
 use Redis;

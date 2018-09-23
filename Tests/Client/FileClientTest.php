@@ -33,7 +33,7 @@ class FileClientTest extends TestCase
         $client = new FileClient(new FileConfiguration(['dir' => $this->dir->url()]), new NullLogger);
         $client->set('foo', new Arguments(['foo' => 'bar']));
 
-        $raw = $this->dir->getChild('0b/eec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33.php')->getContent();
+        $raw = $this->dir->getChild('0/beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33.php')->getContent();
         $this->assertContains(var_export([
             'timestamp' => 32503593600,
             'key' => 'foo',

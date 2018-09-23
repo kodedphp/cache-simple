@@ -50,7 +50,7 @@ final class FileClient implements CacheInterface
     {
         $filename = $this->filename($key, false);
 
-        if (!is_file($filename)) {
+        if (false === is_file($filename)) {
             return $default;
         }
 
@@ -100,8 +100,8 @@ final class FileClient implements CacheInterface
             $this->logger->error($e->getMessage());
 
             return false;
+            // @codeCoverageIgnoreEnd
         }
-        // @codeCoverageIgnoreEnd
     }
 
     public function deleteMultiple($keys)
@@ -133,7 +133,7 @@ final class FileClient implements CacheInterface
         $dir = $directory ?: sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cache';
         $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
-        if (!is_dir($dir) && false === mkdir($dir, 0775, true)) {
+        if (false === is_dir($dir) && false === mkdir($dir, 0775, true)) {
             $e = FileCacheClientException::forCreatingDirectory($dir);
             $this->logger->error($e->getMessage());
             throw $e;
@@ -153,13 +153,13 @@ final class FileClient implements CacheInterface
     private function filename(string $key, bool $create = true): string
     {
         $filename = sha1($key);
-        $dir = $this->dir . substr($filename, 0, 2);
+        $dir = $this->dir . substr($filename, 0, 1);
 
-        if ($create && !is_dir($dir)) {
-            mkdir($dir, 0775, true);
+        if ($create && false === is_dir($dir)) {
+            mkdir($dir, 0775, true) || $this->logger->error('Failed to create cache directory: {dir}', ['dir' => $dir]);
         }
 
-        $filename = $dir . DIRECTORY_SEPARATOR . substr($filename, 2) . '.php';
+        $filename = $dir . DIRECTORY_SEPARATOR . substr($filename, 1) . '.php';
 
         if ($create && !is_file($filename)) {
             touch($filename);
