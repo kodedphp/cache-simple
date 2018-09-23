@@ -44,7 +44,7 @@ function simple_cache_factory(string $client = '', array $arguments = []): Simpl
  * Differs from PSR-16 "reserved" characters by adding the ":" to the list.
  * The colon is a wide accepted convention for Redis to separate the key.
  *
- * @param string $key   The cache key
+ * @param string $key The cache key
  *
  * @throws CacheException
  */

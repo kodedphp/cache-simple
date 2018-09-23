@@ -36,7 +36,7 @@ class CacheException extends KodedException implements InvalidArgumentException
     {
         return new self(Cache::E_UNSUPPORTED_LOGGER, [':supported' => $supported, ':given' => $given]);
     }
-    
+
     public static function forCreatingDirectory(string $directory)
     {
         return new static(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $directory]);

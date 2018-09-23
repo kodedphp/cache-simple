@@ -24,4 +24,11 @@ class InvalidSerializerTest extends TestCase
             'host' => getenv('REDIS_SERVER_HOST'),
         ])))->build());
     }
+
+    protected function setUp()
+    {
+        if (false === extension_loaded('redis')) {
+            $this->markTestSkipped('Redis extension is not loaded.');
+        }
+    }
 }

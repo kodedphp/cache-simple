@@ -13,7 +13,7 @@
 namespace Koded\Caching\Client;
 
 use Exception;
-use Koded\Caching\{ CacheException, CacheSerializer };
+use Koded\Caching\{CacheException, CacheSerializer};
 use Koded\Caching\Configuration\PredisConfiguration;
 use Koded\Caching\Serializer\PhpSerializer;
 use Predis\Client;

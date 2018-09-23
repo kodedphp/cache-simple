@@ -16,13 +16,16 @@ class RedisJsonConnectionTest extends TestCase
 
         putenv('CACHE_CLIENT=redis');
 
-        if (false === extension_loaded('redis')) {
-            $this->markTestSkipped('Redis extension is not loaded.');
-        }
-
         new SimpleCache((new ClientFactory(new ConfigFactory([
             'host' => 'invalid-redis-host',
             'serializer' => Cache::SERIALIZER_JSON
         ])))->build());
+    }
+
+    protected function setUp()
+    {
+        if (false === extension_loaded('redis')) {
+            $this->markTestSkipped('Redis extension is not loaded.');
+        }
     }
 }

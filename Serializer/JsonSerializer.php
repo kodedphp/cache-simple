@@ -2,7 +2,7 @@
 
 namespace Koded\Caching\Serializer;
 
-use Koded\Caching\{ CacheException, CacheSerializer };
+use Koded\Caching\{CacheException, CacheSerializer};
 
 final class JsonSerializer implements CacheSerializer
 {
