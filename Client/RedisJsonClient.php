@@ -13,9 +13,9 @@
 namespace Koded\Caching\Client;
 
 use Exception;
-use Koded\Caching\{ CacheException, CacheSerializer };
+use Koded\Caching\{CacheException, CacheSerializer};
 use Koded\Caching\Configuration\RedisConfiguration;
-use Koded\Caching\Serializer\{ JsonSerializer, PhpSerializer };
+use Koded\Caching\Serializer\{JsonSerializer, PhpSerializer};
 use Psr\SimpleCache\CacheInterface;
 use Redis;
 use RedisException;
