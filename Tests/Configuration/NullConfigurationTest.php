@@ -2,8 +2,8 @@
 
 namespace Koded\Caching\Configuration;
 
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Client\NullClient;
-use Koded\Caching\ClientFactory;
 use PHPUnit\Framework\TestCase;
 
 class NullConfigurationTest extends TestCase

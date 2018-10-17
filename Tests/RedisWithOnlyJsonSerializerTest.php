@@ -6,16 +6,15 @@ use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Interfaces\Serializer;
 use PHPUnit\Framework\TestCase;
-use Predis\Client;
 
-class PredisWithJsonSerializerTest extends TestCase
+class RedisWithOnlyJsonSerializerTest extends TestCase
 {
 
     use SimpleCacheTestCaseTrait;
 
-    public function test_should_return_predis_client()
+    public function test_should_return_redis_client()
     {
-        $this->assertInstanceOf(Client::class, $this->cache->client());
+        $this->assertInstanceOf(\Redis::class, $this->cache->client());
     }
 
     /**
@@ -66,19 +65,18 @@ class PredisWithJsonSerializerTest extends TestCase
             'json_encode() created JS object from PHP assoc array');
     }
 
+
     protected function setUp()
     {
-        putenv('CACHE_CLIENT=predis');
+        putenv('CACHE_CLIENT=redis');
+
+        if (false === extension_loaded('redis')) {
+            $this->markTestSkipped('Redis extension is not loaded.');
+        }
 
         $this->cache = (new ClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
-            'port' => getenv('REDIS_SERVER_PORT'),
-
             'serializer' => Serializer::JSON,
-            'options' => [
-                'prefix' => 'test:'
-            ],
-
         ])))->build();
     }
 }

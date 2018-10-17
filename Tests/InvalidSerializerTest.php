@@ -2,7 +2,9 @@
 
 namespace Koded\Caching;
 
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
+use Koded\Exceptions\SerializerException;
 use PHPUnit\Framework\TestCase;
 
 class InvalidSerializerTest extends TestCase
@@ -13,16 +15,16 @@ class InvalidSerializerTest extends TestCase
      */
     public function test_should_fail_on_invalid_serializer_in_configuration()
     {
-        $this->expectException(CacheException::class);
-        $this->expectExceptionCode(Cache::E_INVALID_SERIALIZER);
-        $this->expectExceptionMessage('Invalid cache serializer "junk"');
+        $this->expectException(SerializerException::class);
+        $this->expectExceptionCode(409);
+        $this->expectExceptionMessage('Failed to create a serializer for "junk"');
 
         putenv('CACHE_CLIENT=redis');
 
-        new SimpleCache((new ClientFactory(new ConfigFactory([
-            'serializer' => 'junk',
+        (new ClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
-        ])))->build());
+            'serializer' => 'junk'
+        ])))->build();
     }
 
     protected function setUp()

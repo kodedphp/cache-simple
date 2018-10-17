@@ -15,6 +15,7 @@ namespace Koded\Caching\Client;
 trait ClientTrait
 {
 
+    /** @var \Memcached | \Redis | \Koded\Caching\Client\FileClient | \Predis\Client */
     private $client;
 
     public function client()

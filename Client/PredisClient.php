@@ -12,66 +12,52 @@
 
 namespace Koded\Caching\Client;
 
-use Exception;
-use Koded\Caching\{CacheException, CacheSerializer};
-use Koded\Caching\Configuration\PredisConfiguration;
-use Koded\Caching\Serializer\PhpSerializer;
+use Koded\Caching\Cache;
+use Koded\Stdlib\Interfaces\Serializer;
 use Predis\Client;
-use Predis\Connection\ConnectionException;
 use Psr\SimpleCache\CacheInterface;
+use function Koded\Caching\guard_cache_key;
 
 /**
  * Class PredisClient uses the Predis library.
  *
  * @property Client client
  */
-final class PredisClient implements CacheInterface
+final class PredisClient implements CacheInterface, Cache
 {
 
     use ClientTrait, MultiplesTrait;
 
     /**
-     * @var PhpSerializer
+     * @var Serializer
      */
-    protected $phpSerializer;
+    protected $serializer;
 
-    public function __construct(Client $client, PredisConfiguration $config, CacheSerializer $phpSerializer)
+    public function __construct(Client $client, /*PredisConfiguration $config,*/ Serializer $serializer)
     {
         $this->client = $client;
-        $this->phpSerializer = $phpSerializer;
-
-        try {
-            $this->client->connect();
-            $this->client->select((int)$this->get('db'));
-
-            if ($auth = $config->get('auth')) {
-                $this->client->auth($auth);
-            }
-        } /** @noinspection PhpRedundantCatchClauseInspection */
-        catch (ConnectionException $e) {
-            throw CacheException::withConnectionErrorFor('Predis', $e);
-        } catch (Exception $e) {
-            throw CacheException::generic($e->getMessage(), $e);
-        }
+        $this->serializer = $serializer;
     }
 
     public function get($key, $default = null)
     {
-        if ($this->has($key)) {
-            return $this->phpSerializer->unserialize($this->client->get($key));
-        }
+        guard_cache_key($key);
 
-        return $default;
+        return $this->client->exists($key) > 0
+            ? $this->serializer->unserialize($this->client->get($key))
+            : $default;
     }
 
     public function set($key, $value, $ttl = null)
     {
+        guard_cache_key($key);
+
         if (null === $ttl) {
-            return 'OK' === $this->client->set($key, $this->phpSerializer->serialize($value))->getPayload();
+            return 'OK' === $this->client->set($key, $this->serializer->serialize($value))->getPayload();
         }
 
         if ($ttl > 0) {
-            return 'OK' === $this->client->setex($key, $ttl, $this->phpSerializer->serialize($value))->getPayload();
+            return 'OK' === $this->client->setex($key, $ttl, $this->serializer->serialize($value))->getPayload();
         }
 
         // The item is considered expired and must be deleted
@@ -87,6 +73,8 @@ final class PredisClient implements CacheInterface
 
     public function delete($key)
     {
+        guard_cache_key($key);
+
         return $this->client->del($key) > 0;
     }
 
@@ -97,6 +85,9 @@ final class PredisClient implements CacheInterface
 
     public function has($key)
     {
-        return (bool)$this->client->exists($key);
+        guard_cache_key($key);
+
+//        return (bool)$this->client->exists($key);
+        return $this->client->exists($key) > 0;
     }
 }

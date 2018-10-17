@@ -14,8 +14,10 @@ namespace Koded\Caching;
 
 use DateInterval;
 use DateTime;
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Interfaces\ConfigurationFactory;
+use Psr\SimpleCache\CacheInterface;
 
 /**
  * Factory function for SimpleCache.
@@ -28,14 +30,15 @@ use Koded\Stdlib\Interfaces\ConfigurationFactory;
  * @param string $client    [optional] The client name (ex. memcached, redis, etc)
  * @param array  $arguments [optional] A configuration parameters for the client
  *
- * @return SimpleCache
- * @throws CacheException | \Exception
+ * @return CacheInterface
+ * @throws CacheException
+ * @throws \Exception
  */
 
-function simple_cache_factory(string $client = '', array $arguments = []): SimpleCache
+function simple_cache_factory(string $client = '', array $arguments = []): CacheInterface
 {
     $config = new ConfigFactory($arguments);
-    return new SimpleCache((new ClientFactory($config))->build($client), $config->ttl);
+    return (new ClientFactory($config))->build($client);
 }
 
 /**
@@ -50,7 +53,7 @@ function simple_cache_factory(string $client = '', array $arguments = []): Simpl
  */
 function guard_cache_key(string $key): void
 {
-    if (1 === preg_match('/[^a-z0-9:\-_.]/i', $key)) {
+    if (1 === preg_match('/[^a-z0-9:_.-]/i', $key)) {
         throw CacheException::forInvalidKey($key);
     }
 }
@@ -85,16 +88,16 @@ function cache_ttl($ttl): ?int
  *
  * @param ConfigurationFactory|null $config [optional] Cache configuration
  *
- * @return SimpleCache
+ * @return CacheInterface
  * @throws CacheException | \Exception
  */
-function cache(ConfigurationFactory $config = null): SimpleCache
+function cache(ConfigurationFactory $config = null): CacheInterface
 {
     static $cache;
 
     if (null === $cache) {
         $config || $config = new ConfigFactory;
-        $cache = new SimpleCache((new ClientFactory($config))->build(), $config->ttl);
+        $cache = (new ClientFactory($config))->build();
     }
 
     return $cache;

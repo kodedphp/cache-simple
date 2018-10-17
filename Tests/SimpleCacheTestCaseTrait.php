@@ -8,12 +8,17 @@ use Psr\SimpleCache\CacheInterface;
 trait SimpleCacheTestCaseTrait
 {
 
-    /** @var SimpleCache */
+    /** @var Cache */
     protected $cache;
 
     public function test_client_should_implement_cache_interface()
     {
-        $this->assertAttributeInstanceOf(CacheInterface::class, 'client', $this->cache);
+        $this->assertInstanceOf(CacheInterface::class, $this->cache);
+    }
+
+    public function test_should_return_cache_instance()
+    {
+        $this->assertNotNull($this->cache->client());
     }
 
     public function test_get_has_and_set_methods()
@@ -57,7 +62,7 @@ trait SimpleCacheTestCaseTrait
         $this->assertSame(['bar' => true], $this->cache->get('key3'));
 
         $this->assertEquals(new Arguments(['foo' => 'bar']), $this->cache->get('key4'));
-        $this->assertEquals($data, $this->cache->getMultiple(['key1', 'key2', 'key3', 'key4']));
+        $this->assertEquals($data, $this->cache->getMultiple(['key1', 'key2', 'key3', 'key4', 'key5']));
     }
 
     /**
@@ -156,11 +161,6 @@ trait SimpleCacheTestCaseTrait
         $this->assertFalse($this->cache->has('foo'));
     }
 
-    public function test_should_return_cache_instance()
-    {
-        $this->assertNotNull($this->cache->client());
-    }
-
     /**
      * @dataProvider simpleData
      */
@@ -178,7 +178,8 @@ trait SimpleCacheTestCaseTrait
                     'key1' => 'foo',
                     'key2' => false,
                     'key3' => ['bar' => true],
-                    'key4' => new Arguments(['foo' => 'bar'])
+                    'key4' => new Arguments(['foo' => 'bar']),
+                    'key5' => ['foo', 'bar', 'baz']
                 ]
             ]
         ];

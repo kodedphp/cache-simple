@@ -12,78 +12,64 @@
 
 namespace Koded\Caching\Client;
 
-use Exception;
-use Koded\Caching\CacheException;
-use Koded\Caching\Configuration\RedisConfiguration;
-use function Koded\Stdlib\dump;
+use Koded\Caching\Cache;
+use Koded\Stdlib\Interfaces\Serializer;
 use Psr\SimpleCache\CacheInterface;
-use Redis;
-use RedisException;
+use function Koded\Caching\guard_cache_key;
 
 /**
  * Class RedisClient uses the Redis PHP extension.
  *
- * @property Redis client
+ * @property \Redis client
  */
-class RedisClient implements CacheInterface
+class RedisClient implements CacheInterface, Cache
 {
 
     use ClientTrait, MultiplesTrait;
 
-    public function __construct(Redis $client, RedisConfiguration $config)
+    /**
+     * @var Serializer
+     */
+    private $serializer;
+
+    public function __construct(\Redis $client, Serializer $serializer)
     {
         $this->client = $client;
-
-        try {
-            // Because connect() does not throw exception, but E_WARNING
-            if (false === @$this->client->connect(...$config->getConnectionParams())) {
-                // @codeCoverageIgnoreStart
-                throw CacheException::withConnectionErrorFor('Redis');
-                // @codeCoverageIgnoreEnd
-            }
-
-            $this->client->setOption(Redis::OPT_SERIALIZER, $config->getSerializerType());
-            $this->client->setOption(Redis::OPT_PREFIX, $config->get('prefix'));
-            $this->client->select((int)$config->get('db', 0));
-
-            if ($auth = $config->get('auth')) {
-                $this->client->auth($auth);
-            }
-
-        } catch (RedisException $e) {
-            error_log($e->getMessage());
-            throw CacheException::withConnectionErrorFor('Redis');
-        } catch (CacheException $e) {
-            throw $e;
-        } catch (Exception $e) {
-            throw CacheException::generic($e->getMessage(), $e);
-        }
+        $this->serializer = $serializer;
     }
 
     public function get($key, $default = null)
     {
-        return $this->client->exists($key) ? $this->client->get($key) : $default;
+        guard_cache_key($key);
+
+        return (bool)$this->client->exists($key)
+            ? $this->serializer->unserialize($this->client->get($key))
+            : $default;
     }
 
     public function set($key, $value, $ttl = null)
     {
+        guard_cache_key($key);
+
         if (null === $ttl) {
-            return $this->client->set($key, $value);
+            return $this->client->set($key, $this->serializer->serialize($value));
         }
 
         if ($ttl > 0) {
-            return $this->client->setex($key, $ttl, $value);
+            return $this->client->setex($key, $ttl, $this->serializer->serialize($value));
         }
 
         // The item is considered expired and must be deleted
         $this->client->del($key);
 
-        return false === $this->has($key);
+        return false === (bool)$this->client->exists($key);
     }
 
     public function delete($key)
     {
-        return $this->client->del($key) > 0;
+        guard_cache_key($key);
+
+        return 1 === $this->client->del($key);
     }
 
     public function deleteMultiple($keys)
@@ -98,6 +84,8 @@ class RedisClient implements CacheInterface
 
     public function has($key)
     {
+        guard_cache_key($key);
+
         return (bool)$this->client->exists($key);
     }
 }

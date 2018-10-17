@@ -14,7 +14,6 @@ namespace Koded\Caching\Configuration;
 
 use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\Configuration;
-use Memcached;
 
 /**
  * Class MemcachedConfiguration
@@ -37,12 +36,12 @@ final class MemcachedConfiguration extends Immutable implements Configuration
             'id' => $options['id'] ?? null,
             'servers' => $options['servers'] ?? [],
             'options' => array_replace([
-                Memcached::OPT_DISTRIBUTION => Memcached::DISTRIBUTION_CONSISTENT,
-                Memcached::OPT_SERVER_FAILURE_LIMIT => 2,
-                Memcached::OPT_REMOVE_FAILED_SERVERS => true,
-                Memcached::OPT_RETRY_TIMEOUT => 1,
-                Memcached::OPT_LIBKETAMA_COMPATIBLE => true,
-                Memcached::OPT_PREFIX_KEY => null
+                \Memcached::OPT_DISTRIBUTION => \Memcached::DISTRIBUTION_CONSISTENT,
+                \Memcached::OPT_SERVER_FAILURE_LIMIT => 2,
+                \Memcached::OPT_REMOVE_FAILED_SERVERS => true,
+                \Memcached::OPT_RETRY_TIMEOUT => 1,
+                \Memcached::OPT_LIBKETAMA_COMPATIBLE => true,
+                \Memcached::OPT_PREFIX_KEY => null
             ], $options['options'] ?? [])
         ]);
     }

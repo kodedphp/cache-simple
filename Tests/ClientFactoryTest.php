@@ -1,8 +1,8 @@
 <?php
 
-namespace Koded\Caching;
+namespace Koded\Caching\Client;
 
-use Koded\Caching\Client\{ FileClient, MemcachedClient, MemoryClient, NullClient, PredisClient, RedisClient };
+use Koded\Caching\CacheException;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -33,7 +33,8 @@ class ClientFactoryTest extends TestCase
 
         $client = (new ClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
-            'auth' => 'fubar'
+            'auth' => 'fubar',
+            'binary' => 'msgpack'
         ])))->build('redis');
 
         $this->assertInstanceOf(RedisClient::class, $client);

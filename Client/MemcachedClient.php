@@ -12,19 +12,20 @@
 
 namespace Koded\Caching\Client;
 
+use Koded\Caching\Cache;
 use Koded\Caching\Configuration\MemcachedConfiguration;
-use Memcached;
 use Psr\SimpleCache\CacheInterface;
+use function Koded\Caching\guard_cache_key;
 
 /**
- * @property Memcached client
+ * @property \Memcached client
  */
-final class MemcachedClient implements CacheInterface
+final class MemcachedClient implements CacheInterface, Cache
 {
 
     use ClientTrait;
 
-    public function __construct(Memcached $client, MemcachedConfiguration $config)
+    public function __construct(\Memcached $client, MemcachedConfiguration $config)
     {
         $this->client = $client;
 
@@ -37,14 +38,18 @@ final class MemcachedClient implements CacheInterface
 
     public function get($key, $default = null)
     {
+        guard_cache_key($key);
+
         // Cannot use get() directly because FALSE is a valid value
         $value = $this->client->get($key);
 
-        return $this->client->getResultCode() === Memcached::RES_SUCCESS ? $value : $default;
+        return $this->client->getResultCode() === \Memcached::RES_SUCCESS ? $value : $default;
     }
 
     public function set($key, $value, $ttl = null)
     {
+        guard_cache_key($key);
+
         if ($ttl < 0 || $ttl === 0) {
             $this->client->delete($key);
 
@@ -56,6 +61,8 @@ final class MemcachedClient implements CacheInterface
 
     public function delete($key)
     {
+        guard_cache_key($key);
+
         return $this->client->delete($key);
     }
 
@@ -89,9 +96,11 @@ final class MemcachedClient implements CacheInterface
 
     public function has($key)
     {
+        guard_cache_key($key);
+
         // Memcached does not have exists() or similar method
         $this->client->get($key);
 
-        return $this->client->getResultCode() === Memcached::RES_SUCCESS;
+        return $this->client->getResultCode() === \Memcached::RES_SUCCESS;
     }
 }

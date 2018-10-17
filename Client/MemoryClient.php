@@ -12,9 +12,11 @@
 
 namespace Koded\Caching\Client;
 
+use Koded\Caching\Cache;
 use Psr\SimpleCache\CacheInterface;
+use function Koded\Caching\guard_cache_key;
 
-final class MemoryClient implements CacheInterface
+final class MemoryClient implements CacheInterface, Cache
 {
 
     use ClientTrait, MultiplesTrait;
@@ -24,6 +26,8 @@ final class MemoryClient implements CacheInterface
 
     public function get($key, $default = null)
     {
+        guard_cache_key($key);
+
         if (isset($this->expiration[$key]) && $this->expiration[$key] < time()) {
             $this->delete($key);
 
@@ -35,6 +39,8 @@ final class MemoryClient implements CacheInterface
 
     public function set($key, $value, $ttl = null)
     {
+        guard_cache_key($key);
+
         if ($ttl < 0 || $ttl === 0) {
             return $this->delete($key);
         }
@@ -50,6 +56,7 @@ final class MemoryClient implements CacheInterface
 
     public function delete($key)
     {
+        guard_cache_key($key);
         unset($this->storage[$key], $this->expiration[$key]);
 
         return false === array_key_exists($key, $this->storage);
@@ -75,6 +82,8 @@ final class MemoryClient implements CacheInterface
 
     public function has($key)
     {
+        guard_cache_key($key);
+
         return array_key_exists($key, $this->storage);
     }
 }

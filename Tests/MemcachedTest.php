@@ -2,9 +2,8 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\MemcachedClient;
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
-use Memcached;
 use PHPUnit\Framework\TestCase;
 
 class MemcachedTest extends TestCase
@@ -14,12 +13,7 @@ class MemcachedTest extends TestCase
 
     public function test_should_return_memcached_client()
     {
-        $this->assertInstanceOf(Memcached::class, $this->cache->client());
-    }
-
-    public function test_should_return_memcached_instance()
-    {
-        $this->assertInstanceOf(MemcachedClient::class, $this->cache->instance());
+        $this->assertInstanceOf(\Memcached::class, $this->cache->client());
     }
 
     protected function setUp()
@@ -36,6 +30,6 @@ class MemcachedTest extends TestCase
             $this->markTestSkipped('Memcached extension is not loaded.');
         }
 
-        $this->cache = new SimpleCache((new ClientFactory(new ConfigFactory()))->build());
+        $this->cache = (new ClientFactory(new ConfigFactory()))->build();
     }
 }

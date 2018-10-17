@@ -2,6 +2,7 @@
 
 namespace Koded\Caching;
 
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
