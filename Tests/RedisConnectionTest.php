@@ -2,6 +2,7 @@
 
 namespace Koded\Caching;
 
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -16,9 +17,9 @@ class RedisConnectionTest extends TestCase
 
         putenv('CACHE_CLIENT=redis');
 
-        new SimpleCache((new ClientFactory(new ConfigFactory([
+        (new ClientFactory(new ConfigFactory([
             'host' => 'invalid-redis-host'
-        ])))->build());
+        ])))->build();
     }
 
     protected function setUp()

@@ -85,10 +85,17 @@ $cache = simple_cache_factory('redis', [
 A bit verbose construction for the same instance is
 
 ```php
+
+// v1.x
 $config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:']);
 $client = (new ClientFactory($config))->build('redis');
 
 $cache = new SimpleCache($client, 3600);
+
+
+// v2.x
+$config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:']);
+$cache = (new ClientFactory($config))->build('redis');
 ```
 
 Configuration directives

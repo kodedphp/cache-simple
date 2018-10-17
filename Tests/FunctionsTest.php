@@ -2,16 +2,17 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\MemcachedClient;
+use DateInterval;
 use Koded\Caching\Client\NullClient;
 use PHPUnit\Framework\TestCase;
+use Psr\SimpleCache\CacheInterface;
 
 class FunctionsTest extends TestCase
 {
 
     public function test_should_create_simple_cache_with_null_client()
     {
-        $this->assertInstanceOf(SimpleCache::class, cache());
+        $this->assertInstanceOf(CacheInterface::class, cache());
     }
 
     public function test_should_guard_a_proper_cache_key()
@@ -45,28 +46,30 @@ class FunctionsTest extends TestCase
 
     public function test_should_set_ttl_from_date_interval()
     {
-        $interval = new \DateInterval('PT42S');
+        $interval = new DateInterval('PT42S');
         $this->assertSame(42, cache_ttl($interval));
     }
 
     public function test_should_support_timestamps_before_unix_epoch_on_32bit_systems()
     {
-        $interval = \DateInterval::createFromDateString('-2000 years');
+        $interval = DateInterval::createFromDateString('-2000 years');
         $this->assertLessThan(-63100000000, cache_ttl($interval));
     }
 
-    public function test_should_create_new_simplecache_instance_with_null_client()
+    public function test_default_options_creates_null_client_instance()
     {
         $cache = simple_cache_factory();
-        $this->assertAttributeInstanceOf(NullClient::class, 'client', $cache);
+        $this->assertInstanceOf(NullClient::class, $cache);
     }
 
-    public function test_should_create_new_simplecache_instance_with_memcached_client()
+    public function test_should_always_create_new_client_instances()
     {
         $cache1 = simple_cache_factory('memcached');
-        $this->assertAttributeInstanceOf(MemcachedClient::class, 'client', $cache1);
-
         $cache2 = simple_cache_factory('memcached');
+
+        $this->assertInstanceOf(\Memcached::class, $cache1->client());
+
         $this->assertNotSame($cache1, $cache2);
+        $this->assertNotSame($cache1->client(), $cache2->client());
     }
 }

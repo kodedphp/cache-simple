@@ -14,7 +14,7 @@ namespace Koded\Caching\Client;
 
 use DateTime;
 use FilesystemIterator;
-use Koded\Caching\CacheException;
+use Koded\Caching\{Cache, CacheException};
 use Koded\Caching\Configuration\FileConfiguration;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -25,7 +25,7 @@ use Throwable;
 /**
  * @property FileClient client
  */
-final class FileClient implements CacheInterface
+final class FileClient implements CacheInterface, Cache
 {
 
     use ClientTrait, MultiplesTrait;

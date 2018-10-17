@@ -12,19 +12,43 @@
 
 namespace Koded\Caching\Configuration;
 
-use Koded\Caching\{Cache, CacheException};
 use Koded\Stdlib\Immutable;
-use Koded\Stdlib\Interfaces\Configuration;
-use Redis;
+use Koded\Stdlib\Interfaces\{Configuration, Serializer};
+
 
 final class RedisConfiguration extends Immutable implements Configuration
 {
+
+    private $type;
+    private $primary;
+    private $binary;
+
+    public function __construct(array $values)
+    {
+        parent::__construct($values);
+        $this->primary = $this->get('serializer', Serializer::PHP) ?: Serializer::PHP;
+        $this->binary = $this->get('binary');
+
+        switch ($this->primary) {
+            case Serializer::PHP:
+                $this->type = \Redis::SERIALIZER_PHP;
+                break;
+
+            case Serializer::IGBINARY:
+                $this->type = \Redis::SERIALIZER_IGBINARY;
+                break;
+
+            // JSON, MSGPACK
+            default:
+                $this->type = \Redis::SERIALIZER_NONE;
+        }
+    }
 
     /**
      *
      * @return array [
      * string $host can be a host, or the path to a unix domain socket
-     * int   $port           optional
+     * int   $port           optional, default 6379
      * float $timeout        value in seconds (optional, default is 0.0 meaning unlimited)
      * null  $reserved       should be null if $retry_interval is specified
      * int   $retry_interval retry interval in milliseconds.
@@ -47,16 +71,6 @@ final class RedisConfiguration extends Immutable implements Configuration
      */
     public function getSerializerType(): int
     {
-        $serializer = $this->get('serializer', Cache::SERIALIZER_PHP);
-
-        if (Cache::SERIALIZER_PHP === $serializer) {
-            return true === $this->get('binary', false) ? Redis::SERIALIZER_IGBINARY : Redis::SERIALIZER_PHP;
-        }
-
-        if (Cache::SERIALIZER_JSON === $serializer) {
-            return Redis::SERIALIZER_NONE;
-        }
-
-        throw CacheException::forUnknownSerializer((string)$serializer);
+        return $this->type;
     }
 }

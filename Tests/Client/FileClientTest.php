@@ -4,9 +4,7 @@ namespace Koded\Caching\Client;
 
 use Koded\Caching\Configuration\FileConfiguration;
 use Koded\Stdlib\Arguments;
-use org\bovigo\vfs\{
-    vfsStream, vfsStreamDirectory, vfsStreamWrapper
-};
+use org\bovigo\vfs\{vfsStream, vfsStreamDirectory, vfsStreamWrapper};
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
