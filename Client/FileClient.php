@@ -21,6 +21,7 @@ use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Throwable;
+use function Koded\Caching\{cache_key_check, cache_ttl};
 
 /**
  * @property FileClient client
@@ -43,6 +44,7 @@ final class FileClient implements CacheInterface, Cache
     public function __construct(FileConfiguration $config, LoggerInterface $logger)
     {
         $this->logger = $logger;
+        $this->ttl = $config->get('ttl');
         $this->initialize((string)$config->get('dir'));
     }
 
@@ -72,7 +74,8 @@ final class FileClient implements CacheInterface, Cache
             return $this->delete($key);
         }
 
-        return (bool)file_put_contents($this->filename($key), $this->content($key, $value, $ttl));
+        $ttl = cache_ttl($ttl ?? $this->ttl);
+        return (bool)file_put_contents($this->filename($key), $this->data($key, $value, $ttl));
     }
 
     public function delete($key)
@@ -108,6 +111,7 @@ final class FileClient implements CacheInterface, Cache
     {
         $deleted = 0;
         foreach ($keys as $key) {
+            cache_key_check($key);
             $this->delete($key) && ++$deleted;
         }
 
@@ -124,7 +128,7 @@ final class FileClient implements CacheInterface, Cache
      *
      * @param string $directory
      *
-     * @throws FileCacheClientException
+     * @throws CacheException
      */
     private function initialize(string $directory)
     {
@@ -134,7 +138,7 @@ final class FileClient implements CacheInterface, Cache
         $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
         if (false === is_dir($dir) && false === mkdir($dir, 0775, true)) {
-            $e = FileCacheClientException::forCreatingDirectory($dir);
+            $e = CacheException::forCreatingDirectory($dir);
             $this->logger->error($e->getMessage());
             throw $e;
         }
@@ -152,6 +156,7 @@ final class FileClient implements CacheInterface, Cache
      */
     private function filename(string $key, bool $create = true): string
     {
+        cache_key_check($key);
         $filename = sha1($key);
         $dir = $this->dir . substr($filename, 0, 1);
 
@@ -178,7 +183,7 @@ final class FileClient implements CacheInterface, Cache
      *
      * @return string
      */
-    private function content(string $key, $value, $ttl): string
+    private function data(string $key, $value, $ttl): string
     {
         if (null === $ttl) {
             $ttl = (int)(new DateTime('31st December 2999'))->format('U');
@@ -204,12 +209,4 @@ final class FileClient implements CacheInterface, Cache
     {
         return $cache['timestamp'] <= time();
     }
-}
-
-/**
- * Class FileCacheClientException
- *
- */
-class FileCacheClientException extends CacheException
-{
 }

@@ -13,10 +13,18 @@
 namespace Koded\Caching\Configuration;
 
 use Koded\Stdlib\Immutable;
-use Koded\Stdlib\Interfaces\Configuration;
+use Koded\Stdlib\Interfaces\{Configuration, Serializer};
 
 final class PredisConfiguration extends Immutable implements Configuration
 {
+
+    public function __construct(array $values)
+    {
+        parent::__construct($values + [
+                'serializer' => $serializer = $values['serializer'] ?? Serializer::PHP,
+                'binary' => $values['binary']
+            ]);
+    }
 
     public function getConnectionParams(): array
     {
@@ -29,6 +37,6 @@ final class PredisConfiguration extends Immutable implements Configuration
 
     public function getOptions(): array
     {
-        return (array)$this->get('options') ?? [];
+        return (array)$this->get('options');
     }
 }

@@ -42,8 +42,7 @@ class ClientFactory
      * @param string $client The required cache client
      *
      * @return CacheInterface An instance of the cache client
-     * @throws CacheException
-     * @throws Exception
+     * @throws CacheException | Exception
      */
     public function build(string $client = ''): CacheInterface
     {
@@ -78,23 +77,35 @@ class ClientFactory
 
     private function getRedisClient(RedisConfiguration $conf): CacheInterface
     {
-        if (Serializer::JSON === $conf->get('serializer', Serializer::PHP) && !$conf->equals('primary', 'binary')) {
-            return new RedisJsonClient($this->createRedisClient($conf),
-                SerializerFactory::new(Serializer::JSON, (int)$conf->get('options')),
-                SerializerFactory::new($conf->get('binary'), $conf->get('options')));
+        $serializer = $conf->get('serializer');
+
+        if (Serializer::JSON === $serializer && $conf->get('binary')) {
+            return (new RedisJsonClient($this->createRedisClient($conf),
+                SerializerFactory::new($conf->get('binary'), $conf->get('options')),
+                (int)$conf->get('options')
+            ))->setTtl($conf->get('ttl'));
         }
 
-        return new RedisClient($this->createRedisClient($conf),
-            SerializerFactory::new($conf->get('serializer', Serializer::PHP), $conf->get('options'))
-        );
+        return (new RedisClient($this->createRedisClient($conf),
+            SerializerFactory::new($serializer, $conf->get('options')))
+        )->setTtl($conf->get('ttl'));
     }
 
 
     private function getPredisClient(PredisConfiguration $conf): CacheInterface
     {
-        return new PredisClient($this->createPredisClient($conf),
-            SerializerFactory::new($conf->get('serializer', Serializer::PHP), $conf->get('options'))
-        );
+        $serializer = $conf->get('serializer');
+
+        if (Serializer::JSON === $serializer && $conf->get('binary')) {
+            return (new PredisJsonClient($this->createPredisClient($conf),
+                SerializerFactory::new($conf->get('binary'), $conf->get('options')),
+                (int)$conf->get('options')
+            ))->setTtl($conf->get('ttl'));
+        }
+
+        return (new PredisClient($this->createPredisClient($conf),
+            SerializerFactory::new($conf->get('serializer'), $conf->get('options'))
+        ))->setTtl($conf->get('ttl'));
     }
 
     /**
@@ -117,7 +128,7 @@ class ClientFactory
                 // @codeCoverageIgnoreEnd
             }
 
-            $client->setOption(\Redis::OPT_SERIALIZER, $conf->getSerializerType());
+            $client->setOption(\Redis::OPT_SERIALIZER, $conf->get('type'));
             $client->setOption(\Redis::OPT_PREFIX, $conf->get('prefix'));
             $client->select((int)$conf->get('db', 0));
 
@@ -130,15 +141,13 @@ class ClientFactory
         } catch (\RedisException $e) {
             error_log($e->getMessage());
             throw CacheException::withConnectionErrorFor('Redis');
-        } catch (CacheException $e) {
-            throw $e;
         } catch (Exception $e) {
             throw CacheException::generic($e->getMessage(), $e);
         }
     }
 
     /**
-     * creates a Predis\Client and connects it to Redis server.
+     * Creates a Predis\Client and connects it to Redis server.
      *
      * @param PredisConfiguration $conf
      *

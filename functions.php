@@ -16,7 +16,6 @@ use DateInterval;
 use DateTime;
 use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
-use Koded\Stdlib\Interfaces\ConfigurationFactory;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -35,10 +34,9 @@ use Psr\SimpleCache\CacheInterface;
  * @throws \Exception
  */
 
-function simple_cache_factory(string $client = '', array $arguments = []): CacheInterface
+function simple_cache_factory(string $client = '', array $arguments = []): Cache
 {
-    $config = new ConfigFactory($arguments);
-    return (new ClientFactory($config))->build($client);
+    return (new ClientFactory(new ConfigFactory($arguments)))->build($client);
 }
 
 /**
@@ -51,7 +49,7 @@ function simple_cache_factory(string $client = '', array $arguments = []): Cache
  *
  * @throws CacheException
  */
-function guard_cache_key(string $key): void
+function cache_key_check(string $key): void
 {
     if (1 === preg_match('/[^a-z0-9:_.-]/i', $key)) {
         throw CacheException::forInvalidKey($key);
@@ -62,9 +60,10 @@ function guard_cache_key(string $key): void
  * Transforms the DateInterval TTL, or return the value as-is.
  *
  * @param null|int|DateInterval $ttl A gypsy argument that wants to be a TTL
- *                                   (apparently a simple timestamp is not enough)
+ *                                   (apparently a simple number of seconds is not enough and it must be a mess)
  *
- * @return int|null Returns the TTL is seconds, or NULL. Can be a negative number to delete the cached items
+ * @return int|null Returns the TTL is seconds, or NULL.
+ * Can be a negative number to delete the cached item.
  */
 function cache_ttl($ttl): ?int
 {
@@ -78,27 +77,4 @@ function cache_ttl($ttl): ?int
     }
 
     return (int)$ttl;
-}
-
-/**
- * Creates once an instance of SimpleCache.
- *
- * If configuration is not provided, defaults to NullClient (dummy) cache client,
- * otherwise it will try to create one defined in the configuration.
- *
- * @param ConfigurationFactory|null $config [optional] Cache configuration
- *
- * @return CacheInterface
- * @throws CacheException | \Exception
- */
-function cache(ConfigurationFactory $config = null): CacheInterface
-{
-    static $cache;
-
-    if (null === $cache) {
-        $config || $config = new ConfigFactory;
-        $cache = (new ClientFactory($config))->build();
-    }
-
-    return $cache;
 }

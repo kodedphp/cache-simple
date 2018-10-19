@@ -15,6 +15,8 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
 use Psr\SimpleCache\CacheInterface;
+use function Koded\Caching\{cache_key_check, cache_ttl};
+use function Koded\Stdlib\json_serialize;
 
 /**
  * Class RedisJsonClient uses the Redis PHP extension to save the cache item as JSON.
@@ -27,36 +29,34 @@ use Psr\SimpleCache\CacheInterface;
  * and the PHP serialized variant is useful only for PHP applications
  * where the cached item is handled by PHP serialization.
  *
- * @property \Redis client
  */
-final class RedisJsonClient implements CacheInterface, Cache
+class RedisJsonClient implements CacheInterface, Cache
 {
 
     use ClientTrait, MultiplesTrait;
 
-    const SERIALIZED = '__serialized__';
-
-    /**
-     * @var Serializer
-     */
-    private $jsonSerializer;
+    protected $suffix;
+    protected $options;
 
     /**
      * @var Serializer PHP by default. If available: msgpack, igbinary
      */
-    private $phpSerializer;
+    protected $binarySerializer;
 
-    public function __construct(\Redis $client, Serializer $jsonSerializer, Serializer $phpSerializer)
+    public function __construct($client, Serializer $binarySerializer, int $options)
     {
         $this->client = $client;
-        $this->jsonSerializer = $jsonSerializer;
-        $this->phpSerializer = $phpSerializer;
+        $this->options = $options;
+        $this->suffix = '__' . $binarySerializer->type() . '__';
+        $this->binarySerializer = $binarySerializer;
     }
 
     public function get($key, $default = null)
     {
+        cache_key_check($key);
+
         if ($this->has($key)) {
-            return $this->phpSerializer->unserialize($this->client->get($key . self::SERIALIZED));
+            return $this->binarySerializer->unserialize($this->client->get($key . $this->suffix));
         }
 
         return $default;
@@ -64,31 +64,36 @@ final class RedisJsonClient implements CacheInterface, Cache
 
     public function set($key, $value, $ttl = null)
     {
+        cache_key_check($key);
+        $ttl = cache_ttl($ttl ?? $this->ttl);
+
         if (null === $ttl) {
-            return $this->client->set($key, $this->jsonSerializer->serialize($value))
-                && $this->client->set($key . self::SERIALIZED, $this->phpSerializer->serialize($value));
+            return $this->client->set($key, json_serialize($value, $this->options))
+                && $this->client->set($key . $this->suffix, $this->binarySerializer->serialize($value));
         }
 
         if ($ttl > 0) {
-            return $this->client->setex($key, $ttl, $this->jsonSerializer->serialize($value))
-                && $this->client->setex($key . self::SERIALIZED, $ttl, $this->phpSerializer->serialize($value));
+            return $this->client->setex($key, $ttl, json_serialize($value, $this->options))
+                && $this->client->setex($key . $this->suffix, $ttl, $this->binarySerializer->serialize($value));
         }
 
         // The item is considered expired and must be deleted
-        $this->client->del($key, $key . self::SERIALIZED);
+        $this->client->del($key, $key . $this->suffix);
 
         return false === $this->has($key);
     }
 
     public function delete($key)
     {
-        return 2 === $this->client->del($key, $key . self::SERIALIZED);
+        cache_key_check($key);
+        return 2 === $this->client->del($key, $key . $this->suffix);
     }
 
     public function deleteMultiple($keys)
     {
         foreach ($keys as $key) {
-            $keys[] = $key . self::SERIALIZED;
+            cache_key_check($key);
+            $keys[] = $key . $this->suffix;
         }
 
         return $this->client->del($keys) === count($keys);
@@ -101,7 +106,9 @@ final class RedisJsonClient implements CacheInterface, Cache
 
     public function has($key)
     {
+        cache_key_check($key);
+
         return (bool)$this->client->exists($key)
-            && (bool)$this->client->exists($key . self::SERIALIZED);
+            && (bool)$this->client->exists($key . $this->suffix);
     }
 }

@@ -14,7 +14,7 @@ namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\guard_cache_key;
+use function Koded\Caching\cache_key_check;
 
 /**
  * @property NullClient client
@@ -28,21 +28,21 @@ final class NullClient implements CacheInterface, Cache
 
     public function get($key, $default = null)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         return $default;
     }
 
     public function set($key, $value, $ttl = null)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         return true;
     }
 
     public function delete($key)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         return true;
     }
@@ -69,7 +69,7 @@ final class NullClient implements CacheInterface, Cache
 
     public function has($key)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         return false;
     }
