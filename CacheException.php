@@ -22,7 +22,6 @@ class CacheException extends KodedException implements InvalidArgumentException
         Cache::E_INVALID_KEY => 'The cache key is invalid, ":key" given',
         Cache::E_UNSUPPORTED_LOGGER => 'The cache logger should be NULL or an instance of :supported, :given given',
         Cache::E_DIRECTORY_NOT_CREATED => 'Failed to create a cache directory ":dir"',
-        Cache::E_INVALID_SERIALIZER => 'Invalid cache serializer ":type"',
         Cache::E_PHP_EXCEPTION => '[Cache Exception] :message',
         Cache::E_CONNECTION_ERROR => '[Cache Exception] Failed to connect the :client client',
     ];
@@ -40,11 +39,6 @@ class CacheException extends KodedException implements InvalidArgumentException
     public static function forCreatingDirectory(string $directory)
     {
         return new static(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $directory]);
-    }
-
-    public static function forUnknownSerializer(string $type)
-    {
-        return new self(Cache::E_INVALID_SERIALIZER, [':type' => $type]);
     }
 
     public static function generic(string $message, Exception $previous = null)

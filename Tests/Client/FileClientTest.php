@@ -2,6 +2,7 @@
 
 namespace Koded\Caching\Client;
 
+use Koded\Caching\CacheException;
 use Koded\Caching\Configuration\FileConfiguration;
 use Koded\Stdlib\Arguments;
 use org\bovigo\vfs\{vfsStream, vfsStreamDirectory, vfsStreamWrapper};
@@ -19,7 +20,7 @@ class FileClientTest extends TestCase
     public function test_nonwritable_cache_directory()
     {
         $dir = $this->dir->url() . '/fubar';
-        $this->expectException(FileCacheClientException::class);
+        $this->expectException(CacheException::class);
         $this->expectExceptionMessage('Failed to create a cache directory "' . $dir . '/"');
 
         vfsStreamWrapper::getRoot()->chmod(0400);

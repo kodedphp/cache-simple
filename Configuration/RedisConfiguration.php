@@ -15,21 +15,19 @@ namespace Koded\Caching\Configuration;
 use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\{Configuration, Serializer};
 
-
 final class RedisConfiguration extends Immutable implements Configuration
 {
 
     private $type;
-    private $primary;
-    private $binary;
 
     public function __construct(array $values)
     {
-        parent::__construct($values);
-        $this->primary = $this->get('serializer', Serializer::PHP) ?: Serializer::PHP;
-        $this->binary = $this->get('binary');
+        parent::__construct($values + [
+                'serializer' => $serializer = $values['serializer'] ?? Serializer::PHP,
+                'binary' => $values['binary']
+            ]);
 
-        switch ($this->primary) {
+        switch ($serializer) {
             case Serializer::PHP:
                 $this->type = \Redis::SERIALIZER_PHP;
                 break;
@@ -64,13 +62,5 @@ final class RedisConfiguration extends Immutable implements Configuration
             $this->get('reserved', null),
             $this->get('retry', 0)
         ];
-    }
-
-    /**
-     * @return int Redis serializer type
-     */
-    public function getSerializerType(): int
-    {
-        return $this->type;
     }
 }

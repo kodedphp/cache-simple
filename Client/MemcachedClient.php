@@ -15,7 +15,7 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Caching\Configuration\MemcachedConfiguration;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\guard_cache_key;
+use function Koded\Caching\{cache_key_check, cache_ttl};
 
 /**
  * @property \Memcached client
@@ -38,9 +38,9 @@ final class MemcachedClient implements CacheInterface, Cache
 
     public function get($key, $default = null)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
-        // Cannot use get() directly because FALSE is a valid value
+        // Cannot return get() directly because FALSE is a valid value
         $value = $this->client->get($key);
 
         return $this->client->getResultCode() === \Memcached::RES_SUCCESS ? $value : $default;
@@ -48,7 +48,7 @@ final class MemcachedClient implements CacheInterface, Cache
 
     public function set($key, $value, $ttl = null)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         if ($ttl < 0 || $ttl === 0) {
             $this->client->delete($key);
@@ -56,12 +56,12 @@ final class MemcachedClient implements CacheInterface, Cache
             return true;
         }
 
-        return $this->client->set($key, $value, $ttl);
+        return $this->client->set($key, $value, cache_ttl($ttl));
     }
 
     public function delete($key)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         return $this->client->delete($key);
     }
@@ -73,10 +73,7 @@ final class MemcachedClient implements CacheInterface, Cache
 
     public function getMultiple($keys, $default = null)
     {
-        return array_replace(
-            array_fill_keys($keys, $default),
-            $this->client->getMulti($keys) ?: []
-        );
+        return array_replace(array_fill_keys($keys, $default), $this->client->getMulti($keys) ?: []);
     }
 
     public function setMultiple($values, $ttl = null)
@@ -96,7 +93,7 @@ final class MemcachedClient implements CacheInterface, Cache
 
     public function has($key)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         // Memcached does not have exists() or similar method
         $this->client->get($key);

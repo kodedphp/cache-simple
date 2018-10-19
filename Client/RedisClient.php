@@ -15,7 +15,7 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\guard_cache_key;
+use function Koded\Caching\{cache_key_check, cache_ttl};
 
 /**
  * Class RedisClient uses the Redis PHP extension.
@@ -30,7 +30,7 @@ class RedisClient implements CacheInterface, Cache
     /**
      * @var Serializer
      */
-    private $serializer;
+    protected $serializer;
 
     public function __construct(\Redis $client, Serializer $serializer)
     {
@@ -40,7 +40,7 @@ class RedisClient implements CacheInterface, Cache
 
     public function get($key, $default = null)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         return (bool)$this->client->exists($key)
             ? $this->serializer->unserialize($this->client->get($key))
@@ -49,7 +49,8 @@ class RedisClient implements CacheInterface, Cache
 
     public function set($key, $value, $ttl = null)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
+        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if (null === $ttl) {
             return $this->client->set($key, $this->serializer->serialize($value));
@@ -67,7 +68,7 @@ class RedisClient implements CacheInterface, Cache
 
     public function delete($key)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         return 1 === $this->client->del($key);
     }
@@ -84,7 +85,7 @@ class RedisClient implements CacheInterface, Cache
 
     public function has($key)
     {
-        guard_cache_key($key);
+        cache_key_check($key);
 
         return (bool)$this->client->exists($key);
     }

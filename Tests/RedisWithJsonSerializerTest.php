@@ -29,7 +29,6 @@ class RedisWithJsonSerializerTest extends TestCase
             'host' => getenv('REDIS_SERVER_HOST'),
             'serializer' => Serializer::JSON,
             'binary' => Serializer::PHP
-
         ])))->build();
     }
 }

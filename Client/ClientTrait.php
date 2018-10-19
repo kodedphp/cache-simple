@@ -16,10 +16,20 @@ trait ClientTrait
 {
 
     /** @var \Memcached | \Redis | \Koded\Caching\Client\FileClient | \Predis\Client */
-    private $client;
+    protected $client;
+
+    /** @var int|null */
+    protected $ttl;
 
     public function client()
     {
         return $this->client ?? $this;
+    }
+
+    public function setTtl($ttl): self
+    {
+        $this->ttl = $ttl;
+
+        return $this;
     }
 }
