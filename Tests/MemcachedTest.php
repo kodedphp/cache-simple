@@ -2,7 +2,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\ClientFactory;
+use Koded\Caching\Client\CacheFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -30,6 +30,6 @@ class MemcachedTest extends TestCase
             $this->markTestSkipped('Memcached extension is not loaded.');
         }
 
-        $this->cache = (new ClientFactory(new ConfigFactory()))->build();
+        $this->cache = (new CacheFactory(new ConfigFactory()))->build();
     }
 }

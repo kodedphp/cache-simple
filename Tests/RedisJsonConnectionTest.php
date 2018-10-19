@@ -2,7 +2,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\ClientFactory;
+use Koded\Caching\Client\CacheFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Interfaces\Serializer;
 use PHPUnit\Framework\TestCase;
@@ -18,7 +18,7 @@ class RedisJsonConnectionTest extends TestCase
 
         putenv('CACHE_CLIENT=redis');
 
-        (new ClientFactory(new ConfigFactory([
+        (new CacheFactory(new ConfigFactory([
             'host' => 'invalid-redis-host',
             'serializer' => Serializer::JSON
         ])))->build();

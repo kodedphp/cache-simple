@@ -11,7 +11,7 @@ class ClientFactoryTest extends TestCase
 
     public function test_should_create_null_client_without_configuration()
     {
-        $client = (new ClientFactory(new ConfigFactory))->build();
+        $client = (new CacheFactory(new ConfigFactory))->build();
         $this->assertInstanceOf(NullClient::class, $client);
     }
 
@@ -21,7 +21,7 @@ class ClientFactoryTest extends TestCase
             $this->markTestSkipped('Memcached is not installed on this environment.');
         }
 
-        $client = (new ClientFactory(new ConfigFactory))->build('memcached');
+        $client = (new CacheFactory(new ConfigFactory))->build('memcached');
         $this->assertInstanceOf(MemcachedClient::class, $client);
     }
 
@@ -31,7 +31,7 @@ class ClientFactoryTest extends TestCase
             $this->markTestSkipped('Redis is not installed on this environment.');
         }
 
-        $client = (new ClientFactory(new ConfigFactory([
+        $client = (new CacheFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
             'auth' => 'fubar',
             'binary' => 'msgpack'
@@ -42,7 +42,7 @@ class ClientFactoryTest extends TestCase
 
     public function test_should_create_predis_client()
     {
-        $client = (new ClientFactory(new ConfigFactory([
+        $client = (new CacheFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST')
         ])))->build('predis');
 
@@ -51,13 +51,13 @@ class ClientFactoryTest extends TestCase
 
     public function test_should_create_file_client()
     {
-        $client = (new ClientFactory(new ConfigFactory))->build('file');
+        $client = (new CacheFactory(new ConfigFactory))->build('file');
         $this->assertInstanceOf(FileClient::class, $client);
     }
 
     public function test_should_create_memory_client()
     {
-        $client = (new ClientFactory(new ConfigFactory))->build('memory');
+        $client = (new CacheFactory(new ConfigFactory))->build('memory');
         $this->assertInstanceOf(MemoryClient::class, $client);
     }
 
@@ -67,7 +67,7 @@ class ClientFactoryTest extends TestCase
         $this->expectException(CacheException::class);
         $this->expectExceptionMessage('The cache logger should be NULL or an instance of Psr\Log\LoggerInterface, Closure given');
 
-        (new ClientFactory(new ConfigFactory([
+        (new CacheFactory(new ConfigFactory([
             'logger' => function() {
             }
         ])))->build('file');

@@ -2,7 +2,7 @@
 
 namespace Koded\Caching\Configuration;
 
-use Koded\Caching\Client\ClientFactory;
+use Koded\Caching\Client\CacheFactory;
 use Koded\Caching\Client\NullClient;
 use PHPUnit\Framework\TestCase;
 
@@ -11,7 +11,7 @@ class NullConfigurationTest extends TestCase
 
     public function test_that_env_with_null_value_creates_correct_instance()
     {
-        $client = (new ClientFactory(new ConfigFactory))->build();
+        $client = (new CacheFactory(new ConfigFactory))->build();
         $this->assertInstanceOf(NullClient::class, $client);
     }
 
