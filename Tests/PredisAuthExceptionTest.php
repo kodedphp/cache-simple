@@ -2,7 +2,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\ClientFactory;
+use Koded\Caching\Client\CacheFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +17,7 @@ class PredisAuthExceptionTest extends TestCase
 
         putenv('CACHE_CLIENT=predis');
 
-        (new ClientFactory(new ConfigFactory([
+        (new CacheFactory(new ConfigFactory([
             'auth' => 'fubar',
 
             'host' => getenv('REDIS_SERVER_HOST'),

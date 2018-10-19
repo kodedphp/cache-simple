@@ -2,7 +2,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\ClientFactory;
+use Koded\Caching\Client\CacheFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -17,7 +17,7 @@ class RedisClientExceptionTest extends TestCase
 
         putenv('CACHE_CLIENT=redis');
 
-        (new ClientFactory(new ConfigFactory([
+        (new CacheFactory(new ConfigFactory([
             'prefix' => new \stdClass(), // some crap prefix to test the catch block
 
             'host' => getenv('REDIS_SERVER_HOST'),

@@ -14,7 +14,7 @@ namespace Koded\Caching;
 
 use DateInterval;
 use DateTime;
-use Koded\Caching\Client\ClientFactory;
+use Koded\Caching\Client\CacheFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Psr\SimpleCache\CacheInterface;
 
@@ -36,7 +36,7 @@ use Psr\SimpleCache\CacheInterface;
 
 function simple_cache_factory(string $client = '', array $arguments = []): Cache
 {
-    return (new ClientFactory(new ConfigFactory($arguments)))->build($client);
+    return (new CacheFactory(new ConfigFactory($arguments)))->build($client);
 }
 
 /**
