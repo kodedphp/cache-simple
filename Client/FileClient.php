@@ -74,7 +74,6 @@ final class FileClient implements CacheInterface, Cache
             return $this->delete($key);
         }
 
-        $ttl = cache_ttl($ttl ?? $this->ttl);
         return (bool)file_put_contents($this->filename($key), $this->data($key, $value, $ttl));
     }
 
@@ -185,8 +184,10 @@ final class FileClient implements CacheInterface, Cache
      */
     private function data(string $key, $value, $ttl): string
     {
+        $ttl = cache_ttl($ttl ?? $this->ttl);
+
         if (null === $ttl) {
-            $ttl = (int)(new DateTime('31st December 2999'))->format('U');
+            $ttl = Cache::A_DATE_FAR_FAR_AWAY;
         } else {
             $ttl += time();
         }

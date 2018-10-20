@@ -25,6 +25,8 @@ interface Cache extends CacheInterface
     const E_PHP_EXCEPTION = 4;
     const E_CONNECTION_ERROR = 5;
 
+    const A_DATE_FAR_FAR_AWAY = 32503593600;
+
     /**
      * Returns the underlying cache client.
      *
@@ -49,8 +51,4 @@ interface Cache extends CacheInterface
      * @return Cache
      */
     public function setTtl($ttl): Cache;
-}
-
-interface CacheSerializer extends Serializer
-{
 }

@@ -45,8 +45,12 @@ final class MemoryClient implements CacheInterface, Cache
             return $this->delete($key);
         }
 
-        if ($ttl > 0) {
-            $this->expiration[$key] = time() + cache_ttl($ttl);
+        $ttl = cache_ttl($ttl);
+
+        if (null === $ttl) {
+            $this->expiration[$key] = Cache::A_DATE_FAR_FAR_AWAY;
+        } else {
+            $this->expiration[$key] = time() + $ttl;
         }
 
         $this->storage[$key] = $value;
