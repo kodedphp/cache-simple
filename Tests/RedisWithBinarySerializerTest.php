@@ -2,7 +2,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\CacheFactory;
+use Koded\Caching\Client\CacheClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -28,7 +28,7 @@ class RedisWithBinarySerializerTest extends TestCase
             $this->markTestSkipped('"igbinary" extension is not loaded. Redis serializer fallback to PHP');
         }
 
-        $this->cache = (new CacheFactory(new ConfigFactory([
+        $this->cache = (new CacheClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
 //            'binary' => true,
             'serializer' => 'igbinary'

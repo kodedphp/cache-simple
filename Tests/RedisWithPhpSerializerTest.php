@@ -2,7 +2,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\CacheFactory;
+use Koded\Caching\Client\CacheClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Interfaces\Serializer;
 use PHPUnit\Framework\TestCase;
@@ -20,7 +20,7 @@ class RedisWithPhpSerializerTest extends TestCase
             $this->markTestSkipped('Redis extension is not loaded.');
         }
 
-        $this->cache = (new CacheFactory(new ConfigFactory([
+        $this->cache = (new CacheClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
             'serializer' => Serializer::PHP
         ])))->build();

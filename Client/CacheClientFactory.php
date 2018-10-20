@@ -21,7 +21,7 @@ use Psr\Log\{LoggerInterface, NullLogger};
 use Psr\SimpleCache\CacheInterface;
 
 
-class CacheFactory
+class CacheClientFactory
 {
 
     const CACHE_CLIENT = 'CACHE_CLIENT';
