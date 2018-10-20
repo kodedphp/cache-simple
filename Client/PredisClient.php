@@ -33,11 +33,12 @@ final class PredisClient extends RedisClient
     public function set($key, $value, $ttl = null)
     {
         cache_key_check($key);
-        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if (null === $ttl) {
             return 'OK' === $this->client->set($key, $this->serializer->serialize($value))->getPayload();
         }
+
+        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if ($ttl > 0) {
             return 'OK' === $this->client->setex($key, $ttl, $this->serializer->serialize($value))->getPayload();

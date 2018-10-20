@@ -65,12 +65,13 @@ class RedisJsonClient implements CacheInterface, Cache
     public function set($key, $value, $ttl = null)
     {
         cache_key_check($key);
-        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if (null === $ttl) {
             return $this->client->set($key, json_serialize($value, $this->options))
                 && $this->client->set($key . $this->suffix, $this->binarySerializer->serialize($value));
         }
+
+        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if ($ttl > 0) {
             return $this->client->setex($key, $ttl, json_serialize($value, $this->options))
