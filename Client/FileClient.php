@@ -44,7 +44,7 @@ final class FileClient implements CacheInterface, Cache
     public function __construct(FileConfiguration $config, LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->ttl = $config->get('ttl');
+        $this->setTtl($config->get('ttl', Cache::A_DATE_FAR_FAR_AWAY));
         $this->initialize((string)$config->get('dir'));
     }
 
@@ -122,12 +122,6 @@ final class FileClient implements CacheInterface, Cache
         return is_file($this->filename($key, false));
     }
 
-    public function getTtl(): ?int
-    {
-        return $this->ttl ?? Cache::A_DATE_FAR_FAR_AWAY;
-    }
-
-
     /**
      * Prepares the cache directory.
      *
@@ -193,7 +187,7 @@ final class FileClient implements CacheInterface, Cache
         $ttl = cache_ttl($ttl);
 
         if (null === $ttl) {
-            $ttl = $this->getTtl();
+            $ttl = $this->ttl;
         } else {
             $ttl += time();
         }

@@ -32,10 +32,11 @@ class RedisClient implements CacheInterface, Cache
      */
     protected $serializer;
 
-    public function __construct(\Redis $client, Serializer $serializer)
+    public function __construct(\Redis $client, Serializer $serializer, ?int $ttl)
     {
         $this->client = $client;
         $this->serializer = $serializer;
+        $this->setTtl($ttl);
     }
 
     public function get($key, $default = null)

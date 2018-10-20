@@ -43,12 +43,13 @@ class RedisJsonClient implements CacheInterface, Cache
      */
     protected $binarySerializer;
 
-    public function __construct($client, Serializer $binarySerializer, int $options)
+    public function __construct($client, Serializer $binarySerializer, int $options, ?int $ttl)
     {
         $this->client = $client;
         $this->options = $options;
         $this->suffix = '__' . $binarySerializer->type() . '__';
         $this->binarySerializer = $binarySerializer;
+        $this->setTtl($ttl);
     }
 
     public function get($key, $default = null)
