@@ -15,6 +15,6 @@ class MemoryClientTest extends TestCase
     {
         putenv('CACHE_CLIENT=memory');
 
-        $this->cache = (new CacheFactory(new ConfigFactory))->build();
+        $this->cache = (new CacheClientFactory(new ConfigFactory))->build();
     }
 }
