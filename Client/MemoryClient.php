@@ -48,7 +48,7 @@ final class MemoryClient implements CacheInterface, Cache
         $ttl = cache_ttl($ttl);
 
         if (null === $ttl) {
-            $this->expiration[$key] = Cache::A_DATE_FAR_FAR_AWAY;
+            $this->expiration[$key] = $this->getTtl();
         } else {
             $this->expiration[$key] = time() + $ttl;
         }
@@ -89,5 +89,10 @@ final class MemoryClient implements CacheInterface, Cache
         cache_key_check($key);
 
         return array_key_exists($key, $this->storage);
+    }
+
+    public function getTtl(): ?int
+    {
+        return $this->ttl ?? Cache::A_DATE_FAR_FAR_AWAY;
     }
 }

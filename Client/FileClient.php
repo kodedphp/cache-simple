@@ -122,6 +122,12 @@ final class FileClient implements CacheInterface, Cache
         return is_file($this->filename($key, false));
     }
 
+    public function getTtl(): ?int
+    {
+        return $this->ttl ?? Cache::A_DATE_FAR_FAR_AWAY;
+    }
+
+
     /**
      * Prepares the cache directory.
      *
@@ -184,10 +190,10 @@ final class FileClient implements CacheInterface, Cache
      */
     private function data(string $key, $value, $ttl): string
     {
-        $ttl = cache_ttl($ttl ?? $this->ttl);
+        $ttl = cache_ttl($ttl);
 
         if (null === $ttl) {
-            $ttl = Cache::A_DATE_FAR_FAR_AWAY;
+            $ttl = $this->getTtl();
         } else {
             $ttl += time();
         }
