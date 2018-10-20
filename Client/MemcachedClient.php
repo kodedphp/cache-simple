@@ -28,6 +28,7 @@ final class MemcachedClient implements CacheInterface, Cache
     public function __construct(\Memcached $client, MemcachedConfiguration $config)
     {
         $this->client = $client;
+        $this->setTtl($config->get('ttl'));
 
         if (empty($this->client->getServerList())) {
             $this->client->addServers($config->getServers());

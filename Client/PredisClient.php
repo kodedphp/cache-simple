@@ -24,10 +24,11 @@ use function Koded\Caching\{cache_key_check, cache_ttl};
 final class PredisClient extends RedisClient
 {
 
-    public function __construct(Client $client, Serializer $serializer)
+    public function __construct(Client $client, Serializer $serializer, ?int $ttl)
     {
         $this->client = $client;
         $this->serializer = $serializer;
+        $this->setTtl($ttl);
     }
 
     public function set($key, $value, $ttl = null)

@@ -63,7 +63,7 @@ class CacheClientFactory
                 return $this->getPredisClient($config);
 
             case 'memory':
-                return new MemoryClient;
+                return new MemoryClient($config->get('ttl'));
 
             case 'file':
                 /** @var \Koded\Caching\Configuration\FileConfiguration $config */
@@ -80,15 +80,19 @@ class CacheClientFactory
         $serializer = $conf->get('serializer');
 
         if (Serializer::JSON === $serializer && $conf->get('binary')) {
-            return (new RedisJsonClient($this->createRedisClient($conf),
+            return new RedisJsonClient(
+                $this->createRedisClient($conf),
                 SerializerFactory::new($conf->get('binary'), $conf->get('options')),
-                (int)$conf->get('options')
-            ))->setTtl($conf->get('ttl'));
+                (int)$conf->get('options'),
+                $conf->get('ttl')
+            );
         }
 
-        return (new RedisClient($this->createRedisClient($conf),
-            SerializerFactory::new($serializer, $conf->get('options')))
-        )->setTtl($conf->get('ttl'));
+        return new RedisClient(
+            $this->createRedisClient($conf),
+            SerializerFactory::new($serializer, $conf->get('options')),
+            $conf->get('ttl')
+        );
     }
 
 
@@ -97,15 +101,19 @@ class CacheClientFactory
         $serializer = $conf->get('serializer');
 
         if (Serializer::JSON === $serializer && $conf->get('binary')) {
-            return (new PredisJsonClient($this->createPredisClient($conf),
+            return new PredisJsonClient(
+                $this->createPredisClient($conf),
                 SerializerFactory::new($conf->get('binary'), $conf->get('options')),
-                (int)$conf->get('options')
-            ))->setTtl($conf->get('ttl'));
+                (int)$conf->get('options'),
+                $conf->get('ttl')
+            );
         }
 
-        return (new PredisClient($this->createPredisClient($conf),
-            SerializerFactory::new($conf->get('serializer'), $conf->get('options'))
-        ))->setTtl($conf->get('ttl'));
+        return new PredisClient(
+            $this->createPredisClient($conf),
+            SerializerFactory::new($conf->get('serializer'), $conf->get('options')),
+            $conf->get('ttl')
+        );
     }
 
     /**

@@ -14,7 +14,7 @@ namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{cache_ttl, cache_key_check};
+use function Koded\Caching\{cache_key_check, cache_ttl};
 
 final class MemoryClient implements CacheInterface, Cache
 {
@@ -23,6 +23,11 @@ final class MemoryClient implements CacheInterface, Cache
 
     private $storage = [];
     private $expiration = [];
+
+    public function __construct(?int $ttl)
+    {
+        $this->setTtl($ttl ?? Cache::A_DATE_FAR_FAR_AWAY);
+    }
 
     public function get($key, $default = null)
     {
@@ -45,12 +50,10 @@ final class MemoryClient implements CacheInterface, Cache
             return $this->delete($key);
         }
 
-        $ttl = cache_ttl($ttl);
-
         if (null === $ttl) {
-            $this->expiration[$key] = $this->getTtl();
+            $this->expiration[$key] = time() + $this->ttl;
         } else {
-            $this->expiration[$key] = time() + $ttl;
+            $this->expiration[$key] = time() + cache_ttl($ttl);
         }
 
         $this->storage[$key] = $value;
@@ -89,10 +92,5 @@ final class MemoryClient implements CacheInterface, Cache
         cache_key_check($key);
 
         return array_key_exists($key, $this->storage);
-    }
-
-    public function getTtl(): ?int
-    {
-        return $this->ttl ?? Cache::A_DATE_FAR_FAR_AWAY;
     }
 }
