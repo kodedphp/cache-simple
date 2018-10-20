@@ -50,11 +50,12 @@ class RedisClient implements CacheInterface, Cache
     public function set($key, $value, $ttl = null)
     {
         cache_key_check($key);
-        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if (null === $ttl) {
             return $this->client->set($key, $this->serializer->serialize($value));
         }
+
+        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if ($ttl > 0) {
             return $this->client->setex($key, $ttl, $this->serializer->serialize($value));

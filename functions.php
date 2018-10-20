@@ -14,6 +14,8 @@ namespace Koded\Caching;
 
 use DateInterval;
 use DateTime;
+use DateTimeInterface;
+use DateTimeZone;
 use Koded\Caching\Client\CacheClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Psr\SimpleCache\CacheInterface;
@@ -58,6 +60,7 @@ function cache_key_check(string $key): void
 
 /**
  * Transforms the DateInterval TTL, or return the value as-is.
+ * Please use integers as seconds for expiration.
  *
  * @param null|int|DateInterval $ttl A gypsy argument that wants to be a TTL
  *                                   (apparently a simple number of seconds is not enough and it must be a mess)
@@ -72,8 +75,16 @@ function cache_ttl($ttl): ?int
         return $ttl;
     }
 
+    if (is_int($ttl)) {
+        return $ttl;
+    }
+
+    if ($ttl instanceof DateTimeInterface) {
+        return (int)$ttl->format('U');
+    }
+
     if ($ttl instanceof DateInterval) {
-        return (int)((new DateTime)->add($ttl)->format('U')) - time();
+        return (int)((new DateTime(null, new DateTimeZone('UTC')))->add($ttl)->format('U')) - time();
     }
 
     return (int)$ttl;

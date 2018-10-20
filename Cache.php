@@ -31,6 +31,24 @@ interface Cache extends CacheInterface
      * @return \Memcached | \Redis | \Koded\Caching\Client\FileClient | \Predis\Client
      */
     public function client();
+
+    /**
+     * Returns the global TTL, if any.
+     * Used as default expiration time in cache clients.
+     *
+     * @return int|null Time in seconds for expiration, or NULL for special cases
+     */
+    public function getTtl(): ?int;
+
+    /**
+     * Sets the global TTL for caching.
+     * Used as default expiration time in cache clients.
+     *
+     * @param int|null|\DateInterval|\DateTimeInterface $ttl A mess of possible values for the TTL
+     *
+     * @return Cache
+     */
+    public function setTtl($ttl): Cache;
 }
 
 interface CacheSerializer extends Serializer

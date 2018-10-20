@@ -3,6 +3,8 @@
 namespace Koded\Caching;
 
 use DateInterval;
+use DateTime;
+use DateTimeImmutable;
 use Koded\Caching\Client\NullClient;
 use PHPUnit\Framework\TestCase;
 
@@ -42,6 +44,12 @@ class FunctionsTest extends TestCase
     {
         $interval = new DateInterval('PT42S');
         $this->assertSame(42, cache_ttl($interval));
+    }
+
+    public function test_should_transform_DateTime_to_integer()
+    {
+        $this->assertGreaterThanOrEqual(time(), cache_ttl(new DateTimeImmutable));
+        $this->assertGreaterThanOrEqual(time(), cache_ttl(new DateTime));
     }
 
     public function test_should_support_timestamps_before_unix_epoch_on_32bit_systems()

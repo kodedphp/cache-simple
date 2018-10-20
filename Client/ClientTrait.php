@@ -12,6 +12,9 @@
 
 namespace Koded\Caching\Client;
 
+use Koded\Caching\Cache;
+use function Koded\Caching\cache_ttl;
+
 trait ClientTrait
 {
 
@@ -26,10 +29,15 @@ trait ClientTrait
         return $this->client ?? $this;
     }
 
-    public function setTtl($ttl): self
+    public function setTtl($ttl): Cache
     {
-        $this->ttl = $ttl;
+        $this->ttl = cache_ttl($ttl);
 
         return $this;
+    }
+
+    public function getTtl(): ?int
+    {
+        return $this->ttl;
     }
 }
