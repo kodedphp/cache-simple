@@ -40,5 +40,10 @@
     "mikey179/vfsStream": "~1",
     "satooshi/php-coveralls": "~1",
     "predis/predis": "dev-master"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.x-dev"
+    }
   }
 }
