@@ -5,6 +5,8 @@ namespace Koded\Caching\Client;
 trait MultiplesTrait
 {
 
+    abstract public function deleteMultiple($keys);
+
     public function getMultiple($keys, $default = null)
     {
         $cached = [];
