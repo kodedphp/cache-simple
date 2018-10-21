@@ -1,4 +1,4 @@
-<?php declare(strict_types=1);
+<?php
 
 /*
  * This file is part of the Koded package.
@@ -24,7 +24,7 @@ final class RedisConfiguration extends Immutable implements Configuration
     {
         parent::__construct($values + [
                 'serializer' => $serializer = $values['serializer'] ?? Serializer::PHP,
-                'binary' => $values['binary']
+                'binary' => $values['binary'] ?? null
             ]);
 
         switch ($serializer) {
@@ -36,7 +36,6 @@ final class RedisConfiguration extends Immutable implements Configuration
                 $this->type = \Redis::SERIALIZER_IGBINARY;
                 break;
 
-            // JSON, MSGPACK
             default:
                 $this->type = \Redis::SERIALIZER_NONE;
         }
