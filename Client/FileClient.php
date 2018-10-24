@@ -69,6 +69,7 @@ final class FileClient implements CacheInterface, Cache
     public function set($key, $value, $ttl = null)
     {
         cache_key_check($key);
+        $ttl = cache_ttl($ttl);
 
         if ($ttl < 0 || $ttl === 0) {
             // The item is considered expired and must be deleted
