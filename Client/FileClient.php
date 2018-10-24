@@ -14,7 +14,6 @@ namespace Koded\Caching\Client;
 
 use FilesystemIterator;
 use Koded\Caching\{Cache, CacheException};
-use Koded\Caching\Configuration\FileConfiguration;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
@@ -40,11 +39,11 @@ final class FileClient implements CacheInterface, Cache
      */
     private $logger;
 
-    public function __construct(FileConfiguration $config, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $dir, int $ttl = null)
     {
         $this->logger = $logger;
-        $this->setDirectory((string)$config->get('dir'));
-        $this->setTtl($config->get('ttl', Cache::A_DATE_FAR_FAR_AWAY));
+        $this->setDirectory($dir);
+        $this->setTtl($ttl ?? Cache::A_DATE_FAR_FAR_AWAY);
     }
 
     public function get($key, $default = null)

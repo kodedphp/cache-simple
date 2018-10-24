@@ -2,7 +2,7 @@
 
 namespace Koded\Caching\Client;
 
-use function Koded\Caching\cache_keys;
+use function Koded\Caching\{cache_keys, cache_ttl};
 
 /**
  * Trait MultiplesTrait implements all "multi" operations
@@ -22,6 +22,7 @@ trait MultiplesTrait
     public function setMultiple($values, $ttl = null): bool
     {
         $values = cache_keys($values, true);
+        $ttl = cache_ttl($ttl);
 
         if ($ttl < 0 || $ttl === 0) {
             // All items are considered expired and must be deleted

@@ -65,7 +65,7 @@ class CacheClientFactory
 
             case 'file':
                 /** @var \Koded\Caching\Configuration\FileConfiguration $config */
-                return new FileClient($config, $this->getLogger($config));
+                return new FileClient($this->getLogger($config), (string)$config->get('dir'), $config->get('ttl'));
 
             default:
                 return new MemoryClient($config->get('ttl'));

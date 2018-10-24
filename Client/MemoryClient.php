@@ -17,6 +17,9 @@ use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\{cache_key_check, cache_ttl};
 
 
+/**
+ * @property MemoryClient client
+ */
 final class MemoryClient implements CacheInterface, Cache
 {
 
