@@ -18,15 +18,15 @@ use function Koded\Caching\cache_ttl;
 trait ClientTrait
 {
 
-    /** @var \Memcached | \Redis | \Koded\Caching\Client\FileClient | \Predis\Client */
-    protected $client;
-
     /** @var int|null */
     protected $ttl;
 
-    public function client()
+    /** @var \Memcached | \Redis | \Predis\Client | \Koded\Caching\Client\FileClient | \Koded\Caching\Client\MemoryClient */
+    protected $client;
+
+    public function getTtl(): ?int
     {
-        return $this->client ?? $this;
+        return $this->ttl;
     }
 
     public function setTtl($ttl): Cache
@@ -36,8 +36,8 @@ trait ClientTrait
         return $this;
     }
 
-    public function getTtl(): ?int
+    public function client()
     {
-        return $this->ttl;
+        return $this->client ?? $this;
     }
 }

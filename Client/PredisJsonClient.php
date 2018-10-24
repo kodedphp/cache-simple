@@ -15,6 +15,7 @@ namespace Koded\Caching\Client;
 
 final class PredisJsonClient extends RedisJsonClient
 {
+
     public function clear()
     {
         return 'OK' === $this->client->flushAll()->getPayload();
