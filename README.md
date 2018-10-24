@@ -29,7 +29,7 @@ There are two client flavors for Redis by using the
 and they are not mutually exclusive.
 
 These clients supports JSON serialization for your cache, useful if you want to handle
-the cached data in other languages.
+the cached data in other programming languages.
 
 Since there is no Redis native support for JSON serialization,
 it's done in userland and that always introduces some overhead. **Be aware that the native
@@ -53,15 +53,16 @@ Please install the [Memcached extension][1].
 Usage
 -----
 
-Koded `SimpleCache` is available from the Packagist using the [Composer][3].
+Install the library from Packagist using the [Composer][3].
 
     composer require koded/cache-simple
 
-The factory function always creates a new instance of `SimpleCache` with the desired cache client.
+The factory function always creates a new instance of specific 
+`SimpleCacheInterface` client implementation.
 
 ```php
 /*
- * Creates a SimpleCache instance
+ * Creates a simple cache instance
  * with MemcachedClient and default configuration
  */
 
@@ -85,17 +86,14 @@ $cache = simple_cache_factory('redis', [
 A bit verbose construction for the same instance is
 
 ```php
+// v2.x
+$config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:']);
+$cache = (new CacheClientFactory($config))->build('redis');
 
 // v1.x
 $config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:']);
 $client = (new ClientFactory($config))->build('redis');
-
 $cache = new SimpleCache($client, 3600);
-
-
-// v2.x
-$config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:']);
-$cache = (new ClientFactory($config))->build('redis');
 ```
 
 Configuration directives
@@ -103,18 +101,71 @@ Configuration directives
 
 Current available configuration classes
 
-- [FileConfiguration](#fileconfiguration)
-- [MemcachedConfiguration](#memcachedconfiguration)
 - [RedisConfiguration](#redisconfiguration)
+- [MemcachedConfiguration](#memcachedconfiguration)
+- [FileConfiguration](#fileconfiguration)
 - [PredisConfiguration](#predisconfiguration)
 
+
+
+### RedisConfiguration
+
+Please refer to [Redis extension connect][7] method.
+
+| Parameter | Value          |
+|-----------|----------------|
+| host      | 127.0.0.1      |
+| port      | 6379           |
+| timeout   | 0.0            |
+| reserved  | null           |
+| retry     | 0              |
+
+```php
+// Without defining the parameters the above directives are used as default
+$cache = simple_cache_factory('redis');
+```
+
+#### Serializers
+
+- `php` (default)
+- `json`
+
+> The special config directive is `binary(string)` for setting the internal serializer
+functions to either PHP native `un/serialize()`, `igbinary_un/serialize()` or `msgpack_un/pack()`.
+
+```php
+$cache = simple_cache_factory('redis', [
+    'binary' => \Koded\Stdlib\Interfaces\Serializer::MSGPACK
+]);
+```
+
+The `binary` directive is effective if `igbinary` and/or `msgpack` extensions are installed and loaded.
+Otherwise it defaults to PHP `un/serialize()` functions.
+
+> You can change the binary flag on already cached data, but you should invalidate the
+previously cached items, since they are already serialized and stored in the cache.
+
+##### JSON serializer options
+
+The **default** options for [json_encode()][9] function are:
+- JSON_PRESERVE_ZERO_FRACTION
+- JSON_UNESCAPED_SLASHES
+
+To set your desired options, use the `options` configuration directive:
+
+```php
+$cache = simple_cache_factory('redis', [
+    'serializer' => 'json',
+    'options' => JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT
+]);
+```
 
 ### MemcachedConfiguration
 
 | Memcached arguments         | Type     | Required | Description |
 |:----------------------------|:---------|----------|:------------|
 | id                          | string   | no       | Memcached persistent_id value |
-| servers                     | array    | no       | A list of nested array with [server, port] values |
+| servers                     | array    | no       | A list of nested array with \[server, port\it] values |
 | options                     | array    | no       | A set with Memcached options |
 
 The following options are set **by default** when instance of `MemcachedConfiguration` is created,
@@ -129,10 +180,11 @@ except for `OPT_PREFIX_KEY` which is there as a reminder that it may be set
 | OPT_LIBKETAMA_COMPATIBLE    | true                           |
 | OPT_PREFIX_KEY              | null                           |
 
+
 > Options with value `NULL` will be removed.
 
 There are many [Memcached options][4] that will suit the specific needs for your caching scenarios
-and this is something you need to figure out yourself.
+and this is something you need to figure it out by yourself.
 
 Examples:
 
@@ -157,61 +209,6 @@ Examples:
 ]
 ```
 
-
-### RedisConfiguration
-
-Please refer to [Redis extension connect][7] method.
-
-| Parameter | Value          |
-|-----------|----------------|
-| host      | 127.0.0.1      |
-| port      | 6379           |
-| timeout   | 0.0            |
-| reserved  | null           |
-| retry     | 0              |
-
-```php
-// Without defining the parameters the above directives are used as default
-$cache = simple_cache_factory('redis');
-```
-
-
-#### Serializers
-
-- php (default)
-- json
-
-> The special config directive is `binary(bool)` for setting the internal serializer
-functions to either PHP native un/serialize() or igbinary_un/serialize().
-
-```php
-$cache = simple_cache_factory('redis', [
-    'binary' => true
-]);
-```
-The `binary` directive is effective if `igbinary` extension is installed and loaded.
-Otherwise it defaults to PHP un/serialize() functions.
-
-> If you want to change the binary flag on already cached data, you must invalidate
-all corresponding cached items, since they are already serialized and are not valid
-for the other serializer.
-
-##### JSON serializer options
-
-The **default** options for [json_encode()][9] function are:
-- JSON_PRESERVE_ZERO_FRACTION
-- JSON_NUMERIC_CHECK
-- JSON_UNESCAPED_SLASHES
-- JSON_UNESCAPED_UNICODE
-
-To set your desired options, use the `options` configuration directive:
-
-```php
-$cache = simple_cache_factory('redis', [
-    'serializer' => 'json',
-    'options' => JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT
-]);
-```
 
 ### PredisConfiguration
 
@@ -246,26 +243,33 @@ $cache = simple_cache_factory('predis', [
 ]);
 ```
 
-There are many configuration options for this library. Please refer to [Predis configuration page][6].
+There are many configuration options for this package.
+Please refer to [Predis configuration page][6].
+
 
 ### FileConfiguration
 
 This is the slowest cache client, please avoid it for production environments.
 
 If you do not provide the cache directory in the configuration, the PHP
-function [sys_get_temp_dir()][8] is used to determine where to store the cached files.
+function [sys_get_temp_dir()][8] is used to store the cached files.
 
 ```php
 $cache = simple_cache_factory('file', ['dir' => '/tmp']);
 ```
+
 
 ### MemoryClient
 
 This client will store the cached items in the memory for the duration of the script's lifetime.
 It is useful for development, but not for production.
 
+> `MemoryClient` is also the default client if you do not 
+require a specific client in `cache_simple_factory()`
+
 ```php
 $cache = simple_cache_factory('memory');
+$cache = simple_cache_factory();  // creates a MemoryClient
 ```
 
 License

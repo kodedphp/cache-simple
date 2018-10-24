@@ -12,7 +12,6 @@
 
 namespace Koded\Caching;
 
-use Koded\Stdlib\Interfaces\Serializer;
 use Psr\SimpleCache\CacheInterface;
 
 

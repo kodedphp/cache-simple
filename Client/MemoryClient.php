@@ -16,6 +16,7 @@ use Koded\Caching\Cache;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\{cache_key_check, cache_ttl};
 
+
 final class MemoryClient implements CacheInterface, Cache
 {
 
@@ -51,7 +52,9 @@ final class MemoryClient implements CacheInterface, Cache
         }
 
         $this->setExpiration($key, $ttl);
-        $this->storage[$key] = $value;
+
+        // Loose the reference to the object
+        $this->storage[$key] = is_object($value) ? clone $value : $value;
 
         return true;
     }
@@ -72,16 +75,6 @@ final class MemoryClient implements CacheInterface, Cache
         return true;
     }
 
-    public function deleteMultiple($keys)
-    {
-        $deleted = 0;
-        foreach ($keys as $key) {
-            $this->delete($key) && ++$deleted;
-        }
-
-        return count($keys) === $deleted;
-    }
-
     public function has($key)
     {
         cache_key_check($key);
@@ -89,7 +82,7 @@ final class MemoryClient implements CacheInterface, Cache
         return array_key_exists($key, $this->storage);
     }
 
-    private function setExpiration($key, $ttl)
+    private function setExpiration(string $key, $ttl)
     {
         if (null === $ttl) {
             $expireAt = $this->ttl > 0 ? time() + $this->ttl : Cache::A_DATE_FAR_FAR_AWAY;

@@ -72,17 +72,18 @@ class RedisClient implements CacheInterface, Cache
     {
         cache_key_check($key);
 
-        return 1 === $this->client->del($key);
-    }
+        if (false === (bool)$this->client->exists($key)) {
+            return true;
+        }
 
-    public function deleteMultiple($keys)
-    {
-        return $this->client->del($keys) === count($keys);
+        return 1 === $this->client->del($key);
     }
 
     public function clear()
     {
-        return $this->client->flushAll();
+        $this->client->flushAll();
+
+        return null === $this->client->getLastError();
     }
 
     public function has($key)
@@ -90,5 +91,18 @@ class RedisClient implements CacheInterface, Cache
         cache_key_check($key);
 
         return (bool)$this->client->exists($key);
+    }
+
+    /*
+     *
+     * Overrides
+     *
+     */
+
+    protected function multiDelete(array $keys): bool
+    {
+        $this->client->del($keys);
+
+        return null === $this->client->getLastError();
     }
 }

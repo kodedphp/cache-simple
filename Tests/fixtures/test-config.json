@@ -1,6 +1,0 @@
-{
-  "json-key-1": "value1",
-  "json-key-2": {
-    "json-key-2.1": "value2.1"
-  }
-}

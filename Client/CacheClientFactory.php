@@ -29,11 +29,11 @@ class CacheClientFactory
     /**
      * @var ConfigurationFactory
      */
-    private $config;
+    private $conf;
 
     public function __construct(ConfigurationFactory $conf)
     {
-        $this->config = $conf;
+        $this->conf = $conf;
     }
 
     /**
@@ -42,12 +42,13 @@ class CacheClientFactory
      * @param string $client The required cache client
      *
      * @return CacheInterface An instance of the cache client
-     * @throws CacheException | Exception
+     * @throws CacheException
+     * @throws Exception
      */
     public function build(string $client = ''): CacheInterface
     {
         $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: '');
-        $config = $this->config->build($client);
+        $config = $this->conf->build($client);
 
         switch ($client) {
             case 'redis':
@@ -62,15 +63,12 @@ class CacheClientFactory
                 /** @var \Koded\Caching\Configuration\PredisConfiguration $config */
                 return $this->getPredisClient($config);
 
-            case 'memory':
-                return new MemoryClient($config->get('ttl'));
-
             case 'file':
                 /** @var \Koded\Caching\Configuration\FileConfiguration $config */
                 return new FileClient($config, $this->getLogger($config));
 
             default:
-                return new NullClient;
+                return new MemoryClient($config->get('ttl'));
         }
     }
 
@@ -82,7 +80,7 @@ class CacheClientFactory
         if (Serializer::JSON === $serializer && $conf->get('binary')) {
             return new RedisJsonClient(
                 $this->createRedisClient($conf),
-                SerializerFactory::new($conf->get('binary'), $conf->get('options')),
+                SerializerFactory::new((string)$conf->get('binary'), $conf->get('options')),
                 (int)$conf->get('options'),
                 $conf->get('ttl')
             );
@@ -103,7 +101,7 @@ class CacheClientFactory
         if (Serializer::JSON === $serializer && $conf->get('binary')) {
             return new PredisJsonClient(
                 $this->createPredisClient($conf),
-                SerializerFactory::new($conf->get('binary'), $conf->get('options')),
+                SerializerFactory::new((string)$conf->get('binary'), $conf->get('options')),
                 (int)$conf->get('options'),
                 $conf->get('ttl')
             );

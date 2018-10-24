@@ -55,4 +55,15 @@ final class PredisClient extends RedisClient
     {
         return 'OK' === $this->client->flushall()->getPayload();
     }
+
+    /*
+     *
+     * Overrides
+     *
+     */
+
+    protected function multiDelete(array $keys): bool
+    {
+        return array_walk($keys, [$this, 'delete']);
+    }
 }
