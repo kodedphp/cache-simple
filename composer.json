@@ -10,8 +10,7 @@
     "redis",
     "json",
     "file-cache",
-    "psr-16",
-    "php7"
+    "psr-16"
   ],
   "authors": [
     {
@@ -27,11 +26,11 @@
     "ext-json": "*"
   },
   "suggest": {
-    "ext-memcached": "For caching in Memcached",
     "ext-redis": "For caching in Redis",
+    "ext-memcached": "For caching in Memcached",
+    "predis/predis": "If you want to use Redis without ext-redis extension",
     "ext-igbinary": "For Redis igbinary support",
-    "ext-msgpack": "For de/serializing the cache data",
-    "predis/predis": "If you want to use Redis without ext-redis extension"
+    "ext-msgpack": "For de/serializing the cache data"
   },
   "autoload": {
     "psr-4": {
@@ -47,7 +46,8 @@
   "require-dev": {
     "phpunit/phpunit": "~7",
     "mikey179/vfsStream": "~1",
-    "predis/predis": "dev-master"
+    "predis/predis": "dev-master",
+    "cache/integration-tests": "dev-master"
   },
   "extra": {
     "branch-alias": {

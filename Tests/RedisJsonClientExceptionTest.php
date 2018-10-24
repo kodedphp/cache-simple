@@ -20,7 +20,7 @@ class RedisJsonClientExceptionTest extends TestCase
 
         (new CacheClientFactory(new ConfigFactory([
             'serializer' => Serializer::JSON,
-            'prefix' => new \stdClass(), // some crap prefix to test the catch block
+            'prefix' => new \stdClass(), // invalid prefix to test the catch block
 
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),

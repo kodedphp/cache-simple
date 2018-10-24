@@ -19,4 +19,18 @@ final class PredisJsonClient extends RedisJsonClient
     {
         return 'OK' === $this->client->flushAll()->getPayload();
     }
+
+    /*
+     *
+     * Overrides
+     *
+     */
+
+    protected function multiDelete(array $keys): bool
+    {
+        $this->client->del($keys);
+
+        // Is it?
+        return true;
+    }
 }

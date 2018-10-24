@@ -23,7 +23,7 @@ use function Koded\Caching\{cache_key_check, cache_ttl};
 final class MemcachedClient implements CacheInterface, Cache
 {
 
-    use ClientTrait;
+    use ClientTrait, MultiplesTrait;
 
     public function __construct(\Memcached $client, MemcachedConfiguration $config)
     {
@@ -63,33 +63,19 @@ final class MemcachedClient implements CacheInterface, Cache
     public function delete($key)
     {
         cache_key_check($key);
+        $this->client->delete($key);
+        $code = $this->client->getResultCode();
 
-        return $this->client->delete($key);
+        if (\Memcached::RES_NOTFOUND === $code) {
+            return true;
+        }
+
+        return \Memcached::RES_SUCCESS === $code;
     }
 
     public function clear()
     {
         return $this->client->flush();
-    }
-
-    public function getMultiple($keys, $default = null)
-    {
-        return array_replace(array_fill_keys($keys, $default), $this->client->getMulti($keys) ?: []);
-    }
-
-    public function setMultiple($values, $ttl = null)
-    {
-        if ($ttl < 0 || $ttl === 0) {
-            return $this->deleteMultiple(array_keys($values));
-        }
-
-        return $this->client->setMulti($values, $ttl);
-    }
-
-    public function deleteMultiple($keys)
-    {
-        /** @noinspection PhpParamsInspection */
-        return count($keys) === count(array_filter($this->client->deleteMulti($keys)));
     }
 
     public function has($key)
@@ -100,5 +86,25 @@ final class MemcachedClient implements CacheInterface, Cache
         $this->client->get($key);
 
         return $this->client->getResultCode() === \Memcached::RES_SUCCESS;
+    }
+
+    /*
+     * Overrides
+     *
+     */
+    private function multiGet(array $keys, $default = null): iterable
+    {
+        return array_replace(array_fill_keys($keys, $default), $this->client->getMulti($keys) ?: []);
+    }
+
+    private function multiSet(array $values, $ttl = null): bool
+    {
+        return $this->client->setMulti($values, cache_ttl($ttl));
+    }
+
+    private function multiDelete(array $keys): bool
+    {
+        /** @noinspection PhpParamsInspection */
+        return count($keys) === count(array_filter($this->client->deleteMulti($keys)));
     }
 }

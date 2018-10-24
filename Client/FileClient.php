@@ -12,7 +12,6 @@
 
 namespace Koded\Caching\Client;
 
-use DateTime;
 use FilesystemIterator;
 use Koded\Caching\{Cache, CacheException};
 use Koded\Caching\Configuration\FileConfiguration;
@@ -44,12 +43,13 @@ final class FileClient implements CacheInterface, Cache
     public function __construct(FileConfiguration $config, LoggerInterface $logger)
     {
         $this->logger = $logger;
+        $this->setDirectory((string)$config->get('dir'));
         $this->setTtl($config->get('ttl', Cache::A_DATE_FAR_FAR_AWAY));
-        $this->initialize((string)$config->get('dir'));
     }
 
     public function get($key, $default = null)
     {
+        cache_key_check($key);
         $filename = $this->filename($key, false);
 
         if (false === is_file($filename)) {
@@ -69,6 +69,8 @@ final class FileClient implements CacheInterface, Cache
 
     public function set($key, $value, $ttl = null)
     {
+        cache_key_check($key);
+
         if ($ttl < 0 || $ttl === 0) {
             // The item is considered expired and must be deleted
             return $this->delete($key);
@@ -79,8 +81,9 @@ final class FileClient implements CacheInterface, Cache
 
     public function delete($key)
     {
-        $filename = $this->filename($key, false);
+        cache_key_check($key);
 
+        $filename = $this->filename($key, false);
         if (is_file($filename)) {
             return unlink($filename);
         }
@@ -106,19 +109,10 @@ final class FileClient implements CacheInterface, Cache
         }
     }
 
-    public function deleteMultiple($keys)
-    {
-        $deleted = 0;
-        foreach ($keys as $key) {
-            cache_key_check($key);
-            $this->delete($key) && ++$deleted;
-        }
-
-        return count($keys) === $deleted;
-    }
-
     public function has($key)
     {
+        cache_key_check($key);
+
         return is_file($this->filename($key, false));
     }
 
@@ -129,7 +123,7 @@ final class FileClient implements CacheInterface, Cache
      *
      * @throws CacheException
      */
-    private function initialize(string $directory)
+    private function setDirectory(string $directory)
     {
         // Overrule shell misconfiguration or the web server
         umask(umask() | 0002);

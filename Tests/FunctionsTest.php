@@ -5,7 +5,7 @@ namespace Koded\Caching;
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
-use Koded\Caching\Client\NullClient;
+use Koded\Caching\Client\MemoryClient;
 use PHPUnit\Framework\TestCase;
 
 class FunctionsTest extends TestCase
@@ -18,9 +18,9 @@ class FunctionsTest extends TestCase
 
     public function test_should_reject_invalid_cache_key()
     {
-        $invalidKey = 'w#4T |5 tH1~';
+        $invalidKey = 'w#4T /5 tH1~';
         $this->expectException(CacheException::class);
-        $this->expectExceptionMessage(sprintf('The cache key is invalid, "%s" given', $invalidKey));
+        $this->expectExceptionMessage('The cache key is invalid, given (string) \'w#4T /5 tH1~\'');
         cache_key_check($invalidKey);
     }
 
@@ -58,10 +58,10 @@ class FunctionsTest extends TestCase
         $this->assertLessThan(-63100000000, cache_ttl($interval));
     }
 
-    public function test_default_options_creates_null_client_instance()
+    public function test_default_options_creates_memory_client_instance()
     {
         $cache = simple_cache_factory();
-        $this->assertInstanceOf(NullClient::class, $cache);
+        $this->assertInstanceOf(MemoryClient::class, $cache);
     }
 
     public function test_should_always_create_new_client_instances()

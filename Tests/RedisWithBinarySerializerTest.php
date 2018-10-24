@@ -30,7 +30,6 @@ class RedisWithBinarySerializerTest extends TestCase
 
         $this->cache = (new CacheClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
-//            'binary' => true,
             'serializer' => 'igbinary'
         ])))->build();
     }

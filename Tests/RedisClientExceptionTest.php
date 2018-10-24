@@ -18,7 +18,7 @@ class RedisClientExceptionTest extends TestCase
         putenv('CACHE_CLIENT=redis');
 
         (new CacheClientFactory(new ConfigFactory([
-            'prefix' => new \stdClass(), // some crap prefix to test the catch block
+            'prefix' => new \stdClass(), // invalid prefix to test the catch block
 
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),

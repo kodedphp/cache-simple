@@ -9,10 +9,10 @@ use PHPUnit\Framework\TestCase;
 class ClientFactoryTest extends TestCase
 {
 
-    public function test_should_create_null_client_without_configuration()
+    public function test_should_create_memory_client_without_configuration()
     {
         $client = (new CacheClientFactory(new ConfigFactory))->build();
-        $this->assertInstanceOf(NullClient::class, $client);
+        $this->assertInstanceOf(MemoryClient::class, $client);
     }
 
     public function test_should_create_memcached_client()
@@ -61,15 +61,13 @@ class ClientFactoryTest extends TestCase
         $this->assertInstanceOf(MemoryClient::class, $client);
     }
 
-
     public function test_non_supported_logger_exception()
     {
         $this->expectException(CacheException::class);
-        $this->expectExceptionMessage('The cache logger should be NULL or an instance of Psr\Log\LoggerInterface, Closure given');
+        $this->expectExceptionMessage('The cache logger should be NULL or an instance of Psr\Log\LoggerInterface, given Closure');
 
         (new CacheClientFactory(new ConfigFactory([
-            'logger' => function() {
-            }
+            'logger' => function() { }
         ])))->build('file');
     }
 }

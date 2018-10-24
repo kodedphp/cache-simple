@@ -88,17 +88,12 @@ class RedisJsonClient implements CacheInterface, Cache
     public function delete($key)
     {
         cache_key_check($key);
-        return 2 === $this->client->del($key, $key . $this->suffix);
-    }
 
-    public function deleteMultiple($keys)
-    {
-        foreach ($keys as $key) {
-            cache_key_check($key);
-            $keys[] = $key . $this->suffix;
+        if (false === (bool)$this->client->exists($key)) {
+            return true;
         }
 
-        return $this->client->del($keys) === count($keys);
+        return $this->deleteMultiple([$key, $key . $this->suffix]);
     }
 
     public function clear()
@@ -112,5 +107,18 @@ class RedisJsonClient implements CacheInterface, Cache
 
         return (bool)$this->client->exists($key)
             && (bool)$this->client->exists($key . $this->suffix);
+    }
+
+    /*
+     *
+     * Overrides
+     *
+     */
+
+    protected function multiDelete(array $keys): bool
+    {
+        $this->client->del($keys);
+
+        return null === $this->client->getLastError();
     }
 }
