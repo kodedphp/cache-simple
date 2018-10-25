@@ -50,6 +50,7 @@ final class MemcachedClient implements CacheInterface, Cache
     public function set($key, $value, $ttl = null)
     {
         cache_key_check($key);
+        $ttl = cache_ttl($ttl);
 
         if ($ttl < 0 || $ttl === 0) {
             $this->client->delete($key);
@@ -57,7 +58,7 @@ final class MemcachedClient implements CacheInterface, Cache
             return true;
         }
 
-        return $this->client->set($key, $value, cache_ttl($ttl));
+        return $this->client->set($key, $value, $ttl);
     }
 
     public function delete($key)

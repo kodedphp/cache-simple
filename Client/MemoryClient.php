@@ -49,6 +49,7 @@ final class MemoryClient implements CacheInterface, Cache
     public function set($key, $value, $ttl = null)
     {
         cache_key_check($key);
+        $ttl = cache_ttl($ttl);
 
         if ($ttl < 0 || $ttl === 0) {
             return $this->delete($key);
@@ -85,13 +86,13 @@ final class MemoryClient implements CacheInterface, Cache
         return array_key_exists($key, $this->storage);
     }
 
-    private function setExpiration(string $key, $ttl)
+    private function setExpiration(string $key, ?int $ttl)
     {
         if (null === $ttl) {
             $expireAt = $this->ttl > 0 ? time() + $this->ttl : Cache::A_DATE_FAR_FAR_AWAY;
             $this->expiration[$key] = $expireAt;
         } else {
-            $this->expiration[$key] = time() + cache_ttl($ttl);
+            $this->expiration[$key] = time() + $ttl;
         }
     }
 }
