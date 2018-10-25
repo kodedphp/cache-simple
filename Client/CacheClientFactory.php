@@ -147,6 +147,8 @@ class CacheClientFactory
         } catch (\RedisException $e) {
             error_log($e->getMessage());
             throw CacheException::withConnectionErrorFor('Redis');
+        } catch (CacheException $e) {
+            throw $e;
         } catch (Exception $e) {
             throw CacheException::generic($e->getMessage(), $e);
         }
