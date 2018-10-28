@@ -84,9 +84,11 @@ final class MemcachedClient implements CacheInterface, Cache
     }
 
     /*
+     *
      * Overrides
      *
      */
+
     private function internalMultiGet(array $keys, $default = null): iterable
     {
         return array_replace(array_fill_keys($keys, $default), $this->client->getMulti($keys) ?: []);

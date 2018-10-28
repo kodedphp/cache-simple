@@ -45,11 +45,17 @@ trait MultiplesTrait
 
     /*
      *
-     * Overridable in specific cache classes.
+     * Override in specific cache classes.
      *
      */
 
-    protected function internalMultiGet(array $keys, $default): iterable
+    /**
+     * @param array $keys
+     * @param mixed $default
+     *
+     * @return iterable
+     */
+    private function internalMultiGet(array $keys, $default): iterable
     {
         $cached = [];
         foreach ($keys as $key) {
@@ -59,8 +65,13 @@ trait MultiplesTrait
         return $cached;
     }
 
-
-    protected function internalMultiSet(array $values, $ttl): bool
+    /**
+     * @param array $values
+     * @param int|null $ttl
+     *
+     * @return bool
+     */
+    private function internalMultiSet(array $values, $ttl): bool
     {
         $cached = 0;
         foreach ($values as $key => $value) {
@@ -69,8 +80,12 @@ trait MultiplesTrait
         return count($values) === $cached;
     }
 
-
-    protected function internalMultiDelete(array $keys): bool
+    /**
+     * @param array $keys
+     *
+     * @return bool
+     */
+    private function internalMultiDelete(array $keys): bool
     {
         $deleted = 0;
         foreach ($keys as $key) {
