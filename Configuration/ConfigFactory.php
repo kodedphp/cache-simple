@@ -18,8 +18,7 @@ use Koded\Stdlib\Interfaces\Configuration;
 /**
  * Class ConfigFactory
  *
- * @property int    $normalize_ttl      Default Time-To-Live seconds for the cached items
- * @property string $keyRegex Regex for validating the cache item key
+ * @property int|null $ttl Default Time-To-Live seconds for the cached items
  *
  */
 class ConfigFactory extends Config
@@ -33,13 +32,11 @@ class ConfigFactory extends Config
 
     public function build(string $context): Configuration
     {
-        if (empty($context)) {
-            return new class([]) extends Arguments implements Configuration {};
+        try {
+            $class = join('\\', [__NAMESPACE__, ucfirst($context) . 'Configuration']);
+            return new $class($this->toArray());
+        } catch (\Throwable $e) {
+            return new class($this->toArray()) extends Arguments implements Configuration {};
         }
-
-        $class = join('\\', [__NAMESPACE__, ucfirst($context) . 'Configuration']);
-
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
-        return new $class($this->toArray());
     }
 }

@@ -51,13 +51,13 @@ class CacheClientFactory
         $config = $this->conf->build($client);
 
         switch ($client) {
-            case 'redis':
-                /** @var \Koded\Caching\Configuration\RedisConfiguration $config */
-                return $this->getRedisClient($config);
-
             case 'memcached':
                 /** @var \Koded\Caching\Configuration\MemcachedConfiguration $config */
                 return new MemcachedClient(new \Memcached($config->get('id')), $config);
+
+            case 'redis':
+                /** @var \Koded\Caching\Configuration\RedisConfiguration $config */
+                return $this->getRedisClient($config);
 
             case 'predis':
                 /** @var \Koded\Caching\Configuration\PredisConfiguration $config */
@@ -66,9 +66,12 @@ class CacheClientFactory
             case 'file':
                 /** @var \Koded\Caching\Configuration\FileConfiguration $config */
                 return new FileClient($this->getLogger($config), (string)$config->get('dir'), $config->get('ttl'));
+
+            case 'memory':
+                return new MemoryClient($config->get('ttl'));
         }
 
-        return new MemoryClient($config->get('ttl'));
+        throw CacheException::forUnsupportedClient($client);
     }
 
 

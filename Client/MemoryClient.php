@@ -15,6 +15,7 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\verify_key;
+use function Koded\Stdlib\now;
 
 
 /**
@@ -37,7 +38,7 @@ final class MemoryClient implements CacheInterface, Cache
     {
         verify_key($key);
 
-        if (array_key_exists($key, $this->expiration) && $this->expiration[$key] < time()) {
+        if (array_key_exists($key, $this->expiration) && $this->expiration[$key] < now()->getTimestamp()) {
             unset($this->storage[$key], $this->expiration[$key]);
 
             return $default;

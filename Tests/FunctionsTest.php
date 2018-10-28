@@ -11,6 +11,13 @@ use PHPUnit\Framework\TestCase;
 class FunctionsTest extends TestCase
 {
 
+    public function test_should_throw_exception_on_invalid_client()
+    {
+        $this->expectException(CacheException::class);
+        $this->expectExceptionMessage('[Cache Exception] Unsupported cache client qwerty');
+        simple_cache_factory('qwerty');
+    }
+
     public function test_should_guard_a_proper_cache_key()
     {
         $this->assertNull(verify_key('Proper-Key:1'));
@@ -24,8 +31,16 @@ class FunctionsTest extends TestCase
         verify_key($invalidKey);
     }
 
-    public function test_should_return_the_same_ttl_if_less_then_one()
+    public function test_should_throw_exception_on_invalid_ttl()
     {
+        $this->expectException(CacheException::class);
+        $this->expectExceptionMessage("[Cache Exception] Invalid TTL, given array (");
+        normalize_ttl([]);
+    }
+
+    public function test_should_return_if_ttl_is_integer()
+    {
+        $this->assertSame(1, normalize_ttl(1));
         $this->assertSame(0, normalize_ttl(0));
         $this->assertSame(-1, normalize_ttl(-1));
     }
@@ -43,13 +58,14 @@ class FunctionsTest extends TestCase
     public function test_should_set_ttl_from_date_interval()
     {
         $interval = new DateInterval('PT42S');
-        $this->assertSame(42, normalize_ttl($interval));
+        $this->assertSame(42, normalize_ttl($interval), 'Transforms DateInterval period to expiration seconds');
     }
 
     public function test_should_transform_DateTime_to_integer()
     {
-        $this->assertGreaterThanOrEqual(time(), normalize_ttl(new DateTimeImmutable));
-        $this->assertGreaterThanOrEqual(time(), normalize_ttl(new DateTime));
+        $this->assertEquals(0, normalize_ttl(new DateTimeImmutable));
+        $this->assertEquals(0, normalize_ttl(new DateTime));
+        $this->assertEquals(18000, normalize_ttl(new DateTime('+ 300 minutes')), 'Returns the expiration in seconds');
     }
 
     public function test_should_support_timestamps_before_unix_epoch_on_32bit_systems()

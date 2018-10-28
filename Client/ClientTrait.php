@@ -13,6 +13,7 @@
 namespace Koded\Caching\Client;
 
 use function Koded\Caching\normalize_ttl;
+use function Koded\Stdlib\now;
 
 trait ClientTrait
 {
@@ -38,11 +39,11 @@ trait ClientTrait
         $ttl = normalize_ttl($explicit);
 
         if (null === $ttl && $this->ttl > 0) {
-            return time() + $this->ttl;
+            return now()->getTimestamp() + $this->ttl;
         }
 
         if ($ttl > 0) {
-            return time() + $ttl;
+            return now()->getTimestamp() + $ttl;
         }
 
         return $ttl ?? $default;
