@@ -12,28 +12,18 @@
 
 namespace Koded\Caching\Client;
 
-use Koded\Caching\Cache;
-use function Koded\Caching\cache_ttl;
-
 trait ClientTrait
 {
 
-    /** @var int|null */
-    protected $ttl;
+    /** @var int|null Global TTL for caching, used as default expiration time in cache clients */
+    private $ttl;
 
     /** @var \Memcached | \Redis | \Predis\Client | \Koded\Caching\Client\FileClient | \Koded\Caching\Client\MemoryClient */
-    protected $client;
+    private $client;
 
     public function getTtl(): ?int
     {
         return $this->ttl;
-    }
-
-    public function setTtl($ttl): Cache
-    {
-        $this->ttl = cache_ttl($ttl);
-
-        return $this;
     }
 
     public function client()

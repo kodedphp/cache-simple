@@ -12,58 +12,73 @@
 
 namespace Koded\Caching\Client;
 
+use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
 use Predis\Client;
-use function Koded\Caching\{cache_key_check, cache_ttl};
+use Psr\SimpleCache\CacheInterface;
+use function Koded\Caching\{normalize_ttl, verify_key};
 
 /**
  * Class PredisClient uses the Predis library.
  *
  * @property Client client
  */
-final class PredisClient extends RedisClient
+final class PredisClient implements CacheInterface, Cache
 {
 
-    public function __construct(Client $client, Serializer $serializer, ?int $ttl)
+    use ClientTrait, MultiplesTrait;
+
+    private $serializer;
+
+    public function __construct(Client $client, Serializer $serializer, int $ttl = null)
     {
         $this->client = $client;
         $this->serializer = $serializer;
-        $this->setTtl($ttl);
+        $this->ttl = $ttl;
+    }
+
+    public function get($key, $default = null)
+    {
+        return $this->has($key)
+            ? $this->serializer->unserialize($this->client->get($key))
+            : $default;
     }
 
     public function set($key, $value, $ttl = null)
     {
-        cache_key_check($key);
+        verify_key($key);
+        $ttl = normalize_ttl($ttl ?? $this->ttl);
 
         if (null === $ttl) {
             return 'OK' === $this->client->set($key, $this->serializer->serialize($value))->getPayload();
         }
-
-        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if ($ttl > 0) {
             return 'OK' === $this->client->setex($key, $ttl, $this->serializer->serialize($value))->getPayload();
         }
 
         // The item is considered expired and must be deleted
-        $this->client->del($key);
+        return 1 === $this->client->del($key);
+    }
 
-        return !$this->has($key);
+    public function delete($key)
+    {
+        if (false === $this->has($key)) {
+            return true;
+        }
+
+        return 1 === $this->client->del($key);
     }
 
     public function clear()
     {
-        return 'OK' === $this->client->flushall()->getPayload();
+        return 'OK' === $this->client->flushdb()->getPayload();
     }
 
-    /*
-     *
-     * Overrides
-     *
-     */
-
-    protected function multiDelete(array $keys): bool
+    public function has($key)
     {
-        return array_walk($keys, [$this, 'delete']);
+        verify_key($key);
+
+        return 1 === $this->client->exists($key);
     }
 }

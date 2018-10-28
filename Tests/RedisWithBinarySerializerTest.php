@@ -18,6 +18,8 @@ class RedisWithBinarySerializerTest extends TestCase
 
     protected function setUp()
     {
+        $this->markTestSkipped();
+
         putenv('CACHE_CLIENT=redis');
 
         if (false === extension_loaded('redis')) {

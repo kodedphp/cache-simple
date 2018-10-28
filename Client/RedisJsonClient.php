@@ -15,7 +15,7 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{cache_key_check, cache_ttl};
+use function Koded\Caching\{normalize_ttl, verify_key};
 use function Koded\Stdlib\json_serialize;
 
 /**
@@ -30,95 +30,73 @@ use function Koded\Stdlib\json_serialize;
  * where the cached item is handled by PHP serialization.
  *
  */
-class RedisJsonClient implements CacheInterface, Cache
+final class RedisJsonClient implements CacheInterface, Cache
 {
 
     use ClientTrait, MultiplesTrait;
 
-    protected $suffix;
-    protected $options;
+    private $suffix;
+    private $options;
 
     /**
      * @var Serializer PHP by default. If available: msgpack, igbinary
      */
-    protected $binarySerializer;
+    protected $serializer;
 
-    public function __construct($client, Serializer $binarySerializer, int $options, ?int $ttl)
+    public function __construct(\Redis $client, Serializer $serializer, int $options, int $ttl = null)
     {
+        $this->ttl = $ttl;
         $this->client = $client;
         $this->options = $options;
-        $this->suffix = '__' . $binarySerializer->type() . '__';
-        $this->binarySerializer = $binarySerializer;
-        $this->setTtl($ttl);
+        $this->serializer = $serializer;
+        $this->suffix = '__' . $serializer->type() . '__';
     }
 
     public function get($key, $default = null)
     {
-        cache_key_check($key);
-
-        if ($this->has($key)) {
-            return $this->binarySerializer->unserialize($this->client->get($key . $this->suffix));
-        }
-
-        return $default;
+        return $this->has($key)
+            ? $this->serializer->unserialize($this->client->get($key . $this->suffix))
+            : $default;
     }
 
     public function set($key, $value, $ttl = null)
     {
-        cache_key_check($key);
+        verify_key($key);
+        $ttl = normalize_ttl($ttl ?? $this->ttl);
 
         if (null === $ttl) {
             return $this->client->set($key, json_serialize($value, $this->options))
-                && $this->client->set($key . $this->suffix, $this->binarySerializer->serialize($value));
+                && $this->client->set($key . $this->suffix, $this->serializer->serialize($value));
         }
-
-        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if ($ttl > 0) {
             return $this->client->setex($key, $ttl, json_serialize($value, $this->options))
-                && $this->client->setex($key . $this->suffix, $ttl, $this->binarySerializer->serialize($value));
+                && $this->client->setex($key . $this->suffix, $ttl, $this->serializer->serialize($value));
         }
 
         // The item is considered expired and must be deleted
-        $this->client->del($key, $key . $this->suffix);
-
-        return false === $this->has($key);
+        return 2 === $this->client->del([$key, $key . $this->suffix]);
     }
 
     public function delete($key)
     {
-        cache_key_check($key);
-
-        if (false === (bool)$this->client->exists($key)) {
+        if (false === $this->has($key)) {
             return true;
         }
 
-        return $this->deleteMultiple([$key, $key . $this->suffix]);
+        return 2 === $this->client->del([$key, $key . $this->suffix]);
     }
 
     public function clear()
     {
-        return $this->client->flushAll();
+        return $this->client->flushDB();
     }
 
     public function has($key)
     {
-        cache_key_check($key);
+        verify_key($key);
 
         return (bool)$this->client->exists($key)
             && (bool)$this->client->exists($key . $this->suffix);
-    }
-
-    /*
-     *
-     * Overrides
-     *
-     */
-
-    protected function multiDelete(array $keys): bool
-    {
-        $this->client->del($keys);
-
-        return null === $this->client->getLastError();
     }
 }

@@ -30,6 +30,6 @@ class MemcachedTest extends TestCase
             $this->markTestSkipped('Memcached extension is not loaded.');
         }
 
-        $this->cache = (new CacheClientFactory(new ConfigFactory()))->build();
+        $this->cache = (new CacheClientFactory(new ConfigFactory))->build();
     }
 }

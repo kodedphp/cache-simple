@@ -14,7 +14,7 @@ namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{cache_key_check, cache_ttl};
+use function Koded\Caching\{normalize_ttl, verify_key};
 
 
 /**
@@ -28,47 +28,62 @@ final class MemoryClient implements CacheInterface, Cache
     private $storage = [];
     private $expiration = [];
 
-    public function __construct(?int $ttl)
+    public function __construct(int $ttl = null)
     {
-        $this->setTtl($ttl ?? Cache::A_DATE_FAR_FAR_AWAY);
+        $this->ttl = $ttl;
     }
 
     public function get($key, $default = null)
     {
-        cache_key_check($key);
+        verify_key($key);
 
-        if (isset($this->expiration[$key]) && $this->expiration[$key] < time()) {
-            $this->delete($key);
+        if (array_key_exists($key, $this->expiration) && $this->expiration[$key] < time()) {
+            unset($this->storage[$key], $this->expiration[$key]);
 
             return $default;
         }
 
-        return $this->storage[$key] ?? $default;
+        if (array_key_exists($key, $this->storage)) {
+            return $this->storage[$key];
+        }
+
+        return $default;
     }
 
     public function set($key, $value, $ttl = null)
     {
-        cache_key_check($key);
-        $ttl = cache_ttl($ttl);
+        verify_key($key);
+        $ttl = normalize_ttl($ttl ?? $this->ttl);
 
-        if ($ttl < 0 || $ttl === 0) {
-            return $this->delete($key);
+        if ($ttl !== null && $ttl < 1) {
+            unset($this->storage[$key], $this->expiration[$key]);
+
+            return false;
         }
-
-        $this->setExpiration($key, $ttl);
 
         // Loose the reference to the object
         $this->storage[$key] = is_object($value) ? clone $value : $value;
+
+        if (null === $ttl && $this->ttl > 0) {
+            $this->expiration[$key] = time() + $this->ttl;
+        } elseif ($ttl > 0) {
+            $this->expiration[$key] = time() + $ttl;
+        } else {
+            $this->expiration[$key] = Cache::DATE_FAR_FAR_AWAY;
+        }
 
         return true;
     }
 
     public function delete($key)
     {
-        cache_key_check($key);
+        if (false === $this->has($key)) {
+            return true;
+        }
+
         unset($this->storage[$key], $this->expiration[$key]);
 
-        return false === array_key_exists($key, $this->storage);
+        return true;
     }
 
     public function clear()
@@ -81,18 +96,13 @@ final class MemoryClient implements CacheInterface, Cache
 
     public function has($key)
     {
-        cache_key_check($key);
+        verify_key($key);
 
         return array_key_exists($key, $this->storage);
     }
 
-    private function setExpiration(string $key, ?int $ttl)
+    public function getExpirationFor(string $key): ?int
     {
-        if (null === $ttl) {
-            $expireAt = $this->ttl > 0 ? time() + $this->ttl : Cache::A_DATE_FAR_FAR_AWAY;
-            $this->expiration[$key] = $expireAt;
-        } else {
-            $this->expiration[$key] = time() + $ttl;
-        }
+        return $this->expiration[$key] ?? null;
     }
 }

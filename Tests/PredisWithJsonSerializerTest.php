@@ -20,6 +20,8 @@ class PredisWithJsonSerializerTest extends TestCase
 
     protected function setUp()
     {
+        $this->markTestSkipped();
+
         putenv('CACHE_CLIENT=predis');
 
         $this->cache = (new CacheClientFactory(new ConfigFactory([

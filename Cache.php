@@ -24,12 +24,12 @@ interface Cache extends CacheInterface
     const E_PHP_EXCEPTION = 4;
     const E_CONNECTION_ERROR = 5;
 
-    const A_DATE_FAR_FAR_AWAY = 32503593600;
+    const DATE_FAR_FAR_AWAY = 32503593600;
 
     /**
      * Returns the underlying cache client.
      *
-     * @return \Memcached | \Redis | \Koded\Caching\Client\FileClient | \Predis\Client
+     * @return \Memcached | \Redis | \Predis\Client | \Koded\Caching\Client\FileClient | \Koded\Caching\Client\MemoryClient
      */
     public function client();
 
@@ -40,14 +40,4 @@ interface Cache extends CacheInterface
      * @return int|null Time in seconds for expiration, or NULL for special cases
      */
     public function getTtl(): ?int;
-
-    /**
-     * Sets the global TTL for caching.
-     * Used as default expiration time in cache clients.
-     *
-     * @param int|null|\DateInterval|\DateTimeInterface $ttl A mess of possible values for the TTL
-     *
-     * @return Cache
-     */
-    public function setTtl($ttl): Cache;
 }

@@ -15,64 +15,53 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{cache_key_check, cache_ttl};
+use function Koded\Caching\{normalize_ttl, verify_key};
 
 /**
  * Class RedisClient uses the Redis PHP extension.
  *
- * @property \Redis client
  */
-class RedisClient implements CacheInterface, Cache
+final class RedisClient implements CacheInterface, Cache
 {
 
     use ClientTrait, MultiplesTrait;
 
-    /**
-     * @var Serializer
-     */
-    protected $serializer;
+    private $serializer;
 
-    public function __construct(\Redis $client, Serializer $serializer, ?int $ttl)
+    public function __construct(\Redis $client, Serializer $serializer, int $ttl = null)
     {
         $this->client = $client;
         $this->serializer = $serializer;
-        $this->setTtl($ttl);
+        $this->ttl = $ttl;
     }
 
     public function get($key, $default = null)
     {
-        cache_key_check($key);
-
-        return (bool)$this->client->exists($key)
+        return $this->has($key)
             ? $this->serializer->unserialize($this->client->get($key))
             : $default;
     }
 
     public function set($key, $value, $ttl = null)
     {
-        cache_key_check($key);
+        verify_key($key);
+        $ttl = normalize_ttl($ttl ?? $this->ttl);
 
         if (null === $ttl) {
             return $this->client->set($key, $this->serializer->serialize($value));
         }
-
-        $ttl = cache_ttl($ttl ?? $this->ttl);
 
         if ($ttl > 0) {
             return $this->client->setex($key, $ttl, $this->serializer->serialize($value));
         }
 
         // The item is considered expired and must be deleted
-        $this->client->del($key);
-
-        return false === (bool)$this->client->exists($key);
+        return 1 === $this->client->del($key);
     }
 
     public function delete($key)
     {
-        cache_key_check($key);
-
-        if (false === (bool)$this->client->exists($key)) {
+        if (false === $this->has($key)) {
             return true;
         }
 
@@ -81,28 +70,13 @@ class RedisClient implements CacheInterface, Cache
 
     public function clear()
     {
-        $this->client->flushAll();
-
-        return null === $this->client->getLastError();
+        return $this->client->flushDB();
     }
 
     public function has($key)
     {
-        cache_key_check($key);
+        verify_key($key);
 
         return (bool)$this->client->exists($key);
-    }
-
-    /*
-     *
-     * Overrides
-     *
-     */
-
-    protected function multiDelete(array $keys): bool
-    {
-        $this->client->del($keys);
-
-        return null === $this->client->getLastError();
     }
 }
