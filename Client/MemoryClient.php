@@ -14,7 +14,7 @@ namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{normalize_ttl, verify_key};
+use function Koded\Caching\verify_key;
 
 
 /**
@@ -53,9 +53,9 @@ final class MemoryClient implements CacheInterface, Cache
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
-        $ttl = normalize_ttl($ttl ?? $this->ttl);
+        $expiration = $this->timestampWithGlobalTtl($ttl, Cache::DATE_FAR_FAR_AWAY);
 
-        if ($ttl !== null && $ttl < 1) {
+        if ($expiration < 1) {
             unset($this->storage[$key], $this->expiration[$key]);
 
             return false;
@@ -63,14 +63,7 @@ final class MemoryClient implements CacheInterface, Cache
 
         // Loose the reference to the object
         $this->storage[$key] = is_object($value) ? clone $value : $value;
-
-        if (null === $ttl && $this->ttl > 0) {
-            $this->expiration[$key] = time() + $this->ttl;
-        } elseif ($ttl > 0) {
-            $this->expiration[$key] = time() + $ttl;
-        } else {
-            $this->expiration[$key] = Cache::DATE_FAR_FAR_AWAY;
-        }
+        $this->expiration[$key] = $expiration;
 
         return true;
     }

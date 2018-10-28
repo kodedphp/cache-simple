@@ -69,7 +69,7 @@ final class FileClient implements CacheInterface, Cache
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
-        $ttl = normalize_ttl($ttl ?? $this->ttl);
+        $ttl = normalize_ttl($ttl);
 
         if ($ttl !== null && $ttl < 1) {
             // The item is considered expired and must be deleted
@@ -180,16 +180,8 @@ final class FileClient implements CacheInterface, Cache
      */
     private function data(string $key, $value, $ttl): string
     {
-        if (null === $ttl && $this->ttl > 0) {
-            $ttl = time() + $this->ttl;
-        } elseif ($ttl > 0) {
-            $ttl = time() + $ttl;
-        } else {
-            $ttl = Cache::DATE_FAR_FAR_AWAY;
-        }
-
         return '<?php return ' . var_export([
-                'timestamp' => $ttl,
+                'timestamp' => $this->timestampWithGlobalTtl($ttl, Cache::DATE_FAR_FAR_AWAY),
                 'key' => $key,
                 'value' => serialize($value),
             ], true) . ';';

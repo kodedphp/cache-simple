@@ -16,7 +16,7 @@ use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
 use Predis\Client;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{normalize_ttl, verify_key};
+use function Koded\Caching\verify_key;
 
 /**
  * Class PredisClient uses the Predis library.
@@ -47,14 +47,15 @@ final class PredisClient implements CacheInterface, Cache
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
-        $ttl = normalize_ttl($ttl ?? $this->ttl);
 
         if (null === $ttl) {
             return 'OK' === $this->client->set($key, $this->serializer->serialize($value))->getPayload();
         }
 
-        if ($ttl > 0) {
-            return 'OK' === $this->client->setex($key, $ttl, $this->serializer->serialize($value))->getPayload();
+        $expiration = $this->secondsWithGlobalTtl($ttl);
+
+        if ($expiration > 0) {
+            return 'OK' === $this->client->setex($key, $expiration, $this->serializer->serialize($value))->getPayload();
         }
 
         // The item is considered expired and must be deleted
