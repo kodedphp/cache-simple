@@ -14,33 +14,33 @@ trait MultiplesTrait
 
     public function getMultiple($keys, $default = null): iterable
     {
-        $_keys = filter_keys($keys, false);
+        $filtered = filter_keys($keys, false);
 
-        return $this->multiGet($_keys, $default);
+        return $this->internalMultiGet($filtered, $default);
     }
 
     public function setMultiple($values, $ttl = null): bool
     {
-        $_values = filter_keys($values, true);
-        $ttl = normalize_ttl($ttl);
+        $filtered = filter_keys($values, true);
+        $ttl = normalize_ttl($ttl ?? $this->ttl);
 
         if ($ttl !== null && $ttl < 1) {
             // All items are considered expired and must be deleted
-            return $this->deleteMultiple(array_keys($_values));
+            return $this->deleteMultiple(array_keys($filtered));
         }
 
-        return $this->multiSet($_values, $ttl);
+        return $this->internalMultiSet($filtered, $ttl);
     }
 
     public function deleteMultiple($keys): bool
     {
-        $_keys = filter_keys($keys, false);
+        $filtered = filter_keys($keys, false);
 
-        if (count($_keys)) {
-            return $this->multiDelete($_keys);
+        if (empty($filtered)) {
+            return true;
         }
 
-        return true;
+        return $this->internalMultiDelete($filtered);
     }
 
     /*
@@ -49,7 +49,7 @@ trait MultiplesTrait
      *
      */
 
-    protected function multiGet(array $keys, $default): iterable
+    protected function internalMultiGet(array $keys, $default): iterable
     {
         $cached = [];
         foreach ($keys as $key) {
@@ -60,7 +60,7 @@ trait MultiplesTrait
     }
 
 
-    protected function multiSet(array $values, $ttl): bool
+    protected function internalMultiSet(array $values, $ttl): bool
     {
         $cached = 0;
         foreach ($values as $key => $value) {
@@ -70,7 +70,7 @@ trait MultiplesTrait
     }
 
 
-    protected function multiDelete(array $keys): bool
+    protected function internalMultiDelete(array $keys): bool
     {
         $deleted = 0;
         foreach ($keys as $key) {

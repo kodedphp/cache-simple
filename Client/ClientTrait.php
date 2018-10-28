@@ -12,6 +12,8 @@
 
 namespace Koded\Caching\Client;
 
+use function Koded\Caching\normalize_ttl;
+
 trait ClientTrait
 {
 
@@ -29,5 +31,31 @@ trait ClientTrait
     public function client()
     {
         return $this->client ?? $this;
+    }
+
+    private function timestampWithGlobalTtl($explicit, int $default = 0): int
+    {
+        $ttl = normalize_ttl($explicit);
+
+        if (null === $ttl && $this->ttl > 0) {
+            return time() + $this->ttl;
+        }
+
+        if ($ttl > 0) {
+            return time() + $ttl;
+        }
+
+        return $ttl ?? $default;
+    }
+
+    private function secondsWithGlobalTtl($ttl): int
+    {
+        $seconds = normalize_ttl($ttl);
+
+        if (null === $seconds && $this->ttl > 0) {
+            return $this->ttl;
+        }
+
+        return (int)$seconds;
     }
 }

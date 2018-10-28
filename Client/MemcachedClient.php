@@ -15,7 +15,7 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Caching\Configuration\MemcachedConfiguration;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{verify_key, normalize_ttl};
+use function Koded\Caching\verify_key;
 
 /**
  * @property \Memcached client
@@ -50,13 +50,13 @@ final class MemcachedClient implements CacheInterface, Cache
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
-        $ttl = normalize_ttl($ttl ?? $this->ttl);
+        $expiration = $this->secondsWithGlobalTtl($ttl);
 
-        if ($ttl === null || $ttl > 0) {
-            return $this->client->set($key, $value, (int)$ttl);
+        if ($ttl !== null && $expiration < 1) {
+            return $this->client->delete($key);
         }
 
-        return $this->client->delete($key);
+        return $this->client->set($key, $value, $expiration);
     }
 
     public function delete($key)
@@ -80,24 +80,24 @@ final class MemcachedClient implements CacheInterface, Cache
         // Memcached does not have exists() or similar method
         $this->client->get($key);
 
-        return $this->client->getResultCode() === \Memcached::RES_SUCCESS;
+        return $this->client->getResultCode() !== \Memcached::RES_NOTFOUND;
     }
 
     /*
      * Overrides
      *
      */
-    private function multiGet(array $keys, $default = null): iterable
+    private function internalMultiGet(array $keys, $default = null): iterable
     {
         return array_replace(array_fill_keys($keys, $default), $this->client->getMulti($keys) ?: []);
     }
 
-    private function multiSet(array $values, $ttl = null): bool
+    private function internalMultiSet(array $values, $ttl = null): bool
     {
         return $this->client->setMulti($values, $ttl);
     }
 
-    private function multiDelete(array $keys): bool
+    private function internalMultiDelete(array $keys): bool
     {
         $this->client->deleteMulti($keys);
 
