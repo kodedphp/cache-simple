@@ -15,7 +15,7 @@ namespace Koded\Caching\Client;
 use Exception;
 use Koded\Caching\CacheException;
 use Koded\Caching\Configuration\{PredisConfiguration, RedisConfiguration};
-use Koded\Stdlib\Interfaces\{ConfigurationFactory, Serializer};
+use Koded\Stdlib\Interfaces\{Configuration, ConfigurationFactory, Serializer};
 use Koded\Stdlib\Serializer\SerializerFactory;
 use Psr\Log\{LoggerInterface, NullLogger};
 use Psr\SimpleCache\CacheInterface;
@@ -144,7 +144,8 @@ class CacheClientFactory
 
             return $client;
 
-        } catch (\RedisException $e) {
+        } /** @noinspection PhpRedundantCatchClauseInspection */
+        catch (\RedisException $e) {
             error_log($e->getMessage());
             throw CacheException::withConnectionErrorFor('Redis');
         } catch (CacheException $e) {
@@ -184,7 +185,11 @@ class CacheClientFactory
         }
     }
 
-
+    /**
+     * @param Configuration $conf
+     *
+     * @return LoggerInterface
+     */
     private function getLogger($conf): LoggerInterface
     {
         $logger = $conf->logger ?? new NullLogger;

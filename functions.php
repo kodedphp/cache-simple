@@ -111,7 +111,8 @@ function filter_keys($iterable, bool $associative): array
     if (false === $associative) {
         array_walk($keys, '\Koded\Caching\verify_key');
     } else {
-        array_walk($_ = array_keys($keys), '\Koded\Caching\verify_key');
+        $_ = array_keys($keys);
+        array_walk($_, '\Koded\Caching\verify_key');
     }
 
     return $keys;
