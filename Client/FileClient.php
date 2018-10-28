@@ -19,7 +19,8 @@ use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Throwable;
-use function Koded\Caching\{verify_key, normalize_ttl};
+use function Koded\Caching\{normalize_ttl, verify_key};
+use function Koded\Stdlib\now;
 
 /**
  * @property FileClient client
@@ -196,6 +197,6 @@ final class FileClient implements CacheInterface, Cache
      */
     private function expired(array $cache): bool
     {
-        return $cache['timestamp'] <= time();
+        return $cache['timestamp'] <= now()->getTimestamp();
     }
 }

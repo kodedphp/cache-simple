@@ -14,11 +14,11 @@ namespace Koded\Caching;
 
 use DateInterval;
 use DateTimeInterface;
-use Exception;
 use Koded\Caching\Client\CacheClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Psr\SimpleCache\CacheInterface;
 use Throwable;
+use function Koded\Stdlib\now;
 
 /**
  * Factory function for SimpleCache.
@@ -39,7 +39,7 @@ function simple_cache_factory(string $client = '', array $arguments = []): Cache
 {
     try {
         return (new CacheClientFactory(new ConfigFactory($arguments)))->build($client);
-    } catch (Exception $ex) {
+    } catch (Throwable $ex) {
         throw CacheException::from($ex);
     }
 }
@@ -71,12 +71,38 @@ function verify_key($name): void
     }
 
     try {
-        if (preg_match('/[@\{\}\(\)\/\\\]+/', $name)) {
+        if (preg_match('/[@\{\}\(\)\/\\\]/', $name)) {
             throw CacheException::forInvalidKey($name);
         }
     } catch (Throwable $e) {
         throw CacheException::forInvalidKey($name);
     }
+}
+
+/**
+ * Transforms the provided TTL to integer (seconds) or NULL.
+ * Please use integers as seconds for expiration.
+ *
+ * @param int|DateInterval|DateTimeInterface|null $value A gypsy argument that wants to be a TTL.
+ *                                                       Can be a negative number to delete the cached item
+ *
+ * @return int|null Returns the TTL is seconds, or NULL
+ */
+function normalize_ttl($value): ?int
+{
+    if (null === $value || is_int($value)) {
+        return $value;
+    }
+
+    if ($value instanceof DateTimeInterface) {
+        return $value->getTimestamp() - now()->getTimestamp();
+    }
+
+    if ($value instanceof DateInterval) {
+        return date_create('@0', timezone_open('UTC'))->add($value)->getTimestamp();
+    }
+
+    throw CacheException::generic('Invalid TTL, given ' . var_export($value, true));
 }
 
 /**
@@ -116,30 +142,4 @@ function filter_keys($iterable, bool $associative): array
     }
 
     return $keys;
-}
-
-/**
- * Transforms the provided TTL to integer (seconds) or NULL.
- * Please use integers as seconds for expiration.
- *
- * @param int|DateInterval|DateTimeInterface|null $value A gypsy argument that wants to be a TTL.
- *                                                       Can be a negative number to delete the cached item
- *
- * @return int|null Returns the TTL is seconds, or NULL
- */
-function normalize_ttl($value): ?int
-{
-    if (null === $value || is_int($value)) {
-        return $value;
-    }
-
-    if ($value instanceof DateTimeInterface) {
-        return $value->getTimestamp();
-    }
-
-    if ($value instanceof DateInterval) {
-        return date_create('@0')->add($value)->getTimestamp();
-    }
-
-    throw CacheException::generic('Invalid TTL, given ' . var_export($value, true));
 }

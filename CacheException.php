@@ -24,6 +24,7 @@ class CacheException extends KodedException implements InvalidArgumentException
         Cache::E_DIRECTORY_NOT_CREATED => 'Failed to create a cache directory ":dir"',
         Cache::E_PHP_EXCEPTION => '[Cache Exception] :message',
         Cache::E_CONNECTION_ERROR => '[Cache Exception] Failed to connect the :client client',
+        Cache::E_UNSUPPORTED_CLIENT => '[Cache Exception] Unsupported cache client :name',
     ];
 
     public static function forInvalidKey($key)
@@ -34,6 +35,11 @@ class CacheException extends KodedException implements InvalidArgumentException
     public static function forUnsupportedLogger(string $supported, string $given)
     {
         return new self(Cache::E_UNSUPPORTED_LOGGER, [':supported' => $supported, ':given' => $given]);
+    }
+
+    public static function forUnsupportedClient(string $client)
+    {
+        return new self(Cache::E_UNSUPPORTED_CLIENT, [':name' => $client]);
     }
 
     public static function forCreatingDirectory(string $directory)

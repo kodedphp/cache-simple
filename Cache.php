@@ -23,6 +23,7 @@ interface Cache extends CacheInterface
     const E_DIRECTORY_NOT_CREATED = 3;
     const E_PHP_EXCEPTION = 4;
     const E_CONNECTION_ERROR = 5;
+    const E_UNSUPPORTED_CLIENT = 6;
 
     const DATE_FAR_FAR_AWAY = 32503593600;
 
