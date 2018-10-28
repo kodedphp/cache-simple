@@ -13,9 +13,7 @@
 namespace Koded\Caching;
 
 use DateInterval;
-use DateTime;
 use DateTimeInterface;
-use DateTimeZone;
 use Exception;
 use Koded\Caching\Client\CacheClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
@@ -35,12 +33,15 @@ use Throwable;
  *
  * @return CacheInterface
  * @throws CacheException
- * @throws Exception
  */
 
 function simple_cache_factory(string $client = '', array $arguments = []): Cache
 {
-    return (new CacheClientFactory(new ConfigFactory($arguments)))->build($client);
+    try {
+        return (new CacheClientFactory(new ConfigFactory($arguments)))->build($client);
+    } catch (Exception $ex) {
+        throw CacheException::from($ex);
+    }
 }
 
 /**
@@ -49,44 +50,44 @@ function simple_cache_factory(string $client = '', array $arguments = []): Cache
  * Differs from PSR-16 by allowing the ":" in the reserved characters list.
  * The colon is a wide accepted convention for Redis to "group" the key.
  *
- * @param string $key The cache key
+ * @param string $name The cache key
  *
  * @throws CacheException
  * @see https://github.com/php-cache/integration-tests/issues/92
  */
-function cache_key_check($key): void
+function verify_key($name): void
 {
     /*
      * This hack exists because the bug in the integration tests.
      * $this->cache->setMultiple(['0' => 'value0'])
-     * assumes "0" is a valid key for the key name, which is not
+     * assumes "0" is a valid key for a key name
      */
-    if (0 === $key) {
+    if (0 === $name) {
         return;
     }
 
-    if ('' === $key || false === is_string($key)) {
-        throw CacheException::forInvalidKey($key);
+    if ('' === $name || false === is_string($name)) {
+        throw CacheException::forInvalidKey($name);
     }
 
     try {
-        if (preg_match('/[@\{\}\(\)\/\\\]/', $key)) {
-            throw CacheException::forInvalidKey($key);
+        if (preg_match('/[@\{\}\(\)\/\\\]+/', $name)) {
+            throw CacheException::forInvalidKey($name);
         }
     } catch (Throwable $e) {
-        throw CacheException::forInvalidKey($key);
+        throw CacheException::forInvalidKey($name);
     }
 }
 
 /**
- * Filters out the cache item keys and performs a validation on them.
+ * Filters out the cache items keys and performs a validation on them.
  *
  * @param iterable $iterable    The cache item
  * @param bool     $associative To return an associative array or sequential
  *
  * @return array Valid cache name keys
  */
-function cache_keys($iterable, bool $associative): array
+function filter_keys($iterable, bool $associative): array
 {
     if (false === is_iterable($iterable)) {
         throw CacheException::forInvalidKey($iterable);
@@ -108,43 +109,36 @@ function cache_keys($iterable, bool $associative): array
     // Validate the keys
 
     if (false === $associative) {
-        array_walk($keys, '\Koded\Caching\cache_key_check');
+        array_walk($keys, '\Koded\Caching\verify_key');
     } else {
-        $_keys = array_keys($keys);
-        array_walk($_keys, '\Koded\Caching\cache_key_check');
+        array_walk($_ = array_keys($keys), '\Koded\Caching\verify_key');
     }
 
     return $keys;
 }
 
 /**
- * Transforms the DateInterval TTL, or return the value as-is.
+ * Transforms the provided TTL to integer (seconds) or NULL.
  * Please use integers as seconds for expiration.
  *
- * @param null|int|DateInterval $ttl A gypsy argument that wants to be a TTL
- *                                   (apparently a simple number of seconds is not enough and it must be a mess)
+ * @param int|DateInterval|DateTimeInterface|null $value A gypsy argument that wants to be a TTL.
+ *                                                       Can be a negative number to delete the cached item
  *
- * @return int|null Returns the TTL is seconds, or NULL.
- * Can be a negative number to delete the cached item.
+ * @return int|null Returns the TTL is seconds, or NULL
  */
-function cache_ttl($ttl): ?int
+function normalize_ttl($value): ?int
 {
-    if (null === $ttl || 0 === $ttl) {
-        // because things...
-        return $ttl;
+    if (null === $value || is_int($value)) {
+        return $value;
     }
 
-    if (is_int($ttl)) {
-        return $ttl;
+    if ($value instanceof DateTimeInterface) {
+        return $value->getTimestamp();
     }
 
-    if ($ttl instanceof DateTimeInterface) {
-        return (int)$ttl->format('U');
+    if ($value instanceof DateInterval) {
+        return date_create('@0')->add($value)->getTimestamp();
     }
 
-    if ($ttl instanceof DateInterval) {
-        return (int)((new DateTime('now', new DateTimeZone('UTC')))->add($ttl)->format('U')) - time();
-    }
-
-    throw CacheException::generic('Invalid TTL, given ' . var_export($ttl, true));
+    throw CacheException::generic('Invalid TTL, given ' . var_export($value, true));
 }

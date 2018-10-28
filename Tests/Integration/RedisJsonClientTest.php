@@ -2,12 +2,14 @@
 
 namespace Koded\Caching\Tests\Integration;
 
+use Cache\IntegrationTests\SimpleCacheTest;
 use Koded\Stdlib\Interfaces\Serializer;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\simple_cache_factory;
 
-class RedisJsonClientTest extends SimpleCacheIntegrationTest
+class RedisJsonClientTest extends SimpleCacheTest
 {
+    use SimpleCacheIntegrationTrait;
 
     /**
      * @return CacheInterface that is used in the tests
@@ -23,10 +25,13 @@ class RedisJsonClientTest extends SimpleCacheIntegrationTest
 
     protected function setUp()
     {
+        $this->markTestSkipped();
+
         if (false === extension_loaded('redis')) {
             $this->markTestSkipped('Redis extension is not loaded.');
         }
 
         parent::setUp();
+        $this->cache->clear();
     }
 }

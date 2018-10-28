@@ -11,14 +11,20 @@ trait SimpleCacheTestCaseTrait
     /** @var Cache */
     protected $cache;
 
+    protected function tearDown()
+    {
+        putenv('CACHE_CLIENT=');
+
+        if ($this->cache) {
+            $this->cache->clear();
+        }
+
+        $this->cache = null;
+    }
+
     public function test_client_should_implement_cache_interface()
     {
         $this->assertInstanceOf(CacheInterface::class, $this->cache);
-    }
-
-    public function test_should_return_cache_instance()
-    {
-        $this->assertNotNull($this->cache->client());
     }
 
     /**
@@ -32,8 +38,19 @@ trait SimpleCacheTestCaseTrait
 
         $this->assertSame([
             'key1' => 'foo',
-            'non-existent-key' => 'default value',
-        ], $this->cache->getMultiple(['key1', 'non-existent-key'], 'default value'));
+            'non-existent-key' => 'with default value',
+        ], $this->cache->getMultiple(['key1', 'non-existent-key'], 'with default value'));
+    }
+
+    /**
+     * @dataProvider simpleData
+     *
+     * @param $data
+     */
+    public function test_delete_multi_with_non_existent_key($data)
+    {
+        $this->cache->setMultiple($data);
+        $this->assertTrue($this->cache->deleteMultiple(['key1', 'non-existent-key']));
     }
 
     /**
@@ -54,15 +71,10 @@ trait SimpleCacheTestCaseTrait
                     'key2' => false,
                     'key3' => ['bar' => true],
                     'key4' => new Arguments(['foo' => 'bar']),
-                    'key5' => ['foo', 'bar', 'baz']
+                    'key5' => ['foo', 'bar', 'baz'],
+                    'key6' => null,
                 ]
             ]
         ];
-    }
-
-    protected function tearDown()
-    {
-        $this->cache->clear();
-        putenv('CACHE_CLIENT=');
     }
 }

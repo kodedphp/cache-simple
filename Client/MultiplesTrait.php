@@ -2,7 +2,7 @@
 
 namespace Koded\Caching\Client;
 
-use function Koded\Caching\{cache_keys, cache_ttl};
+use function Koded\Caching\{filter_keys, normalize_ttl};
 
 /**
  * Trait MultiplesTrait implements all "multi" operations
@@ -14,38 +14,38 @@ trait MultiplesTrait
 
     public function getMultiple($keys, $default = null): iterable
     {
-        $keys = cache_keys($keys, false);
+        $_keys = filter_keys($keys, false);
 
-        return $this->multiGet($keys, $default);
+        return $this->multiGet($_keys, $default);
     }
 
     public function setMultiple($values, $ttl = null): bool
     {
-        $values = cache_keys($values, true);
-        $ttl = cache_ttl($ttl);
+        $_values = filter_keys($values, true);
+        $ttl = normalize_ttl($ttl);
 
-        if ($ttl < 0 || $ttl === 0) {
+        if ($ttl !== null && $ttl < 1) {
             // All items are considered expired and must be deleted
-            return $this->deleteMultiple(array_keys($values));
+            return $this->deleteMultiple(array_keys($_values));
         }
 
-        return $this->multiSet($values, $ttl);
+        return $this->multiSet($_values, $ttl);
     }
 
     public function deleteMultiple($keys): bool
     {
-        $keys = cache_keys($keys, false);
+        $_keys = filter_keys($keys, false);
 
-        if (empty($keys)) {
-            return true;
+        if (count($_keys)) {
+            return $this->multiDelete($_keys);
         }
 
-        return $this->multiDelete($keys);
+        return true;
     }
 
     /*
      *
-     * Overridable in specific cache engines.
+     * Overridable in specific cache classes.
      *
      */
 
@@ -64,7 +64,7 @@ trait MultiplesTrait
     {
         $cached = 0;
         foreach ($values as $key => $value) {
-            $this->set($key, $value, $ttl) && ++$cached;
+            $this->set($key, $value, $ttl) && $cached++;
         }
         return count($values) === $cached;
     }
@@ -74,7 +74,7 @@ trait MultiplesTrait
     {
         $deleted = 0;
         foreach ($keys as $key) {
-            $this->delete($key) && ++$deleted;
+            $this->delete($key) && $deleted++;
         }
 
         return count($keys) === $deleted;

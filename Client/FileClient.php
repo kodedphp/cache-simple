@@ -19,7 +19,7 @@ use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Throwable;
-use function Koded\Caching\{cache_key_check, cache_ttl};
+use function Koded\Caching\{verify_key, normalize_ttl};
 
 /**
  * @property FileClient client
@@ -41,14 +41,14 @@ final class FileClient implements CacheInterface, Cache
 
     public function __construct(LoggerInterface $logger, string $dir, int $ttl = null)
     {
+        $this->ttl = $ttl;
         $this->logger = $logger;
         $this->setDirectory($dir);
-        $this->setTtl($ttl ?? Cache::A_DATE_FAR_FAR_AWAY);
     }
 
     public function get($key, $default = null)
     {
-        cache_key_check($key);
+        verify_key($key);
         $filename = $this->filename($key, false);
 
         if (false === is_file($filename)) {
@@ -68,10 +68,10 @@ final class FileClient implements CacheInterface, Cache
 
     public function set($key, $value, $ttl = null)
     {
-        cache_key_check($key);
-        $ttl = cache_ttl($ttl);
+        verify_key($key);
+        $ttl = normalize_ttl($ttl ?? $this->ttl);
 
-        if ($ttl < 0 || $ttl === 0) {
+        if ($ttl !== null && $ttl < 1) {
             // The item is considered expired and must be deleted
             return $this->delete($key);
         }
@@ -81,9 +81,9 @@ final class FileClient implements CacheInterface, Cache
 
     public function delete($key)
     {
-        cache_key_check($key);
-
+        verify_key($key);
         $filename = $this->filename($key, false);
+
         if (is_file($filename)) {
             return unlink($filename);
         }
@@ -111,7 +111,7 @@ final class FileClient implements CacheInterface, Cache
 
     public function has($key)
     {
-        cache_key_check($key);
+        verify_key($key);
 
         return is_file($this->filename($key, false));
     }
@@ -127,8 +127,8 @@ final class FileClient implements CacheInterface, Cache
     {
         // Overrule shell misconfiguration or the web server
         umask(umask() | 0002);
-        $dir = $directory ?: sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cache';
-        $dir = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        $dir = $directory ?: sys_get_temp_dir() . '/_cache';
+        $dir = rtrim($dir, '/') . '/';
 
         if (false === is_dir($dir) && false === mkdir($dir, 0775, true)) {
             $e = CacheException::forCreatingDirectory($dir);
@@ -149,17 +149,19 @@ final class FileClient implements CacheInterface, Cache
      */
     private function filename(string $key, bool $create = true): string
     {
-        cache_key_check($key);
+        verify_key($key);
         $filename = sha1($key);
         $dir = $this->dir . substr($filename, 0, 1);
 
         if ($create && false === is_dir($dir)) {
-            mkdir($dir, 0775, true) || $this->logger->error('Failed to create cache directory: {dir}', ['dir' => $dir]);
+            mkdir($dir, 0775, true) || $this->logger->error('Failed to create cache directory in: {dir}', [
+                'dir' => $dir
+            ]);
         }
 
-        $filename = $dir . DIRECTORY_SEPARATOR . substr($filename, 1) . '.php';
+        $filename = $dir . '/' . substr($filename, 1) . '.php';
 
-        if ($create && !is_file($filename)) {
+        if ($create && false === is_file($filename)) {
             touch($filename);
             chmod($filename, 0666);
         }
@@ -178,10 +180,12 @@ final class FileClient implements CacheInterface, Cache
      */
     private function data(string $key, $value, $ttl): string
     {
-        if (null === $ttl) {
-            $ttl = $this->ttl;
+        if (null === $ttl && $this->ttl > 0) {
+            $ttl = time() + $this->ttl;
+        } elseif ($ttl > 0) {
+            $ttl = time() + $ttl;
         } else {
-            $ttl += time();
+            $ttl = Cache::DATE_FAR_FAR_AWAY;
         }
 
         return '<?php return ' . var_export([

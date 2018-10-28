@@ -15,7 +15,7 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Caching\Configuration\MemcachedConfiguration;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{cache_key_check, cache_ttl};
+use function Koded\Caching\{verify_key, normalize_ttl};
 
 /**
  * @property \Memcached client
@@ -28,7 +28,7 @@ final class MemcachedClient implements CacheInterface, Cache
     public function __construct(\Memcached $client, MemcachedConfiguration $config)
     {
         $this->client = $client;
-        $this->setTtl($config->get('ttl'));
+        $this->ttl = $config->get('ttl');
 
         if (empty($this->client->getServerList())) {
             $this->client->addServers($config->getServers());
@@ -39,39 +39,33 @@ final class MemcachedClient implements CacheInterface, Cache
 
     public function get($key, $default = null)
     {
-        cache_key_check($key);
+        verify_key($key);
 
         // Cannot return get() directly because FALSE is a valid value
         $value = $this->client->get($key);
 
-        return $this->client->getResultCode() === \Memcached::RES_SUCCESS ? $value : $default;
+        return $this->client->getResultCode() === \Memcached::RES_NOTFOUND ? $default : $value;
     }
 
     public function set($key, $value, $ttl = null)
     {
-        cache_key_check($key);
-        $ttl = cache_ttl($ttl);
+        verify_key($key);
+        $ttl = normalize_ttl($ttl ?? $this->ttl);
 
-        if ($ttl < 0 || $ttl === 0) {
-            $this->client->delete($key);
-
-            return true;
+        if ($ttl === null || $ttl > 0) {
+            return $this->client->set($key, $value, (int)$ttl);
         }
 
-        return $this->client->set($key, $value, $ttl);
+        return $this->client->delete($key);
     }
 
     public function delete($key)
     {
-        cache_key_check($key);
-        $this->client->delete($key);
-        $code = $this->client->getResultCode();
-
-        if (\Memcached::RES_NOTFOUND === $code) {
+        if (false === $this->has($key)) {
             return true;
         }
 
-        return \Memcached::RES_SUCCESS === $code;
+        return $this->client->delete($key);
     }
 
     public function clear()
@@ -81,7 +75,7 @@ final class MemcachedClient implements CacheInterface, Cache
 
     public function has($key)
     {
-        cache_key_check($key);
+        verify_key($key);
 
         // Memcached does not have exists() or similar method
         $this->client->get($key);
@@ -100,12 +94,13 @@ final class MemcachedClient implements CacheInterface, Cache
 
     private function multiSet(array $values, $ttl = null): bool
     {
-        return $this->client->setMulti($values, cache_ttl($ttl));
+        return $this->client->setMulti($values, $ttl);
     }
 
     private function multiDelete(array $keys): bool
     {
-        /** @noinspection PhpParamsInspection */
-        return count($keys) === count(array_filter($this->client->deleteMulti($keys)));
+        $this->client->deleteMulti($keys);
+
+        return \Memcached::RES_FAILURE !== $this->client->getResultCode();
     }
 }

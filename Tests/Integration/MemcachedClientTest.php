@@ -2,11 +2,15 @@
 
 namespace Koded\Caching\Tests\Integration;
 
+use Cache\IntegrationTests\SimpleCacheTest;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\simple_cache_factory;
 
-class MemcachedClientTest extends SimpleCacheIntegrationTest
+class MemcachedClientTest extends SimpleCacheTest
 {
+
+    use SimpleCacheIntegrationTrait;
+
     /**
      * @return CacheInterface that is used in the tests
      */

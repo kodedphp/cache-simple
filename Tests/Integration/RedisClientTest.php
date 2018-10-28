@@ -2,11 +2,13 @@
 
 namespace Koded\Caching\Tests\Integration;
 
+use Cache\IntegrationTests\SimpleCacheTest;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\simple_cache_factory;
 
-class RedisClientTest extends SimpleCacheIntegrationTest
+class RedisClientTest extends SimpleCacheTest
 {
+    use SimpleCacheIntegrationTrait;
 
     /**
      * @return CacheInterface that is used in the tests
@@ -25,5 +27,6 @@ class RedisClientTest extends SimpleCacheIntegrationTest
         }
 
         parent::setUp();
+        $this->cache->clear();
     }
 }

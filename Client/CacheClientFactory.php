@@ -47,7 +47,7 @@ class CacheClientFactory
      */
     public function build(string $client = ''): CacheInterface
     {
-        $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: '');
+        $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: 'memory');
         $config = $this->conf->build($client);
 
         switch ($client) {
@@ -66,10 +66,9 @@ class CacheClientFactory
             case 'file':
                 /** @var \Koded\Caching\Configuration\FileConfiguration $config */
                 return new FileClient($this->getLogger($config), (string)$config->get('dir'), $config->get('ttl'));
-
-            default:
-                return new MemoryClient($config->get('ttl'));
         }
+
+        return new MemoryClient($config->get('ttl'));
     }
 
 
@@ -136,7 +135,8 @@ class CacheClientFactory
 
             $client->setOption(\Redis::OPT_SERIALIZER, $conf->get('type'));
             $client->setOption(\Redis::OPT_PREFIX, $conf->get('prefix'));
-            $client->select((int)$conf->get('db', 0));
+
+            $client->select((int)$conf->get('db'));
 
             if ($auth = $conf->get('auth')) {
                 $client->auth($auth);
@@ -167,7 +167,7 @@ class CacheClientFactory
         try {
             $client = new \Predis\Client($conf->getConnectionParams(), $conf->getOptions());
             $client->connect();
-            $client->select((int)$conf->get('db', 0));
+            $client->select((int)$conf->get('db'));
 
             if ($auth = $conf->get('auth')) {
                 $client->auth($auth);
@@ -177,6 +177,7 @@ class CacheClientFactory
 
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\Predis\Connection\ConnectionException $e) {
+            error_log($e->getMessage());
             throw CacheException::withConnectionErrorFor('Predis', $e);
         } catch (Exception $e) {
             throw CacheException::generic($e->getMessage(), $e);
