@@ -31,12 +31,12 @@ class MemcachedConfigurationTest extends TestCase
         $this->assertFalse($expected[Memcached::OPT_REMOVE_FAILED_SERVERS]);
         $this->assertSame('test-prefix', $expected[Memcached::OPT_PREFIX_KEY]);
         $this->assertSame(5, $expected[Memcached::OPT_RETRY_TIMEOUT]);
+        $this->assertSame([['memcached123', 11211]], $config->getServers());
 
         // these 2 should be removed
         $this->assertArrayNotHasKey(Memcached::OPT_DISTRIBUTION, $expected);
         $this->assertArrayNotHasKey(Memcached::OPT_SERVER_FAILURE_LIMIT, $expected);
 
-        $this->assertSame([['memcached123', 11211]], $config->getServers());
     }
 
     public function test_with_env_variable()
@@ -57,12 +57,12 @@ class MemcachedConfigurationTest extends TestCase
         $this->assertSame([], $config->servers);
         $this->assertSame([['127.0.0.1', 11211]], $config->getServers());
 
-        $this->assertSame([
+        $this->assertEquals([
             Memcached::OPT_DISTRIBUTION => Memcached::DISTRIBUTION_CONSISTENT,
+            Memcached::OPT_CONNECT_TIMEOUT => 10,
             Memcached::OPT_SERVER_FAILURE_LIMIT => 2,
             Memcached::OPT_REMOVE_FAILED_SERVERS => true,
             Memcached::OPT_RETRY_TIMEOUT => 1,
-            Memcached::OPT_LIBKETAMA_COMPATIBLE => true,
             // OPT_PREFIX_KEY is filtered out
 
         ], $config->getOptions());

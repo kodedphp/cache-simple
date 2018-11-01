@@ -19,4 +19,10 @@ class PredisClientTest extends SimpleCacheTest
             'host' => getenv('REDIS_SERVER_HOST'),
         ]);
     }
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->cache->clear();
+    }
 }

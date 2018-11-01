@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 
 class RedisWithJsonSerializerTest extends TestCase
 {
-
     use SimpleCacheTestCaseTrait;
 
     public function test_should_return_redis_client()
@@ -19,8 +18,6 @@ class RedisWithJsonSerializerTest extends TestCase
 
     protected function setUp()
     {
-        $this->markTestSkipped();
-
         putenv('CACHE_CLIENT=redis');
 
         if (false === extension_loaded('redis')) {
@@ -29,13 +26,15 @@ class RedisWithJsonSerializerTest extends TestCase
 
         $this->cache = (new CacheClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
+            'port' => getenv('REDIS_SERVER_PORT'),
             'serializer' => Serializer::JSON,
-            'binary' => Serializer::PHP,
 
             'options' => [
                 'prefix' => 'test:'
             ],
 
-        ])))->build();
+        ])))->new();
+
+        $this->cache->clear();
     }
 }

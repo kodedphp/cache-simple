@@ -15,11 +15,19 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{normalize_ttl, verify_key};
+use function Koded\Caching\verify_key;
 use function Koded\Stdlib\json_serialize;
 
 /**
- * Class PredisJsonClient
+ * RedisJsonClient uses the Predis package.
+ *
+ * It will create 2 entries in Redis
+ * - one as JSON cache item
+ * - and other as serialized PHP value
+ *
+ * The first is useful for other programming languages to use it,
+ * and the PHP serialized variant is useful only for PHP applications
+ * where the cached item is handled by PHP serialization.
  *
  */
 final class PredisJsonClient implements CacheInterface, Cache
@@ -39,6 +47,7 @@ final class PredisJsonClient implements CacheInterface, Cache
         $this->ttl = $ttl;
     }
 
+
     public function get($key, $default = null)
     {
         return $this->has($key)
@@ -46,27 +55,27 @@ final class PredisJsonClient implements CacheInterface, Cache
             : $default;
     }
 
+
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
-        $ttl = normalize_ttl($ttl ?? $this->ttl);
+        $expiration = $this->secondsWithGlobalTtl($ttl);
 
-        if (null === $ttl) {
+        if (null === $ttl && 0 === $expiration) {
             return 'OK' === $this->client->set($key, json_serialize($value, $this->options))->getPayload()
-                && 'OK' === $this->client->set($key . $this->suffix, $this->serializer->serialize($value))
-                    ->getPayload();
+                && 'OK' === $this->client->set($key . $this->suffix, $this->serializer->serialize($value))->getPayload();
         }
 
-        if ($ttl > 0) {
-            return 'OK' === $this->client->setex($key, $ttl, json_serialize($value, $this->options))->getPayload()
-                && 'OK' === $this->client->setex($key . $this->suffix, $ttl, $this->serializer->serialize($value))
-                    ->getPayload();
+        if ($expiration > 0) {
+            return 'OK' === $this->client->setex($key, $expiration, json_serialize($value, $this->options))->getPayload()
+                && 'OK' === $this->client->setex($key . $this->suffix, $expiration, $this->serializer->serialize($value))->getPayload();
         }
 
-        // The item is considered expired and must be deleted
-//        return $this->delete($key);
-        return 2 === $this->client->del([$key, $key . $this->suffix]);
+        $this->client->del([$key, $key . $this->suffix]);
+
+        return true;
     }
+
 
     public function delete($key)
     {
@@ -77,10 +86,12 @@ final class PredisJsonClient implements CacheInterface, Cache
         return 2 === $this->client->del([$key, $key . $this->suffix]);
     }
 
+
     public function clear()
     {
         return 'OK' === $this->client->flushDb()->getPayload();
     }
+
 
     public function has($key)
     {

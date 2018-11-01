@@ -25,7 +25,6 @@ use function Koded\Caching\verify_key;
  */
 final class PredisClient implements CacheInterface, Cache
 {
-
     use ClientTrait, MultiplesTrait;
 
     private $serializer;
@@ -37,6 +36,7 @@ final class PredisClient implements CacheInterface, Cache
         $this->ttl = $ttl;
     }
 
+
     public function get($key, $default = null)
     {
         return $this->has($key)
@@ -44,23 +44,25 @@ final class PredisClient implements CacheInterface, Cache
             : $default;
     }
 
+
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
+        $expiration = $this->secondsWithGlobalTtl($ttl);
 
-        if (null === $ttl) {
+        if (null === $ttl && 0 === $expiration) {
             return 'OK' === $this->client->set($key, $this->serializer->serialize($value))->getPayload();
         }
-
-        $expiration = $this->secondsWithGlobalTtl($ttl);
 
         if ($expiration > 0) {
             return 'OK' === $this->client->setex($key, $expiration, $this->serializer->serialize($value))->getPayload();
         }
 
-        // The item is considered expired and must be deleted
-        return 1 === $this->client->del($key);
+        $this->client->del($key);
+
+        return true;
     }
+
 
     public function delete($key)
     {
@@ -71,10 +73,12 @@ final class PredisClient implements CacheInterface, Cache
         return 1 === $this->client->del($key);
     }
 
+
     public function clear()
     {
         return 'OK' === $this->client->flushdb()->getPayload();
     }
+
 
     public function has($key)
     {

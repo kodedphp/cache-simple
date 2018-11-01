@@ -20,8 +20,6 @@ class PredisWithJsonSerializerTest extends TestCase
 
     protected function setUp()
     {
-        $this->markTestSkipped();
-
         putenv('CACHE_CLIENT=predis');
 
         $this->cache = (new CacheClientFactory(new ConfigFactory([
@@ -29,12 +27,13 @@ class PredisWithJsonSerializerTest extends TestCase
             'port' => getenv('REDIS_SERVER_PORT'),
 
             'serializer' => Serializer::JSON,
-            'binary' => Serializer::PHP,
 
             'options' => [
                 'prefix' => 'test:'
             ],
 
-        ])))->build();
+        ])))->new();
+
+        $this->cache->clear();
     }
 }

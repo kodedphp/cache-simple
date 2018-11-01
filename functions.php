@@ -34,13 +34,12 @@ use function Koded\Stdlib\now;
  * @return CacheInterface
  * @throws CacheException
  */
-
 function simple_cache_factory(string $client = '', array $arguments = []): Cache
 {
     try {
-        return (new CacheClientFactory(new ConfigFactory($arguments)))->build($client);
-    } catch (Throwable $ex) {
-        throw CacheException::from($ex);
+        return (new CacheClientFactory(new ConfigFactory($arguments)))->new($client);
+    } catch (Throwable $e) {
+        throw CacheException::from($e);
     }
 }
 
@@ -58,35 +57,31 @@ function simple_cache_factory(string $client = '', array $arguments = []): Cache
 function verify_key($name): void
 {
     /*
-     * This hack exists because the bug in the integration tests.
-     * $this->cache->setMultiple(['0' => 'value0'])
-     * assumes "0" is a valid key for a key name
+     * This thing is here because the bug in the integration test,
+     * $this->cache->setMultiple(['0' => 'value0']) in SimpleCacheTest.php:225
      */
     if (0 === $name) {
         return;
     }
 
-    if ('' === $name || false === is_string($name)) {
-        throw CacheException::forInvalidKey($name);
-    }
-
-    try {
-        if (preg_match('/[@\{\}\(\)\/\\\]/', $name)) {
-            throw CacheException::forInvalidKey($name);
-        }
-    } catch (Throwable $e) {
+    if ('' === $name
+        || false === is_string($name)
+        || preg_match('/[@\{\}\(\)\/\\\]/', $name)
+    ) {
         throw CacheException::forInvalidKey($name);
     }
 }
 
 /**
- * Transforms the provided TTL to integer (seconds) or NULL.
- * Please use integers as seconds for expiration.
+ * Transforms the provided TTL to expiration seconds,
+ * or NULL for special cases for cache clients that do
+ * not have built-in expiry mechanism.
  *
- * @param int|DateInterval|DateTimeInterface|null $value A gypsy argument that wants to be a TTL.
- *                                                       Can be a negative number to delete the cached item
+ * Please use integers as seconds for TTL.
  *
- * @return int|null Returns the TTL is seconds, or NULL
+ * @param int|DateInterval|DateTimeInterface|null $value An argument that wants to be a TTL
+ *
+ * @return int|null Returns the TTL is seconds or NULL
  */
 function normalize_ttl($value): ?int
 {
@@ -133,13 +128,8 @@ function filter_keys($iterable, bool $associative): array
     }
 
     // Validate the keys
-
-    if (false === $associative) {
-        array_walk($keys, '\Koded\Caching\verify_key');
-    } else {
-        $_ = array_keys($keys);
-        array_walk($_, '\Koded\Caching\verify_key');
-    }
+    $_ = $associative ? array_keys($keys) : $keys;
+    array_walk($_, '\Koded\Caching\verify_key');
 
     return $keys;
 }

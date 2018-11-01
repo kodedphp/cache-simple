@@ -14,21 +14,18 @@ namespace Koded\Caching\Client;
 
 use Exception;
 use Koded\Caching\CacheException;
-use Koded\Caching\Configuration\{PredisConfiguration, RedisConfiguration};
+use Koded\Caching\Configuration\{FileConfiguration, MemcachedConfiguration, PredisConfiguration, RedisConfiguration};
 use Koded\Stdlib\Interfaces\{Configuration, ConfigurationFactory, Serializer};
 use Koded\Stdlib\Serializer\SerializerFactory;
 use Psr\Log\{LoggerInterface, NullLogger};
 use Psr\SimpleCache\CacheInterface;
 
 
-class CacheClientFactory
+final class CacheClientFactory
 {
 
     const CACHE_CLIENT = 'CACHE_CLIENT';
 
-    /**
-     * @var ConfigurationFactory
-     */
     private $conf;
 
     public function __construct(ConfigurationFactory $conf)
@@ -45,26 +42,26 @@ class CacheClientFactory
      * @throws CacheException
      * @throws Exception
      */
-    public function build(string $client = ''): CacheInterface
+    public function new(string $client = ''): CacheInterface
     {
         $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: 'memory');
         $config = $this->conf->build($client);
 
         switch ($client) {
             case 'memcached':
-                /** @var \Koded\Caching\Configuration\MemcachedConfiguration $config */
-                return new MemcachedClient(new \Memcached($config->get('id')), $config);
+                /** @var MemcachedConfiguration $config */
+                return $this->createMemcachedClient($config);
 
             case 'redis':
-                /** @var \Koded\Caching\Configuration\RedisConfiguration $config */
-                return $this->getRedisClient($config);
+                /** @var RedisConfiguration $config */
+                return $this->createRedisClient($config);
 
             case 'predis':
-                /** @var \Koded\Caching\Configuration\PredisConfiguration $config */
-                return $this->getPredisClient($config);
+                /** @var PredisConfiguration $config */
+                return $this->createPredisClient($config);
 
             case 'file':
-                /** @var \Koded\Caching\Configuration\FileConfiguration $config */
+                /** @var FileConfiguration $config */
                 return new FileClient($this->getLogger($config), (string)$config->get('dir'), $config->get('ttl'));
 
             case 'memory':
@@ -75,70 +72,58 @@ class CacheClientFactory
     }
 
 
-    private function getRedisClient(RedisConfiguration $conf): CacheInterface
+    private function createRedisClient(RedisConfiguration $conf): CacheInterface
     {
         $serializer = $conf->get('serializer');
+        $binary = $conf->get('binary');
 
-        if (Serializer::JSON === $serializer && $conf->get('binary')) {
+        if (Serializer::JSON === $serializer && $binary) {
             return new RedisJsonClient(
-                $this->createRedisClient($conf),
-                SerializerFactory::new((string)$conf->get('binary'), $conf->get('options')),
+                $this->newRedis($conf),
+                SerializerFactory::new((string)$binary, $conf->get('options')),
                 (int)$conf->get('options'),
                 $conf->get('ttl')
             );
         }
 
         return new RedisClient(
-            $this->createRedisClient($conf),
+            $this->newRedis($conf),
             SerializerFactory::new($serializer, $conf->get('options')),
             $conf->get('ttl')
         );
     }
 
 
-    private function getPredisClient(PredisConfiguration $conf): CacheInterface
+    private function createPredisClient(PredisConfiguration $conf): CacheInterface
     {
         $serializer = $conf->get('serializer');
+        $binary = $conf->get('binary');
 
-        if (Serializer::JSON === $serializer && $conf->get('binary')) {
+        if (Serializer::JSON === $serializer && $binary) {
             return new PredisJsonClient(
-                $this->createPredisClient($conf),
-                SerializerFactory::new((string)$conf->get('binary'), $conf->get('options')),
+                $this->newPredis($conf),
+                SerializerFactory::new((string)$binary, $conf->get('options')),
                 (int)$conf->get('options'),
                 $conf->get('ttl')
             );
         }
 
         return new PredisClient(
-            $this->createPredisClient($conf),
+            $this->newPredis($conf),
             SerializerFactory::new($conf->get('serializer'), $conf->get('options')),
             $conf->get('ttl')
         );
     }
 
-    /**
-     * Initialize a Redis client with configuration.
-     *
-     * @param RedisConfiguration $conf
-     *
-     * @return \Redis
-     * @throws CacheException
-     */
-    private function createRedisClient(RedisConfiguration $conf): \Redis
+
+    private function newRedis(RedisConfiguration $conf): \Redis
     {
         try {
             $client = new \Redis;
-
-            // Because connect() does not throw exception, but E_WARNING
-            if (false === @$client->connect(...$conf->getConnectionParams())) {
-                // @codeCoverageIgnoreStart
-                throw CacheException::withConnectionErrorFor('Redis');
-                // @codeCoverageIgnoreEnd
-            }
+            $client->connect(...$conf->getConnectionParams());
 
             $client->setOption(\Redis::OPT_SERIALIZER, $conf->get('type'));
             $client->setOption(\Redis::OPT_PREFIX, $conf->get('prefix'));
-
             $client->select((int)$conf->get('db'));
 
             if ($auth = $conf->get('auth')) {
@@ -149,28 +134,20 @@ class CacheClientFactory
 
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\RedisException $e) {
-            error_log($e->getMessage());
+            error_log('[Redis] ' . $e->getMessage());
             throw CacheException::withConnectionErrorFor('Redis');
-        } catch (CacheException $e) {
-            throw $e;
         } catch (Exception $e) {
-            throw CacheException::generic($e->getMessage(), $e);
+            throw CacheException::from($e);
         }
     }
 
-    /**
-     * Creates a Predis\Client and connects it to Redis server.
-     *
-     * @param PredisConfiguration $conf
-     *
-     * @return \Predis\Client
-     * @throws CacheException
-     */
-    private function createPredisClient(PredisConfiguration $conf): \Predis\Client
+
+    private function newPredis(PredisConfiguration $conf): \Predis\Client
     {
         try {
             $client = new \Predis\Client($conf->getConnectionParams(), $conf->getOptions());
             $client->connect();
+
             $client->select((int)$conf->get('db'));
 
             if ($auth = $conf->get('auth')) {
@@ -181,11 +158,24 @@ class CacheClientFactory
 
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\Predis\Connection\ConnectionException $e) {
-            error_log($e->getMessage());
-            throw CacheException::withConnectionErrorFor('Predis', $e);
+            error_log('[Predis] ' . $e->getMessage());
+            throw CacheException::withConnectionErrorFor('Predis');
         } catch (Exception $e) {
-            throw CacheException::generic($e->getMessage(), $e);
+            throw CacheException::from($e);
         }
+    }
+
+
+    private function createMemcachedClient(MemcachedConfiguration $conf): CacheInterface
+    {
+        $client = new \Memcached($conf->get('id'));
+        $client->setOptions($conf->getOptions());
+
+        if (empty($client->getServerList())) {
+            $client->addServers($conf->getServers());
+        }
+
+        return new MemcachedClient($client, $conf->get('ttl'));
     }
 
     /**
@@ -197,10 +187,10 @@ class CacheClientFactory
     {
         $logger = $conf->logger ?? new NullLogger;
 
-        if (!$logger instanceof LoggerInterface) {
-            throw CacheException::forUnsupportedLogger(LoggerInterface::class, get_class($logger));
+        if ($logger instanceof LoggerInterface) {
+            return $logger;
         }
 
-        return $logger;
+        throw CacheException::forUnsupportedLogger(LoggerInterface::class, get_class($logger));
     }
 }

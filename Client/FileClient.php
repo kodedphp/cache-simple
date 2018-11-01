@@ -19,26 +19,23 @@ use Psr\SimpleCache\CacheInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use Throwable;
-use function Koded\Caching\{normalize_ttl, verify_key};
+use function Koded\Caching\verify_key;
 use function Koded\Stdlib\now;
 
 /**
  * @property FileClient client
+ *
  */
 final class FileClient implements CacheInterface, Cache
 {
-
     use ClientTrait, MultiplesTrait;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $dir = '';
 
-    /**
-     * @var LoggerInterface
-     */
+    /** @var LoggerInterface */
     private $logger;
+
 
     public function __construct(LoggerInterface $logger, string $dir, int $ttl = null)
     {
@@ -47,50 +44,42 @@ final class FileClient implements CacheInterface, Cache
         $this->setDirectory($dir);
     }
 
+
     public function get($key, $default = null)
     {
-        verify_key($key);
-        $filename = $this->filename($key, false);
-
-        if (false === is_file($filename)) {
-            return $default;
+        if ($this->has($key, $filename, $cache)) {
+            /** @noinspection PhpIncludeInspection */
+            return unserialize($cache['value']);
         }
 
-        /** @noinspection PhpIncludeInspection */
-        $content = include $filename;
-
-        if ($this->expired($content)) {
-            $this->delete($key);
-            return $default;
-        }
-
-        return $content['value'] ? unserialize($content['value']) : $default;
+        return $default;
     }
+
 
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
-        $ttl = normalize_ttl($ttl);
 
-        if ($ttl !== null && $ttl < 1) {
+        if (1 > $expiration = $this->timestampWithGlobalTtl($ttl, Cache::DATE_FAR_FAR_AWAY)) {
             // The item is considered expired and must be deleted
             return $this->delete($key);
         }
 
-        return (bool)file_put_contents($this->filename($key), $this->data($key, $value, $ttl));
+        $filename = $this->filename($key, true);
+
+        return (bool)file_put_contents($filename, $this->data($key, $value, $expiration));
     }
+
 
     public function delete($key)
     {
-        verify_key($key);
-        $filename = $this->filename($key, false);
-
-        if (is_file($filename)) {
-            return unlink($filename);
+        if (false === $this->has($key, $filename)) {
+            return true;
         }
 
-        return true;
+        return unlink($filename);
     }
+
 
     public function clear()
     {
@@ -110,11 +99,53 @@ final class FileClient implements CacheInterface, Cache
         }
     }
 
-    public function has($key)
+
+    public function has($key, &$filename = '', &$cache = null)
     {
         verify_key($key);
 
-        return is_file($this->filename($key, false));
+        $filename = $this->filename($key, false);
+        if (false === is_file($filename)) {
+            return false;
+        }
+
+        /** @noinspection PhpIncludeInspection */
+        $cache = include $filename;
+
+        if ($cache['timestamp'] <= now()->getTimestamp()) {
+            unlink($filename);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Normalizes the cache filename.
+     *
+     * @param string $key    The cache key
+     * @param bool   $create Flag to create the file or not
+     *
+     * @return string
+     */
+    private function filename(string $key, bool $create): string
+    {
+        $filename = sha1($key);
+        $dir = $this->dir . $filename[0];
+
+        if ($create && false === is_dir($dir)) {
+            mkdir($dir, 0775, true) || $this->logger->error('Failed to create cache directory in: {dir}', ['dir' => $dir]);
+        }
+
+        $filename = $dir . '/' . substr($filename, 1) . '.php';
+
+        if ($create && false === is_file($filename)) {
+            touch($filename);
+            chmod($filename, 0666);
+        }
+
+        return $filename;
     }
 
     /**
@@ -141,36 +172,6 @@ final class FileClient implements CacheInterface, Cache
     }
 
     /**
-     * Normalizes the cache filename.
-     *
-     * @param string $key    The cache key
-     * @param bool   $create [optional] Flag for dir/file mods
-     *
-     * @return string
-     */
-    private function filename(string $key, bool $create = true): string
-    {
-        verify_key($key);
-        $filename = sha1($key);
-        $dir = $this->dir . substr($filename, 0, 1);
-
-        if ($create && false === is_dir($dir)) {
-            mkdir($dir, 0775, true) || $this->logger->error('Failed to create cache directory in: {dir}', [
-                'dir' => $dir
-            ]);
-        }
-
-        $filename = $dir . '/' . substr($filename, 1) . '.php';
-
-        if ($create && false === is_file($filename)) {
-            touch($filename);
-            chmod($filename, 0666);
-        }
-
-        return $filename;
-    }
-
-    /**
      * Creates a cache content.
      *
      * @param string   $key   The cache key
@@ -179,24 +180,12 @@ final class FileClient implements CacheInterface, Cache
      *
      * @return string
      */
-    private function data(string $key, $value, $ttl): string
+    private function data(string $key, $value, int $ttl): string
     {
         return '<?php return ' . var_export([
-                'timestamp' => $this->timestampWithGlobalTtl($ttl, Cache::DATE_FAR_FAR_AWAY),
+                'timestamp' => $ttl,
                 'key' => $key,
                 'value' => serialize($value),
             ], true) . ';';
-    }
-
-    /**
-     * Checks the expiration timestamp in the cache.
-     *
-     * @param array $cache The cached content
-     *
-     * @return bool
-     */
-    private function expired(array $cache): bool
-    {
-        return $cache['timestamp'] <= now()->getTimestamp();
     }
 }

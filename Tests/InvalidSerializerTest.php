@@ -24,7 +24,7 @@ class InvalidSerializerTest extends TestCase
         (new CacheClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
             'serializer' => 'junk'
-        ])))->build();
+        ])))->new();
     }
 
     protected function setUp()

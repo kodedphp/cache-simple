@@ -34,19 +34,20 @@ trait ClientTrait
         return $this->client ?? $this;
     }
 
-    private function timestampWithGlobalTtl($explicit, int $default = 0): int
+    private function timestampWithGlobalTtl($ttl, int $default = 0): int
     {
-        $ttl = normalize_ttl($explicit);
+        $now = now()->getTimestamp();
+        $explicit = normalize_ttl($ttl);
 
-        if (null === $ttl && $this->ttl > 0) {
-            return now()->getTimestamp() + $this->ttl;
+        if (null === $explicit && $this->ttl > 0) {
+            return $now + $this->ttl;
         }
 
-        if ($ttl > 0) {
-            return now()->getTimestamp() + $ttl;
+        if ($explicit > 0) {
+            return $now + $explicit;
         }
 
-        return $ttl ?? $default;
+        return $explicit ?? $default;
     }
 
     private function secondsWithGlobalTtl($ttl): int
@@ -54,7 +55,7 @@ trait ClientTrait
         $seconds = normalize_ttl($ttl);
 
         if (null === $seconds && $this->ttl > 0) {
-            return $this->ttl;
+            return (int)$this->ttl;
         }
 
         return (int)$seconds;

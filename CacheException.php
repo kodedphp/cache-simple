@@ -16,6 +16,7 @@ use Exception;
 use Koded\Exceptions\KodedException;
 use Psr\SimpleCache\InvalidArgumentException;
 
+
 class CacheException extends KodedException implements InvalidArgumentException
 {
     protected $messages = [
@@ -32,28 +33,32 @@ class CacheException extends KodedException implements InvalidArgumentException
         return new self(Cache::E_INVALID_KEY, [':key' => var_export($key, true), ':type' => gettype($key)]);
     }
 
+
     public static function forUnsupportedLogger(string $supported, string $given)
     {
         return new self(Cache::E_UNSUPPORTED_LOGGER, [':supported' => $supported, ':given' => $given]);
     }
 
-    public static function forUnsupportedClient(string $client)
-    {
-        return new self(Cache::E_UNSUPPORTED_CLIENT, [':name' => $client]);
-    }
 
     public static function forCreatingDirectory(string $directory)
     {
         return new static(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $directory]);
     }
 
+
     public static function generic(string $message, Exception $previous = null)
     {
         return new self(Cache::E_PHP_EXCEPTION, [':message' => $message], $previous);
     }
 
-    public static function withConnectionErrorFor(string $clientName, Exception $previous = null)
+
+    public static function withConnectionErrorFor(string $clientName)
     {
-        return new self(Cache::E_CONNECTION_ERROR, [':client' => $clientName], $previous);
+        return new self(Cache::E_CONNECTION_ERROR, [':client' => $clientName]);
+    }
+
+    public static function forUnsupportedClient(string $client)
+    {
+        return new self(Cache::E_UNSUPPORTED_CLIENT, [':name' => $client]);
     }
 }

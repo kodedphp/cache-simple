@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 
 class RedisWithOnlyJsonSerializerTest extends TestCase
 {
-
     use SimpleCacheTestCaseTrait;
 
     public function test_should_return_redis_client()
@@ -22,7 +21,7 @@ class RedisWithOnlyJsonSerializerTest extends TestCase
      *
      * @param $data
      */
-    public function __test_set_multiple_values($data)
+    public function test_set_multiple_values($data)
     {
         $saved = $this->cache->setMultiple($data);
         $this->assertTrue($saved);
@@ -50,12 +49,11 @@ class RedisWithOnlyJsonSerializerTest extends TestCase
      */
     public function test_should_store_and_retrieve_the_same_cache_item($data)
     {
-        $this->assertTrue($this->cache->set('foo', $data));
-
-//        dump($this->cache);
+        $result = $this->cache->set('foo', $data);
+        $this->assertTrue($result);
 
         $this->assertInstanceOf(\stdClass::class, $this->cache->get('foo'),
-            'The unserialized data is now stcClass (because original is associative array)');
+            'JSON unserialized data is now stcClass (because original is associative array)');
 
         $this->assertEquals(['foo', 'bar', 'baz'], $this->cache->get('foo')->key5,
             'PHP indexed array is correctly unserialized');
@@ -70,9 +68,7 @@ class RedisWithOnlyJsonSerializerTest extends TestCase
 
     protected function setUp()
     {
-        $this->markTestSkipped();
-
-        putenv('CACHE_CLIENT=redis');
+        $this->markTestSkipped('JSON serializer skipped for now...');
 
         if (false === extension_loaded('redis')) {
             $this->markTestSkipped('Redis extension is not loaded.');
@@ -80,7 +76,13 @@ class RedisWithOnlyJsonSerializerTest extends TestCase
 
         $this->cache = (new CacheClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
+            'port' => getenv('REDIS_SERVER_PORT'),
+
             'serializer' => Serializer::JSON,
-        ])))->build();
+            'binary' => false,
+
+        ])))->new('redis');
+
+        $this->cache->clear();
     }
 }

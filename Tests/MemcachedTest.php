@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 class MemcachedTest extends TestCase
 {
-
     use SimpleCacheTestCaseTrait;
 
     public function test_should_return_memcached_client()
@@ -20,16 +19,17 @@ class MemcachedTest extends TestCase
     {
         putenv('CACHE_CLIENT=memcached');
 
+        if (false === extension_loaded('memcached')) {
+            $this->markTestSkipped('Memcached extension is not loaded.');
+        }
+
         if (getenv('CI')) {
             putenv('MEMCACHED_POOL=[["127.0.0.1", 11211]]');
         } else {
             putenv('MEMCACHED_POOL=[["memcached", 11211]]');
         }
 
-        if (false === extension_loaded('memcached')) {
-            $this->markTestSkipped('Memcached extension is not loaded.');
-        }
-
-        $this->cache = (new CacheClientFactory(new ConfigFactory))->build();
+        $this->cache = (new CacheClientFactory(new ConfigFactory))->new();
+        $this->cache->clear();
     }
 }

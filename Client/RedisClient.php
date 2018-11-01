@@ -23,7 +23,6 @@ use function Koded\Caching\verify_key;
  */
 final class RedisClient implements CacheInterface, Cache
 {
-
     use ClientTrait, MultiplesTrait;
 
     private $serializer;
@@ -35,6 +34,7 @@ final class RedisClient implements CacheInterface, Cache
         $this->ttl = $ttl;
     }
 
+
     public function get($key, $default = null)
     {
         return $this->has($key)
@@ -42,23 +42,25 @@ final class RedisClient implements CacheInterface, Cache
             : $default;
     }
 
+
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
+        $expiration = $this->secondsWithGlobalTtl($ttl);
 
-        if (null === $ttl) {
+        if (null === $ttl && 0 === $expiration) {
             return $this->client->set($key, $this->serializer->serialize($value));
         }
-
-        $expiration = $this->secondsWithGlobalTtl($ttl);
 
         if ($expiration > 0) {
             return $this->client->setex($key, $expiration, $this->serializer->serialize($value));
         }
 
-        // The item is considered expired and must be deleted
-        return 1 === $this->client->del($key);
+        $this->client->del($key);
+
+        return true;
     }
+
 
     public function delete($key)
     {
@@ -69,10 +71,12 @@ final class RedisClient implements CacheInterface, Cache
         return 1 === $this->client->del($key);
     }
 
+
     public function clear()
     {
         return $this->client->flushDB();
     }
+
 
     public function has($key)
     {

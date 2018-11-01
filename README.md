@@ -53,7 +53,7 @@ Please install the [Memcached extension][1].
 Usage
 -----
 
-Install the library from Packagist using the [Composer][3].
+Install the library from Packagist with [Composer][3].
 
     composer require koded/cache-simple
 
@@ -86,14 +86,8 @@ $cache = simple_cache_factory('redis', [
 A bit verbose construction for the same instance is
 
 ```php
-// v2.x
-$config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:']);
-$cache = (new CacheClientFactory($config))->build('redis');
-
-// v1.x
-$config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:']);
-$client = (new ClientFactory($config))->build('redis');
-$cache = new SimpleCache($client, 3600);
+$config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:', 'ttl' => 3000]);
+$cache = (new CacheClientFactory($config))->new('redis');
 ```
 
 Configuration directives
@@ -165,8 +159,8 @@ $cache = simple_cache_factory('redis', [
 | Memcached arguments         | Type     | Required | Description |
 |:----------------------------|:---------|----------|:------------|
 | id                          | string   | no       | Memcached persistent_id value |
-| servers                     | array    | no       | A list of nested array with \[server, port\it] values |
-| options                     | array    | no       | A set with Memcached options |
+| servers                     | array    | no       | A list of nested array with \[server, port\] values |
+| options                     | array    | no       | A list of Memcached options |
 
 The following options are set **by default** when instance of `MemcachedConfiguration` is created,
 except for `OPT_PREFIX_KEY` which is there as a reminder that it may be set
@@ -191,7 +185,7 @@ Examples:
 ```php
 [
     // Memcached client `persistent_id`
-    'id'      => 'items',
+    'id' => 'items',
 
     // your Memcached servers list
     'servers' => [
@@ -219,8 +213,6 @@ By default the parameters are:
 | scheme    | tcp            |
 | host      | 127.0.0.1      |
 | port      | 6379           |
-
-without any additional `options`.
 
 Examples:
 
@@ -269,7 +261,7 @@ require a specific client in `cache_simple_factory()`
 
 ```php
 $cache = simple_cache_factory('memory');
-$cache = simple_cache_factory();  // creates a MemoryClient
+$cache = simple_cache_factory();  // also creates a MemoryClient
 ```
 
 License
