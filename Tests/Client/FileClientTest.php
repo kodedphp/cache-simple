@@ -7,6 +7,7 @@ use Koded\Stdlib\Arguments;
 use org\bovigo\vfs\{vfsStream, vfsStreamDirectory, vfsStreamWrapper};
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use function Koded\Stdlib\now;
 
 class FileClientTest extends TestCase
 {
@@ -39,6 +40,20 @@ class FileClientTest extends TestCase
         ], true), $raw);
 
         $this->assertEquals(new Arguments(['foo' => 'bar']), $client->get('foo'));
+    }
+
+    public function test_global_ttl()
+    {
+        $now = now()->getTimestamp();
+        $client = new FileClient(new NullLogger, $this->dir->url(), 2);
+        $client->set('key', 'value');
+
+        $data = include $this->dir->getChild('a/62f2225bf70bfaccbc7f1ef2a397836717377de.php')->url();
+        $this->assertEquals($now + 2, $data['timestamp']);
+        $this->assertEquals('value', $client->get('key'));
+
+        sleep(3);
+        $this->assertFalse($client->has('key'));
     }
 
     protected function setUp()

@@ -19,6 +19,7 @@ trait MultiplesTrait
         return $this->internalMultiGet($filtered, $default);
     }
 
+
     public function setMultiple($values, $ttl = null): bool
     {
         $filtered = filter_keys($values, true);
@@ -31,6 +32,7 @@ trait MultiplesTrait
 
         return $this->internalMultiSet($filtered, $ttl);
     }
+
 
     public function deleteMultiple($keys): bool
     {
@@ -66,7 +68,7 @@ trait MultiplesTrait
     }
 
     /**
-     * @param array $values
+     * @param array    $values
      * @param int|null $ttl
      *
      * @return bool
@@ -75,7 +77,7 @@ trait MultiplesTrait
     {
         $cached = 0;
         foreach ($values as $key => $value) {
-            $this->set($key, $value, $ttl) && $cached++;
+            $this->set($key, $value, $ttl) && ++$cached;
         }
         return count($values) === $cached;
     }
@@ -89,7 +91,7 @@ trait MultiplesTrait
     {
         $deleted = 0;
         foreach ($keys as $key) {
-            $this->delete($key) && $deleted++;
+            $this->delete($key) && ++$deleted;
         }
 
         return count($keys) === $deleted;

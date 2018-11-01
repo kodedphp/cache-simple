@@ -6,6 +6,7 @@ use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Caching\SimpleCacheTestCaseTrait;
 use PHPUnit\Framework\TestCase;
 use function Koded\Caching\simple_cache_factory;
+use function Koded\Stdlib\now;
 
 class MemoryClientTest extends TestCase
 {
@@ -21,7 +22,7 @@ class MemoryClientTest extends TestCase
         $this->assertAttributeEquals([], 'expiration', $cache);
 
         $cache->set('key', 'value', 10);
-        $this->assertGreaterThanOrEqual(10 + time(), $cache->getExpirationFor('key'),
+        $this->assertGreaterThanOrEqual(10 + now()->getTimestamp(), $cache->getExpirationFor('key'),
             'Exp. time is calculated internally');
 
         $this->assertNull($cache->getTtl(), 'Global TTL is not changed on explicit item TTL');
@@ -36,17 +37,17 @@ class MemoryClientTest extends TestCase
         $this->assertAttributeEquals([], 'expiration', $cache, 'Ex. time is empty if global TTL is set');
 
         $cache->set('key', 'value');
-        $this->assertGreaterThanOrEqual(60 + time(), $cache->getExpirationFor('key'),
+        $this->assertGreaterThanOrEqual(60 + now()->getTimestamp(), $cache->getExpirationFor('key'),
             'Global TTL is applied if explicit is NULL');
 
         $cache->set('key', 'value', 120);
-        $this->assertGreaterThanOrEqual(120 + time(), $cache->getExpirationFor('key'),
+        $this->assertGreaterThanOrEqual(120 + now()->getTimestamp(), $cache->getExpirationFor('key'),
             'Global TTL is ignored if explicit is not NULL');
     }
 
     protected function setUp()
     {
         putenv('CACHE_CLIENT=memory');
-        $this->cache = (new CacheClientFactory(new ConfigFactory))->build();
+        $this->cache = (new CacheClientFactory(new ConfigFactory))->new();
     }
 }

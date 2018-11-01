@@ -11,7 +11,7 @@ class ClientFactoryTest extends TestCase
 
     public function test_should_create_memory_client_without_configuration()
     {
-        $client = (new CacheClientFactory(new ConfigFactory))->build();
+        $client = (new CacheClientFactory(new ConfigFactory))->new();
         $this->assertInstanceOf(MemoryClient::class, $client);
     }
 
@@ -21,7 +21,7 @@ class ClientFactoryTest extends TestCase
             $this->markTestSkipped('Memcached is not installed on this environment.');
         }
 
-        $client = (new CacheClientFactory(new ConfigFactory))->build('memcached');
+        $client = (new CacheClientFactory(new ConfigFactory))->new('memcached');
         $this->assertInstanceOf(MemcachedClient::class, $client);
     }
 
@@ -33,9 +33,11 @@ class ClientFactoryTest extends TestCase
 
         $client = (new CacheClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
+            'port' => getenv('REDIS_SERVER_PORT'),
+
             'auth' => 'fubar',
             'binary' => 'msgpack'
-        ])))->build('redis');
+        ])))->new('redis');
 
         $this->assertInstanceOf(RedisClient::class, $client);
     }
@@ -43,21 +45,22 @@ class ClientFactoryTest extends TestCase
     public function test_should_create_predis_client()
     {
         $client = (new CacheClientFactory(new ConfigFactory([
-            'host' => getenv('REDIS_SERVER_HOST')
-        ])))->build('predis');
+            'host' => getenv('REDIS_SERVER_HOST'),
+            'port' => getenv('REDIS_SERVER_PORT'),
+        ])))->new('predis');
 
         $this->assertInstanceOf(PredisClient::class, $client);
     }
 
     public function test_should_create_file_client()
     {
-        $client = (new CacheClientFactory(new ConfigFactory))->build('file');
+        $client = (new CacheClientFactory(new ConfigFactory))->new('file');
         $this->assertInstanceOf(FileClient::class, $client);
     }
 
     public function test_should_create_memory_client()
     {
-        $client = (new CacheClientFactory(new ConfigFactory))->build('memory');
+        $client = (new CacheClientFactory(new ConfigFactory))->new('memory');
         $this->assertInstanceOf(MemoryClient::class, $client);
     }
 
@@ -68,6 +71,6 @@ class ClientFactoryTest extends TestCase
 
         (new CacheClientFactory(new ConfigFactory([
             'logger' => function() { }
-        ])))->build('file');
+        ])))->new('file');
     }
 }

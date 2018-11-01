@@ -15,15 +15,15 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\{normalize_ttl, verify_key};
+use function Koded\Caching\verify_key;
 use function Koded\Stdlib\json_serialize;
 
 /**
- * Class RedisJsonClient uses the Redis PHP extension to save the cache item as JSON.
+ * RedisJsonClient uses the Redis PHP extension.
  *
  * It will create 2 entries in Redis
  * - one as JSON cache item
- * - and other as serialized PHP value.
+ * - and other as serialized PHP value
  *
  * The first is useful for other programming languages to use it,
  * and the PHP serialized variant is useful only for PHP applications
@@ -32,25 +32,21 @@ use function Koded\Stdlib\json_serialize;
  */
 final class RedisJsonClient implements CacheInterface, Cache
 {
-
     use ClientTrait, MultiplesTrait;
 
     private $suffix;
     private $options;
-
-    /**
-     * @var Serializer PHP by default. If available: msgpack, igbinary
-     */
-    protected $serializer;
+    private $serializer;
 
     public function __construct(\Redis $client, Serializer $serializer, int $options, int $ttl = null)
     {
-        $this->ttl = $ttl;
-        $this->client = $client;
-        $this->options = $options;
-        $this->serializer = $serializer;
         $this->suffix = '__' . $serializer->type() . '__';
+        $this->serializer = $serializer;
+        $this->options = $options;
+        $this->client = $client;
+        $this->ttl = $ttl;
     }
+
 
     public function get($key, $default = null)
     {
@@ -59,24 +55,27 @@ final class RedisJsonClient implements CacheInterface, Cache
             : $default;
     }
 
+
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
-        $ttl = normalize_ttl($ttl ?? $this->ttl);
+        $expiration = $this->secondsWithGlobalTtl($ttl);
 
-        if (null === $ttl) {
+        if (null === $ttl && 0 === $expiration) {
             return $this->client->set($key, json_serialize($value, $this->options))
                 && $this->client->set($key . $this->suffix, $this->serializer->serialize($value));
         }
 
-        if ($ttl > 0) {
-            return $this->client->setex($key, $ttl, json_serialize($value, $this->options))
-                && $this->client->setex($key . $this->suffix, $ttl, $this->serializer->serialize($value));
+        if ($expiration > 0) {
+            return $this->client->setex($key, $expiration, json_serialize($value, $this->options))
+                && $this->client->setex($key . $this->suffix, $expiration, $this->serializer->serialize($value));
         }
 
-        // The item is considered expired and must be deleted
-        return 2 === $this->client->del([$key, $key . $this->suffix]);
+        $this->client->del([$key, $key . $this->suffix]);
+
+        return true;
     }
+
 
     public function delete($key)
     {
@@ -87,10 +86,12 @@ final class RedisJsonClient implements CacheInterface, Cache
         return 2 === $this->client->del([$key, $key . $this->suffix]);
     }
 
+
     public function clear()
     {
         return $this->client->flushDB();
     }
+
 
     public function has($key)
     {

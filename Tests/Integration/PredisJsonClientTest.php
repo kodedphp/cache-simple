@@ -16,12 +16,19 @@ class PredisJsonClientTest extends SimpleCacheTest
      */
     public function createSimpleCache()
     {
-        $this->markTestSkipped();
-
         return simple_cache_factory('predis', [
             'host' => getenv('REDIS_SERVER_HOST'),
+            'port' => getenv('REDIS_SERVER_PORT'),
+
             'serializer' => Serializer::JSON,
-            'binary' => Serializer::PHP
         ]);
+    }
+
+    protected function setUp()
+    {
+//        $this->markTestSkipped();
+
+        parent::setUp();
+        $this->cache->clear();
     }
 }

@@ -26,7 +26,13 @@ final class MemcachedConfiguration extends Immutable implements Configuration
     /**
      * MemcachedConfiguration constructor.
      *
-     * @param array $options [optional] Memcached options
+     * @param array $options [optional] Memcached options. Used here:
+     *
+     * OPT_DISTRIBUTION          - consistent, if one node goes down it's keys are distributed to other nodes
+     * OPT_CONNECT_TIMEOUT       - milliseconds after server is considered dead
+     * OPT_SERVER_FAILURE_LIMIT  - number of connection failures before server is marked as dead and removed
+     * OPT_REMOVE_FAILED_SERVERS - (bool) to remove dead server or not
+     * OPT_RETRY_TIMEOUT         - try a dead server after this seconds (tweak for long running processes)
      *
      * @link http://php.net/manual/en/memcached.constants.php
      */
@@ -37,10 +43,10 @@ final class MemcachedConfiguration extends Immutable implements Configuration
             'servers' => $options['servers'] ?? [],
             'options' => array_replace([
                 \Memcached::OPT_DISTRIBUTION => \Memcached::DISTRIBUTION_CONSISTENT,
+                \Memcached::OPT_CONNECT_TIMEOUT => 10,
                 \Memcached::OPT_SERVER_FAILURE_LIMIT => 2,
                 \Memcached::OPT_REMOVE_FAILED_SERVERS => true,
                 \Memcached::OPT_RETRY_TIMEOUT => 1,
-                \Memcached::OPT_LIBKETAMA_COMPATIBLE => true,
                 \Memcached::OPT_PREFIX_KEY => null
             ], $options['options'] ?? [])
         ]);

@@ -22,7 +22,7 @@ final class PredisConfiguration extends Immutable implements Configuration
     {
         parent::__construct($values + [
                 'serializer' => $values['serializer'] ?? Serializer::PHP,
-                'binary' => $values['binary'] ?? null
+                'binary' => $values['binary'] ?? Serializer::PHP
             ]);
     }
 

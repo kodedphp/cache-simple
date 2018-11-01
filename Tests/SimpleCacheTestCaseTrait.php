@@ -11,17 +11,6 @@ trait SimpleCacheTestCaseTrait
     /** @var Cache */
     protected $cache;
 
-    protected function tearDown()
-    {
-        putenv('CACHE_CLIENT=');
-
-        if ($this->cache) {
-            $this->cache->clear();
-        }
-
-        $this->cache = null;
-    }
-
     public function test_client_should_implement_cache_interface()
     {
         $this->assertInstanceOf(CacheInterface::class, $this->cache);
@@ -62,6 +51,38 @@ trait SimpleCacheTestCaseTrait
         $this->assertEquals($data, $this->cache->get('foo'));
     }
 
+    public function test_delete_returns_true_on_nonexistent_item()
+    {
+        $this->assertTrue($this->cache->delete('not-here'));
+    }
+
+    public function test_delete()
+    {
+        $this->assertTrue($this->cache->set('key', 'value'));
+        $this->assertTrue($this->cache->delete('key'));
+    }
+
+    public function test_has_method()
+    {
+        $this->assertTrue($this->cache->set('key', 'value'));
+        $this->assertFalse($this->cache->has('not-here'));
+        $this->assertTrue($this->cache->has('key'));
+    }
+
+    public function test_set_with_expire_now()
+    {
+        $result = $this->cache->set('key', 'value', 0);
+        $this->assertTrue($result);
+
+        $this->assertFalse($this->cache->has('key'));
+        $this->assertNull($this->cache->get('key'));
+
+        $result = $this->cache->set('key', 'value', -1);
+        $this->assertTrue($result);
+        $this->assertFalse($this->cache->has('key'));
+        $this->assertNull($this->cache->get('key'));
+    }
+
     public function simpleData()
     {
         return [
@@ -76,5 +97,16 @@ trait SimpleCacheTestCaseTrait
                 ]
             ]
         ];
+    }
+
+    protected function tearDown()
+    {
+        putenv('CACHE_CLIENT=');
+
+        if ($this->cache) {
+            $this->cache->clear();
+        }
+
+        $this->cache = null;
     }
 }
