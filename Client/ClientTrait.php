@@ -36,8 +36,8 @@ trait ClientTrait
 
     private function timestampWithGlobalTtl($ttl, int $default = 0): int
     {
-        $now = now()->getTimestamp();
         $explicit = normalize_ttl($ttl);
+        $now = now()->getTimestamp();
 
         if (null === $explicit && $this->ttl > 0) {
             return $now + $this->ttl;

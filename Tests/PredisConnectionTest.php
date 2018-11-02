@@ -25,14 +25,14 @@ class PredisConnectionTest extends TestCase
     {
         $cache = (new CacheClientFactory(new ConfigFactory([
             'serializer' => Serializer::JSON,
-            'prefix' => new \stdClass(), // the invalid prefix is ignored?
+            'prefix' => new \stdClass(), // invalid?
 
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),
 
         ])))->new();
 
-        $this->assertTrue($cache->client()->isConnected());
+        $this->assertTrue($cache->client()->isConnected(), 'The invalid prefix is ignored');
     }
 
     public function test_predis_auth_exception()
@@ -46,9 +46,7 @@ class PredisConnectionTest extends TestCase
 
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),
-            'options' => [
-                'prefix' => 'test:'
-            ],
+
         ])))->new();
     }
 

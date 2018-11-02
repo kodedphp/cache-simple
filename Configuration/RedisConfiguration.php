@@ -22,12 +22,14 @@ final class RedisConfiguration extends Immutable implements Configuration
 
     public function __construct(array $values)
     {
-        parent::__construct($values + [
-                'serializer' => $serializer = $values['serializer'] ?? Serializer::PHP,
-                'binary' => $values['binary'] ?? Serializer::PHP
-            ]);
+        $values += [
+            'serializer' => Serializer::PHP,
+            'binary' => Serializer::PHP,
+        ];
 
-        switch ($serializer) {
+        parent::__construct($values);
+
+        switch ($values['serializer']) {
             case Serializer::PHP:
                 $this->type = \Redis::SERIALIZER_PHP;
                 break;

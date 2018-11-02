@@ -81,13 +81,18 @@ final class MemoryClient implements CacheInterface, Cache
     public function has($key)
     {
         verify_key($key);
-        $ttl = (int)$this->expiration[$key];
 
-        if ($ttl <= now()->getTimestamp()) {
-            unset($this->storage[$key], $this->expiration[$key]);
+        if (false === array_key_exists($key, $this->expiration)) {
+            return false;
         }
 
-        return array_key_exists($key, $this->storage);
+        if ($this->expiration[$key] <= now()->getTimestamp()) {
+            unset($this->storage[$key], $this->expiration[$key]);
+
+            return false;
+        }
+
+        return true;
     }
 
 

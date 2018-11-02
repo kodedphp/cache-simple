@@ -28,10 +28,6 @@ class PredisWithJsonSerializerTest extends TestCase
 
             'serializer' => Serializer::JSON,
 
-            'options' => [
-                'prefix' => 'test:'
-            ],
-
         ])))->new();
 
         $this->cache->clear();

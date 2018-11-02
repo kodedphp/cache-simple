@@ -23,7 +23,8 @@ trait SimpleCacheTestCaseTrait
      */
     public function test_get_multi_with_default_value($data)
     {
-        $this->cache->setMultiple($data);
+        $result = $this->cache->setMultiple($data);
+        $this->assertTrue($result);
 
         $this->assertSame([
             'key1' => 'foo',

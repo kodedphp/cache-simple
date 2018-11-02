@@ -20,10 +20,12 @@ final class PredisConfiguration extends Immutable implements Configuration
 
     public function __construct(array $values)
     {
-        parent::__construct($values + [
-                'serializer' => $values['serializer'] ?? Serializer::PHP,
-                'binary' => $values['binary'] ?? Serializer::PHP
-            ]);
+        $values += [
+            'serializer' => Serializer::PHP,
+            'binary' => Serializer::PHP,
+        ];
+
+        parent::__construct($values);
     }
 
     public function getConnectionParams(): array
@@ -35,8 +37,8 @@ final class PredisConfiguration extends Immutable implements Configuration
         ];
     }
 
-    public function getOptions(): array
+    public function getOptions(): ?array
     {
-        return (array)$this->get('options');
+        return $this->get('options');
     }
 }

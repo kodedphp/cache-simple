@@ -115,21 +115,16 @@ function filter_keys($iterable, bool $associative): array
     }
 
     $keys = [];
-    foreach ($iterable as $key => $value) {
+    foreach ($iterable as $k => $v) {
         if (false === $associative) {
-            $keys[] = $value;
+            verify_key($v);
+            $keys[] = $v;
             continue;
         }
 
-        if (false === is_string($key) && false === is_int($key) && false === is_float($key)) {
-            throw CacheException::forInvalidKey($key);
-        }
-        $keys[$key] = $value;
+        verify_key($k);
+        $keys[$k] = $v;
     }
-
-    // Validate the keys
-    $_ = $associative ? array_keys($keys) : $keys;
-    array_walk($_, '\Koded\Caching\verify_key');
 
     return $keys;
 }

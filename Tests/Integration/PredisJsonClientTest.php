@@ -26,8 +26,6 @@ class PredisJsonClientTest extends SimpleCacheTest
 
     protected function setUp()
     {
-//        $this->markTestSkipped();
-
         parent::setUp();
         $this->cache->clear();
     }
