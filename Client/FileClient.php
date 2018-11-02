@@ -49,7 +49,6 @@ final class FileClient implements CacheInterface, Cache
     {
         try {
             if ($this->has($key, $filename, $cache)) {
-                /** @noinspection PhpIncludeInspection */
                 return unserialize($cache['value']);
             }
 
