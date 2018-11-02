@@ -182,7 +182,7 @@ final class CacheClientFactory
     /**
      * @param Configuration $conf
      *
-     * @return LoggerInterface
+     * @return \Psr\Log\LoggerInterface
      */
     private function getLogger($conf): LoggerInterface
     {
