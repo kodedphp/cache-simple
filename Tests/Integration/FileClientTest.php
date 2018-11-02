@@ -1,11 +1,11 @@
 <?php
 
-namespace Koded\Caching\Tests\Integration;
+namespace Koded\Caching;
 
 use Cache\IntegrationTests\SimpleCacheTest;
+use Koded\Caching\Tests\Integration\SimpleCacheIntegrationTrait;
 use org\bovigo\vfs\{vfsStream, vfsStreamDirectory};
 use Psr\SimpleCache\CacheInterface;
-use function Koded\Caching\simple_cache_factory;
 
 class FileClientTest extends SimpleCacheTest
 {
