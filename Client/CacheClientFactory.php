@@ -13,6 +13,7 @@
 namespace Koded\Caching\Client;
 
 use Exception;
+use Koded\Caching\Cache;
 use Koded\Caching\CacheException;
 use Koded\Caching\Configuration\{FileConfiguration, MemcachedConfiguration, PredisConfiguration, RedisConfiguration};
 use Koded\Stdlib\Interfaces\{Configuration, ConfigurationFactory, Serializer};
@@ -42,7 +43,7 @@ final class CacheClientFactory
      * @throws CacheException
      * @throws Exception
      */
-    public function new(string $client = ''): CacheInterface
+    public function new(string $client = ''): Cache
     {
         $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: 'memory');
         $config = $this->conf->build($client);

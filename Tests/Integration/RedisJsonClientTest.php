@@ -25,8 +25,6 @@ class RedisJsonClientTest extends SimpleCacheTest
 
     protected function setUp()
     {
-//        $this->markTestSkipped();
-
         if (false === extension_loaded('redis')) {
             $this->markTestSkipped('Redis extension is not loaded.');
         }

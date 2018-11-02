@@ -47,12 +47,17 @@ final class FileClient implements CacheInterface, Cache
 
     public function get($key, $default = null)
     {
-        if ($this->has($key, $filename, $cache)) {
-            /** @noinspection PhpIncludeInspection */
-            return unserialize($cache['value']);
-        }
+        try {
+            if ($this->has($key, $filename, $cache)) {
+                /** @noinspection PhpIncludeInspection */
+                return unserialize($cache['value']);
+            }
 
-        return $default;
+            return $default;
+
+        } finally {
+            unset($filename, $cache);
+        }
     }
 
 
