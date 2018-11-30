@@ -12,15 +12,11 @@
 
 namespace Koded\Caching\Client;
 
-use FilesystemIterator;
 use Koded\Caching\{Cache, CacheException};
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use Throwable;
 use function Koded\Caching\verify_key;
-use function Koded\Stdlib\now;
+use function Koded\Stdlib\{now, rmdir};
 
 /**
  * @property FileClient client
@@ -87,20 +83,7 @@ final class FileClient implements CacheInterface, Cache
 
     public function clear()
     {
-        try {
-            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->dir,
-                FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::CHILD_FIRST) as $path) {
-                ($path->isDir() && !$path->isLink()) ? rmdir($path->getPathname()) : unlink($path->getPathname());
-            }
-
-            return true;
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
-            $this->logger->error($e->getMessage());
-
-            return false;
-            // @codeCoverageIgnoreEnd
-        }
+        return rmdir($this->dir);
     }
 
 
@@ -139,7 +122,8 @@ final class FileClient implements CacheInterface, Cache
         $dir = $this->dir . $filename[0];
 
         if ($create && false === is_dir($dir)) {
-            mkdir($dir, 0775, true) || $this->logger->error('Failed to create cache directory in: {dir}', ['dir' => $dir]);
+            mkdir($dir, 0775, true)
+            || $this->logger->error('Failed to create cache directory in: {dir}', ['dir' => $dir]);
         }
 
         $filename = $dir . '/' . substr($filename, 1) . '.php';
