@@ -14,6 +14,7 @@ namespace Koded\Caching\Configuration;
 
 use Koded\Stdlib\{Arguments, Config};
 use Koded\Stdlib\Interfaces\Configuration;
+use Throwable;
 
 /**
  * Class ConfigFactory
@@ -35,7 +36,7 @@ class ConfigFactory extends Config
         try {
             $class = join('\\', [__NAMESPACE__, ucfirst($context) . 'Configuration']);
             return new $class($this->toArray());
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return new class($this->toArray()) extends Arguments implements Configuration {};
         }
     }
