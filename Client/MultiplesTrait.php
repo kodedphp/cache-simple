@@ -1,5 +1,15 @@
 <?php
 
+/*
+ * This file is part of the Koded package.
+ *
+ * (c) Mihail Binev <mihail@kodeart.com>
+ *
+ * Please view the LICENSE distributed with this source code
+ * for the full copyright and license information.
+ *
+ */
+
 namespace Koded\Caching\Client;
 
 use function Koded\Caching\{filter_keys, normalize_ttl};
@@ -11,14 +21,12 @@ use function Koded\Caching\{filter_keys, normalize_ttl};
  */
 trait MultiplesTrait
 {
-
     public function getMultiple($keys, $default = null): iterable
     {
         $filtered = filter_keys($keys, false);
 
         return $this->internalMultiGet($filtered, $default);
     }
-
 
     public function setMultiple($values, $ttl = null): bool
     {
@@ -32,7 +40,6 @@ trait MultiplesTrait
 
         return $this->internalMultiSet($filtered, $ttl);
     }
-
 
     public function deleteMultiple($keys): bool
     {
