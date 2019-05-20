@@ -13,13 +13,12 @@
 namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
-use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\verify_key;
 
 /**
  * @property \Memcached client
  */
-final class MemcachedClient implements CacheInterface, Cache
+final class MemcachedClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 

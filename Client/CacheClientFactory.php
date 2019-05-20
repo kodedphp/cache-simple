@@ -13,17 +13,15 @@
 namespace Koded\Caching\Client;
 
 use Exception;
-use Koded\Caching\CacheException;
+use Koded\Caching\{Cache, CacheException};
 use Koded\Caching\Configuration\{FileConfiguration, MemcachedConfiguration, PredisConfiguration, RedisConfiguration};
 use Koded\Stdlib\Interfaces\{Configuration, ConfigurationFactory, Serializer};
 use Koded\Stdlib\Serializer\SerializerFactory;
 use Psr\Log\{LoggerInterface, NullLogger};
-use Psr\SimpleCache\CacheInterface;
 
 
 final class CacheClientFactory
 {
-
     const CACHE_CLIENT = 'CACHE_CLIENT';
 
     private $conf;
@@ -38,11 +36,11 @@ final class CacheClientFactory
      *
      * @param string $client The required cache client
      *
-     * @return CacheInterface An instance of the cache client
+     * @return Cache An instance of the cache client
      * @throws CacheException
      * @throws Exception
      */
-    public function new(string $client = ''): CacheInterface
+    public function new(string $client = ''): Cache
     {
         $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: 'memory');
         $config = $this->conf->build($client);
@@ -72,7 +70,7 @@ final class CacheClientFactory
     }
 
 
-    private function createRedisClient(RedisConfiguration $conf): CacheInterface
+    private function createRedisClient(RedisConfiguration $conf): Cache
     {
         $serializer = $conf->get('serializer');
         $binary = $conf->get('binary');
@@ -94,7 +92,7 @@ final class CacheClientFactory
     }
 
 
-    private function createPredisClient(PredisConfiguration $conf): CacheInterface
+    private function createPredisClient(PredisConfiguration $conf): Cache
     {
         $serializer = $conf->get('serializer');
         $binary = $conf->get('binary');
@@ -166,7 +164,7 @@ final class CacheClientFactory
     }
 
 
-    private function createMemcachedClient(MemcachedConfiguration $conf): CacheInterface
+    private function createMemcachedClient(MemcachedConfiguration $conf): Cache
     {
         $client = new \Memcached($conf->get('id'));
         $client->setOptions($conf->getOptions());

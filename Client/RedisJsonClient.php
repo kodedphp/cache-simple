@@ -14,7 +14,6 @@ namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
-use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\verify_key;
 use function Koded\Stdlib\json_serialize;
 
@@ -30,7 +29,7 @@ use function Koded\Stdlib\json_serialize;
  * where the cached item is handled by PHP serialization.
  *
  */
-final class RedisJsonClient implements CacheInterface, Cache
+final class RedisJsonClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 

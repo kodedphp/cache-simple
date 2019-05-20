@@ -15,7 +15,6 @@ namespace Koded\Caching\Client;
 use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
 use Predis\Client;
-use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\verify_key;
 
 /**
@@ -23,7 +22,7 @@ use function Koded\Caching\verify_key;
  *
  * @property Client client
  */
-final class PredisClient implements CacheInterface, Cache
+final class PredisClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 
