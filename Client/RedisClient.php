@@ -14,14 +14,13 @@ namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
 use Koded\Stdlib\Interfaces\Serializer;
-use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\verify_key;
 
 /**
  * Class RedisClient uses the Redis PHP extension.
  *
  */
-final class RedisClient implements CacheInterface, Cache
+final class RedisClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 

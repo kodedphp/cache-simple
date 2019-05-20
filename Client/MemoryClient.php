@@ -13,7 +13,6 @@
 namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
-use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\verify_key;
 use function Koded\Stdlib\now;
 
@@ -21,7 +20,7 @@ use function Koded\Stdlib\now;
 /**
  * @property MemoryClient client
  */
-final class MemoryClient implements CacheInterface, Cache
+final class MemoryClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 

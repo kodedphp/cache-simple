@@ -14,7 +14,6 @@ namespace Koded\Caching\Client;
 
 use Koded\Caching\{Cache, CacheException};
 use Psr\Log\LoggerInterface;
-use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\verify_key;
 use function Koded\Stdlib\{now, rmdir};
 
@@ -22,7 +21,7 @@ use function Koded\Stdlib\{now, rmdir};
  * @property FileClient client
  *
  */
-final class FileClient implements CacheInterface, Cache
+final class FileClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 
