@@ -49,6 +49,7 @@ class MemcachedClientTest extends SimpleCacheTest
             'testSetMultipleExpiredTtl' => '',
             'testSetMultipleWithGenerator' => '',
             'testGetMultiple' => '',
+            'testSetMultipleInvalidKeys' => '',
 
 //            'testGetMultipleWithGenerator' => '',
 //            'testDeleteMultiple' => '',
