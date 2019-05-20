@@ -16,7 +16,6 @@ use DateInterval;
 use DateTimeInterface;
 use Koded\Caching\Client\CacheClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
-use Psr\SimpleCache\CacheInterface;
 use Throwable;
 use function Koded\Stdlib\now;
 
@@ -31,7 +30,7 @@ use function Koded\Stdlib\now;
  * @param string $client    [optional] The client name (ex. memcached, redis, etc)
  * @param array  $arguments [optional] A configuration parameters for the client
  *
- * @return CacheInterface
+ * @return Cache
  * @throws CacheException
  */
 function simple_cache_factory(string $client = '', array $arguments = []): Cache
@@ -58,7 +57,7 @@ function verify_key($name): void
 {
     /*
      * This thing is here because the bug in the integration test,
-     * $this->cache->setMultiple(['0' => 'value0']) in SimpleCacheTest.php:225
+     * $this->cache->setMultiple(['0' => 'value0']) in SimpleCacheTest.php:239
      */
     if (0 === $name) {
         return;
