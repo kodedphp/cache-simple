@@ -2,10 +2,10 @@ Koded - Simple Caching Library
 ==============================
 
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.1-8892BF.svg)](https://php.net/)
-[![Build Status](https://travis-ci.org/kodedphp/cache-simple.svg?branch=master)](https://travis-ci.org/kodedphp/cache-simple)
-[![Code Coverage](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
 [![Latest Stable Version](https://img.shields.io/packagist/v/koded/cache-simple.svg)](https://packagist.org/packages/koded/cache-simple)
+[![Build Status](https://travis-ci.org/kodedphp/cache-simple.svg?branch=master)](https://travis-ci.org/kodedphp/cache-simple)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/1b3bad367cc74a3fa98996c252cdfe6f)](https://www.codacy.com/app/kodeart/cache-simple)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1b3bad367cc74a3fa98996c252cdfe6f)](https://www.codacy.com/app/kodeart/cache-simple)
 [![Software license](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 
 A PSR-16 simple caching library for PHP 7 using several caching technologies.
@@ -17,14 +17,12 @@ Requirements
 
 > The library is not tested on any Windows OS and may not work as expected there.
 
-- PHP 7.1 or higher
-
 ### Redis
 
 There are two client flavors for Redis by using the
 
-- [Redis extension][2]
-- [Predis library][5]
+  - [Redis extension][2]
+  - [Predis library][5]
 
 and they are not mutually exclusive.
 
@@ -35,8 +33,8 @@ Since there is no Redis native support for JSON serialization,
 it's done in userland and that always introduces some overhead. **Be aware that the native
 PHP and Igbinary serializers are superior.**
 
-- the `RedisClient` is preferred if you install the Redis extension
-- the `PredisClient` can be used otherwise
+  - the `RedisClient` is preferred if you install the Redis extension
+  - the `PredisClient` can be used otherwise
 
 ```php
 // with Redis extension
@@ -55,7 +53,7 @@ Usage
 
 Install the library from Packagist with [Composer][3].
 
-    composer require koded/cache-simple
+> composer require koded/cache-simple
 
 The factory function always creates a new instance of specific 
 `SimpleCacheInterface` client implementation.
@@ -95,10 +93,10 @@ Configuration directives
 
 Current available configuration classes
 
-- [RedisConfiguration](#redisconfiguration)
-- [MemcachedConfiguration](#memcachedconfiguration)
-- [FileConfiguration](#fileconfiguration)
-- [PredisConfiguration](#predisconfiguration)
+  - [RedisConfiguration](#redisconfiguration)
+  - [MemcachedConfiguration](#memcachedconfiguration)
+  - [FileConfiguration](#fileconfiguration)
+  - [PredisConfiguration](#predisconfiguration)
 
 
 
@@ -121,11 +119,11 @@ $cache = simple_cache_factory('redis');
 
 #### Serializers
 
-- `php` (default)
-- `json`
+  - `php` (default)
+  - `json`
 
 > The special config directive is `binary(string)` for setting the internal serializer
-functions to either PHP native `un/serialize()`, `igbinary_un/serialize()` or `msgpack_un/pack()`.
+  functions to either PHP native `un/serialize()`, `igbinary_un/serialize()` or `msgpack_un/pack()`.
 
 ```php
 $cache = simple_cache_factory('redis', [
@@ -137,13 +135,13 @@ The `binary` directive is effective if `igbinary` and/or `msgpack` extensions ar
 Otherwise it defaults to PHP `un/serialize()` functions.
 
 > You can change the binary flag on already cached data, but you should invalidate the
-previously cached items, since they are already serialized and stored in the cache.
+  previously cached items, since they are already serialized and stored in the cache.
 
 ##### JSON serializer options
 
 The **default** options for [json_encode()][9] function are:
-- JSON_PRESERVE_ZERO_FRACTION
-- JSON_UNESCAPED_SLASHES
+  - JSON_PRESERVE_ZERO_FRACTION
+  - JSON_UNESCAPED_SLASHES
 
 To set your desired options, use the `options` configuration directive:
 
@@ -257,7 +255,7 @@ This client will store the cached items in the memory for the duration of the sc
 It is useful for development, but not for production.
 
 > `MemoryClient` is also the default client if you do not 
-require a specific client in `cache_simple_factory()`
+  require a specific client in `cache_simple_factory()`
 
 ```php
 $cache = simple_cache_factory('memory');
@@ -268,7 +266,6 @@ License
 -------
 
 The code is distributed under the terms of [The 3-Clause BSD license](LICENSE).
-
 
 [1]: https://memcached.org
 [2]: https://redis.io
