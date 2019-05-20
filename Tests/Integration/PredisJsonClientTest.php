@@ -16,6 +16,10 @@ class PredisJsonClientTest extends SimpleCacheTest
      */
     public function createSimpleCache()
     {
+        $this->skippedTests = [
+            'testSetMultipleInvalidKeys' => '',
+        ];
+
         return simple_cache_factory('predis', [
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),

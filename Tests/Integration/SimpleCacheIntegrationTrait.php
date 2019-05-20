@@ -14,9 +14,9 @@ trait SimpleCacheIntegrationTrait
     {
         $keys = parent::invalidKeys();
 
-        unset($keys[15]); // allow ":" in the key name
+        unset($keys[14]); // allow ":" in the key name
 
-        return $keys;
+        return array_values($keys);
     }
 
     protected function tearDown()
