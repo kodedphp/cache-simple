@@ -19,7 +19,7 @@
     }
   ],
   "require": {
-    "php": "^7.1.4",
+    "php": "^7.3",
     "koded/stdlib": "dev-4.0-dev",
     "psr/simple-cache": "~1",
     "psr/log": "~1",
@@ -47,7 +47,8 @@
     "phpunit/phpunit": "~7",
     "mikey179/vfsStream": "~1",
     "predis/predis": "dev-master",
-    "cache/integration-tests": "dev-master"
+    "cache/integration-tests": "dev-master",
+    "codacy/coverage": "dev-master"
   },
   "extra": {
     "branch-alias": {
