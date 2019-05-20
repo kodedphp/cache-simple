@@ -31,7 +31,7 @@ before_script:
   - pecl install msgpack
 
 install:
-  - composer update -o --no-interaction --prefer-stable
+  - composer update -o --no-interaction --prefer-stable --ignore-platform-reqs
 
 script:
   - vendor/bin/phpunit --coverage-clover build/coverage/clover.xml
