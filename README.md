@@ -1,14 +1,15 @@
 Koded - Simple Caching Library
 ==============================
 
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.1-8892BF.svg)](https://php.net/)
 [![Latest Stable Version](https://img.shields.io/packagist/v/koded/cache-simple.svg)](https://packagist.org/packages/koded/cache-simple)
 [![Build Status](https://travis-ci.org/kodedphp/cache-simple.svg?branch=master)](https://travis-ci.org/kodedphp/cache-simple)
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/1b3bad367cc74a3fa98996c252cdfe6f)](https://www.codacy.com/app/kodeart/cache-simple)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1b3bad367cc74a3fa98996c252cdfe6f)](https://www.codacy.com/app/kodeart/cache-simple)
+[![Packagist Downloads](https://img.shields.io/packagist/dt/koded/cache-simple.svg)](https://packagist.org/packages/koded/cache-simple)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.1-8892BF.svg)](https://php.net/)
 [![Software license](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 
-A PSR-16 simple caching library for PHP 7 using several caching technologies.
+A [PSR-16][10] simple caching library for PHP 7 using several caching technologies.
 It supports JSON caching for Redis.
 
 
@@ -276,3 +277,4 @@ The code is distributed under the terms of [The 3-Clause BSD license](LICENSE).
 [7]: https://github.com/phpredis/phpredis#connect-open
 [8]: http://php.net/sys_get_temp_dir
 [9]: http://php.net/json_encode
+[10]: https://www.php-fig.org/psr/psr-16/
