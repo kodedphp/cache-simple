@@ -18,7 +18,7 @@ class MemcachedClientTest extends SimpleCacheTest
         return simple_cache_factory('memcached');
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         if (false === extension_loaded('memcached')) {
             $this->markTestSkipped('Memcached extension is not loaded.');
@@ -50,39 +50,6 @@ class MemcachedClientTest extends SimpleCacheTest
             'testSetMultipleWithGenerator' => '',
             'testGetMultiple' => '',
             'testSetMultipleInvalidKeys' => '',
-
-//            'testGetMultipleWithGenerator' => '',
-//            'testDeleteMultiple' => '',
-//            'testGetMultipleWithGenerator' => '',
-//            'testDeleteMultiple' => '',
-//            'testDeleteMultipleGenerator' => '',
-//            'testHas' => '',
-//            'testGetInvalidKeys' => '',
-//            'testGetMultipleInvalidKeys' => '',
-//            'testGetMultipleNoIterable' => '',
-//            'testSetInvalidKeys' => '',
-//            'testSetMultipleInvalidKeys' => '',
-//            'testSetMultipleNoIterable' => '',
-//            'testHasInvalidKeys' => '',
-//            'testDeleteInvalidKeys' => '',
-//            'testDeleteMultipleInvalidKeys' => '',
-//            'testDeleteMultipleNoIterable' => '',
-//            'testSetInvalidTtl' => '',
-//            'testSetMultipleInvalidTtl' => '',
-//            'testNullOverwrite' => '',
-//            'testDataTypeString' => '',
-//            'testDataTypeInteger' => '',
-//            'testDataTypeFloat' => '',
-//            'testDataTypeBoolean' => '',
-//            'testDataTypeArray' => '',
-//            'testDataTypeObject' => '',
-//            'testBinaryData' => '',
-//            'testSetValidKeys' => '',
-//            'testSetMultipleValidKeys' => '',
-//            'testSetValidData' => '',
-//            'testSetMultipleValidData' => '',
-//            'testObjectAsDefaultValue' => '',
-//            'testObjectDoesNotChangeInCache' => '',
         ];
     }
 }

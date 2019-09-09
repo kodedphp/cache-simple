@@ -53,12 +53,12 @@ class PredisConnectionTest extends TestCase
         ])))->new();
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         putenv('CACHE_CLIENT=predis');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         putenv('CACHE_CLIENT=');
     }

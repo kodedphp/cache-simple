@@ -19,7 +19,7 @@ trait SimpleCacheIntegrationTrait
         return array_values($keys);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         putenv('CACHE_CLIENT=');
 

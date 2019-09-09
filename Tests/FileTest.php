@@ -24,7 +24,7 @@ class FileTest extends TestCase
         $this->assertInstanceOf(FileClient::class, $this->cache->client());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $dir = vfsStream::setup();
         $this->cache = new FileClient(new NullLogger, $dir->url());

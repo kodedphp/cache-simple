@@ -32,7 +32,7 @@ class RedisWithBinarySerializerTest extends TestCase
         $this->assertInstanceOf(\Redis::class, $this->cache->client());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         putenv('CACHE_CLIENT=redis');
 

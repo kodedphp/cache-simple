@@ -18,7 +18,7 @@ class PredisWithJsonSerializerTest extends TestCase
         $this->assertInstanceOf(Client::class, $this->cache->client());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         putenv('CACHE_CLIENT=predis');
 
