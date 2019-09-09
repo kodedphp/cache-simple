@@ -100,7 +100,7 @@ trait SimpleCacheTestCaseTrait
         ];
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         putenv('CACHE_CLIENT=');
 

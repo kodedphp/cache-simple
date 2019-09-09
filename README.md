@@ -6,7 +6,7 @@ Koded - Simple Caching Library
 [![Codacy Badge](https://api.codacy.com/project/badge/Coverage/1b3bad367cc74a3fa98996c252cdfe6f)](https://www.codacy.com/app/kodeart/cache-simple)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1b3bad367cc74a3fa98996c252cdfe6f)](https://www.codacy.com/app/kodeart/cache-simple)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/koded/cache-simple.svg)](https://packagist.org/packages/koded/cache-simple)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.1-8892BF.svg)](https://php.net/)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg)](https://php.net/)
 [![Software license](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 
 A [PSR-16][10] simple caching library for PHP 7 using several caching technologies.

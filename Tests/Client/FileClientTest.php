@@ -56,7 +56,7 @@ class FileClientTest extends TestCase
         $this->assertFalse($client->has('key'));
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->dir = vfsStream::setup();
     }

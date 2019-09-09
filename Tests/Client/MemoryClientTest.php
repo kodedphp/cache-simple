@@ -45,7 +45,7 @@ class MemoryClientTest extends TestCase
             'Global TTL is ignored if explicit is not NULL');
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         putenv('CACHE_CLIENT=memory');
         $this->cache = (new CacheClientFactory(new ConfigFactory))->new();

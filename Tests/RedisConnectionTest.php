@@ -56,7 +56,7 @@ class RedisConnectionTest extends TestCase
         $this->assertTrue($redis->client()->isConnected(), 'The auth is ignored, even it is not set in Redis');
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         if (false === extension_loaded('redis')) {
             $this->markTestSkipped('Redis extension is not loaded.');
@@ -65,7 +65,7 @@ class RedisConnectionTest extends TestCase
         putenv('CACHE_CLIENT=redis');
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         putenv('CACHE_CLIENT=');
     }

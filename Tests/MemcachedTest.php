@@ -15,7 +15,7 @@ class MemcachedTest extends TestCase
         $this->assertInstanceOf(\Memcached::class, $this->cache->client());
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         putenv('CACHE_CLIENT=memcached');
 

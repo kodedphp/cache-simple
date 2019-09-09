@@ -25,7 +25,7 @@ class FileClientTest extends SimpleCacheTest
         return simple_cache_factory('file');
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->skippedTests = [
             'testSetMultipleInvalidKeys' => '',

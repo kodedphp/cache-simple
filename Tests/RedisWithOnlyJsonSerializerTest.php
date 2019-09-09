@@ -66,7 +66,7 @@ class RedisWithOnlyJsonSerializerTest extends TestCase
     }
 
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->markTestSkipped('Redis JSON serializer skipped for now...');
 

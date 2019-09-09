@@ -68,7 +68,7 @@ class MemcachedConfigurationTest extends TestCase
         ], $config->getOptions());
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         putenv('MEMCACHED_POOL=');
     }
