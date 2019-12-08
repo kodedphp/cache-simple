@@ -3,8 +3,8 @@ Koded - Simple Caching Library
 
 [![Latest Stable Version](https://img.shields.io/packagist/v/koded/cache-simple.svg)](https://packagist.org/packages/koded/cache-simple)
 [![Build Status](https://travis-ci.org/kodedphp/cache-simple.svg?branch=master)](https://travis-ci.org/kodedphp/cache-simple)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/1b3bad367cc74a3fa98996c252cdfe6f)](https://www.codacy.com/app/kodeart/cache-simple)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/1b3bad367cc74a3fa98996c252cdfe6f)](https://www.codacy.com/app/kodeart/cache-simple)
+[![Code Coverage](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/koded/cache-simple.svg)](https://packagist.org/packages/koded/cache-simple)
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg)](https://php.net/)
 [![Software license](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
@@ -160,6 +160,7 @@ $cache = simple_cache_factory('redis', [
 | id                          | string   | no       | Memcached persistent_id value |
 | servers                     | array    | no       | A list of nested array with \[server, port\] values |
 | options                     | array    | no       | A list of Memcached options |
+| ttl                         | int      | no       | Global TTL (in seconds) |
 
 The following options are set **by default** when instance of `MemcachedConfiguration` is created,
 except for `OPT_PREFIX_KEY` which is there as a reminder that it may be set
@@ -198,7 +199,10 @@ Examples:
         \Memcached::OPT_PREFIX_KEY            => 'i:',  // item prefix
         \Memcached::OPT_REMOVE_FAILED_SERVERS => false, // change the default value
         \Memcached::OPT_DISTRIBUTION          => null   // remove this directive
-    ]
+    ],
+
+    // the global expiration time (for ALL cached items)
+    'ttl' => 120,
 ]
 ```
 

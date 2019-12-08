@@ -48,8 +48,8 @@
     "mikey179/vfsstream": "~1",
     "predis/predis": "dev-master",
     "cache/integration-tests": "dev-master",
-    "codacy/coverage": "dev-master",
-    "symfony/phpunit-bridge": "^4.4@dev"
+    "symfony/phpunit-bridge": "^4.4@dev",
+    "scrutinizer/ocular": "^1.6"
   },
   "extra": {
     "branch-alias": {

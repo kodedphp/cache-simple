@@ -48,7 +48,8 @@ final class MemcachedConfiguration extends Immutable implements Configuration
                 \Memcached::OPT_REMOVE_FAILED_SERVERS => true,
                 \Memcached::OPT_RETRY_TIMEOUT => 1,
                 \Memcached::OPT_PREFIX_KEY => null
-            ], $options['options'] ?? [])
+            ], $options['options'] ?? []),
+            'ttl' => $options['ttl'] ?? null
         ]);
     }
 
@@ -98,5 +99,19 @@ final class MemcachedConfiguration extends Immutable implements Configuration
         return array_filter($this->toArray()['options'], function($value) {
             return null !== $value;
         });
+    }
+
+    /**
+     * Returns the global TTL in seconds, or NULL for never-expire value.
+     *
+     * @return int|null
+     */
+    public function getTtl(): ?int
+    {
+        if (null === $ttl = $this->get('ttl')) {
+            return null;
+        }
+
+        return (int)$ttl;
     }
 }

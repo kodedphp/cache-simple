@@ -25,6 +25,24 @@ class ClientFactoryTest extends TestCase
         $this->assertInstanceOf(MemcachedClient::class, $client);
     }
 
+    /**
+     * @depends test_should_create_memcached_client
+     */
+    public function test_should_create_memcached_client_with_ttl()
+    {
+        if (false === extension_loaded('Memcached')) {
+            $this->markTestSkipped('Memcached is not installed on this environment.');
+        }
+
+        $client = (new CacheClientFactory(new ConfigFactory(['ttl' => 120])))->new('memcached');
+
+        $r = new \ReflectionClass($client);
+        $ttl = $r->getProperty('ttl');
+        $ttl->setAccessible(true);
+
+        $this->assertSame(120, $ttl->getValue($client));
+    }
+
     public function test_should_create_redis_client()
     {
         if (false === extension_loaded('redis')) {

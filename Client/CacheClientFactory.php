@@ -173,7 +173,7 @@ final class CacheClientFactory
             $client->addServers($conf->getServers());
         }
 
-        return new MemcachedClient($client, $conf->get('ttl'));
+        return new MemcachedClient($client, $conf->getTtl());
     }
 
     /**

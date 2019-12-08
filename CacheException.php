@@ -42,7 +42,7 @@ class CacheException extends KodedException implements InvalidArgumentException
 
     public static function forCreatingDirectory(string $directory)
     {
-        return new static(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $directory]);
+        return new self(Cache::E_DIRECTORY_NOT_CREATED, [':dir' => $directory]);
     }
 
 
