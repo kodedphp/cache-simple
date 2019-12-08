@@ -1,7 +1,7 @@
 build
 vendor
 .idea
+.DS_Store
 composer.lock
-*.yml
 .env
-!.travis.yml
+*.cache
