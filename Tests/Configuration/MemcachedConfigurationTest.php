@@ -68,6 +68,18 @@ class MemcachedConfigurationTest extends TestCase
         ], $config->getOptions());
     }
 
+    public function test_should_set_the_ttl()
+    {
+        $config = new MemcachedConfiguration(['ttl' => 120]);
+        $this->assertSame(120, $config->getTtl());
+
+        $config = new MemcachedConfiguration(['ttl' => '120']);
+        $this->assertSame(120, $config->getTtl());
+
+        $config = new MemcachedConfiguration;
+        $this->assertNull($config->getTtl());
+    }
+
     protected function tearDown(): void
     {
         putenv('MEMCACHED_POOL=');
