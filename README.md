@@ -242,6 +242,18 @@ There are many configuration options for this package.
 Please refer to [Predis configuration page][6].
 
 
+### Shared Memory (shmop)
+
+Requires a [PHP shmop extension][11].
+
+```php
+$cache = simple_cache_factory('shmop', [
+    'dir' => '/path/to/app/cache', // optional
+    'ttl' => null,                 // global TTL
+]);
+```
+
+
 ### FileConfiguration
 
 This is the slowest cache client, please avoid it for production environments.
@@ -282,3 +294,4 @@ The code is distributed under the terms of [The 3-Clause BSD license](LICENSE).
 [8]: http://php.net/sys_get_temp_dir
 [9]: http://php.net/json_encode
 [10]: https://www.php-fig.org/psr/psr-16/
+[11]: https://www.php.net/manual/en/book.shmop.php

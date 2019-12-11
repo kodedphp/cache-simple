@@ -17,11 +17,10 @@ use function Koded\Stdlib\now;
 
 trait ClientTrait
 {
-
     /** @var int|null Global TTL for caching, used as default expiration time in cache clients */
     private $ttl;
 
-    /** @var \Memcached | \Redis | \Predis\Client | \Koded\Caching\Client\FileClient | \Koded\Caching\Client\MemoryClient */
+    /** @var \Memcached | \Redis | \Predis\Client | \Koded\Caching\Client\FileClient | \Koded\Caching\Client\MemoryClient | \Koded\Caching\Client\ShmopClient */
     private $client;
 
     public function getTtl(): ?int

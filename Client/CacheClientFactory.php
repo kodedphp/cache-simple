@@ -12,9 +12,10 @@
 
 namespace Koded\Caching\Client;
 
+use Error;
 use Exception;
 use Koded\Caching\{Cache, CacheException};
-use Koded\Caching\Configuration\{FileConfiguration, MemcachedConfiguration, PredisConfiguration, RedisConfiguration};
+use Koded\Caching\Configuration\{MemcachedConfiguration, PredisConfiguration, RedisConfiguration};
 use Koded\Stdlib\Interfaces\{Configuration, ConfigurationFactory, Serializer};
 use Koded\Stdlib\Serializer\SerializerFactory;
 use Psr\Log\{LoggerInterface, NullLogger};
@@ -58,8 +59,10 @@ final class CacheClientFactory
                 /** @var PredisConfiguration $config */
                 return $this->createPredisClient($config);
 
+            case 'shmop':
+                return new ShmopClient((string)$config->get('dir'), $config->get('ttl'));
+
             case 'file':
-                /** @var FileConfiguration $config */
                 return new FileClient($this->getLogger($config), (string)$config->get('dir'), $config->get('ttl'));
 
             case 'memory':
@@ -134,7 +137,7 @@ final class CacheClientFactory
         catch (\RedisException $e) {
             error_log('[Redis] ' . $e->getMessage());
             throw CacheException::withConnectionErrorFor('Redis');
-        } catch (Exception $e) {
+        } catch (Exception | Error $e) {
             throw CacheException::from($e);
         }
     }

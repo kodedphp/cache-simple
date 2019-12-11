@@ -4,24 +4,22 @@ namespace Koded\Caching;
 
 use Cache\IntegrationTests\SimpleCacheTest;
 use Koded\Caching\Tests\Integration\SimpleCacheIntegrationTrait;
-use Psr\SimpleCache\CacheInterface;
 
-class PredisClientTest extends SimpleCacheTest
+class ShmopClientTest extends SimpleCacheTest
 {
     use SimpleCacheIntegrationTrait;
 
-    /**
-     * @return CacheInterface that is used in the tests
-     */
     public function createSimpleCache()
     {
-        return simple_cache_factory('predis', [
-            'host' => getenv('REDIS_SERVER_HOST'),
-        ]);
+        return simple_cache_factory('shmop');
     }
 
-    protected function setUp(): void
+    protected function setup()
     {
+        if (false === extension_loaded('shmop')) {
+            $this->markTestSkipped('shmop extension is not loaded.');
+        }
+
         parent::setUp();
         $this->cache->clear();
     }

@@ -27,10 +27,6 @@ class FileClientTest extends SimpleCacheTest
 
     protected function setUp(): void
     {
-        $this->skippedTests = [
-            'testSetMultipleInvalidKeys' => '',
-        ];
-
         $this->dir = vfsStream::setup();
         parent::setUp();
     }
