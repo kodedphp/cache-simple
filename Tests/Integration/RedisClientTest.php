@@ -15,10 +15,6 @@ class RedisClientTest extends SimpleCacheTest
      */
     public function createSimpleCache()
     {
-        $this->skippedTests = [
-            'testSetMultipleInvalidKeys' => '',
-        ];
-
         return simple_cache_factory('redis', [
             'host' => getenv('REDIS_SERVER_HOST'),
         ]);
