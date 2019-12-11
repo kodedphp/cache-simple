@@ -15,7 +15,7 @@ namespace Koded\Caching\Client;
 use Koded\Caching\{Cache, CacheException};
 use Psr\Log\LoggerInterface;
 use function Koded\Caching\verify_key;
-use function Koded\Stdlib\{now, rmdir};
+use function Koded\Stdlib\rmdir;
 
 /**
  * @property FileClient client
@@ -89,8 +89,8 @@ final class FileClient implements Cache
     public function has($key, &$filename = '', &$cache = null)
     {
         verify_key($key);
-
         $filename = $this->filename($key, false);
+
         if (false === is_file($filename)) {
             return false;
         }
@@ -98,7 +98,7 @@ final class FileClient implements Cache
         /** @noinspection PhpIncludeInspection */
         $cache = include $filename;
 
-        if ($cache['timestamp'] <= now()->getTimestamp()) {
+        if ($cache['timestamp'] <= time()) {
             unlink($filename);
 
             return false;
@@ -142,7 +142,7 @@ final class FileClient implements Cache
      *
      * @throws CacheException
      */
-    private function setDirectory(string $directory)
+    private function setDirectory(string $directory): void
     {
         // Overrule shell misconfiguration or the web server
         umask(umask() | 0002);
