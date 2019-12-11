@@ -30,7 +30,8 @@
     "ext-memcached": "For caching in Memcached",
     "predis/predis": "For using Redis without ext-redis extension",
     "ext-igbinary": "For Redis igbinary support",
-    "ext-msgpack": "For de/serializing the cache data"
+    "ext-msgpack": "For de/serializing the cache data",
+    "ext-shmop": "For shared-memory caching"
   },
   "autoload": {
     "psr-4": {
