@@ -12,6 +12,7 @@
 
 namespace Koded\Caching\Client;
 
+use Error;
 use Exception;
 use Koded\Caching\{Cache, CacheException};
 use Koded\Caching\Configuration\{MemcachedConfiguration, PredisConfiguration, RedisConfiguration};
@@ -136,7 +137,7 @@ final class CacheClientFactory
         catch (\RedisException $e) {
             error_log('[Redis] ' . $e->getMessage());
             throw CacheException::withConnectionErrorFor('Redis');
-        } catch (Exception $e) {
+        } catch (Exception | Error $e) {
             throw CacheException::from($e);
         }
     }
