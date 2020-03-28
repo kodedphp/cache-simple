@@ -17,7 +17,6 @@ use Koded\Stdlib\Interfaces\{Configuration, Serializer};
 
 final class RedisConfiguration extends Immutable implements Configuration
 {
-
     private $type;
 
     public function __construct(array $values)

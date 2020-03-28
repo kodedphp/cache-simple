@@ -1,6 +1,6 @@
 language: php
-
-sudo: false
+os: linux
+dist: xenial
 
 notifications:
   email: false
@@ -15,13 +15,13 @@ php:
   - 7.4
   - nightly
 
-matrix:
+jobs:
   fast_finish: true
   allow_failures:
     - php: nightly
 
 services:
-  - redis-server
+  - redis
   - memcached
 
 env:
@@ -34,10 +34,11 @@ before_script:
   - pecl install msgpack
 
 install:
-  - composer update -o --no-interaction --prefer-stable
+  - composer update -o --prefer-source --no-interaction
 
 script:
-  - vendor/bin/phpunit --coverage-clover build/coverage/clover.xml
+  - vendor/bin/phpunit --coverage-clover build/clover.xml
 
-after_success:
-  - travis_retry vendor/bin/ocular code-coverage:upload --format=php-clover build/coverage/clover.xml
+after_script:
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover build/clover.xml
