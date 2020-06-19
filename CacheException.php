@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,15 +6,13 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching;
 
-use Exception;
 use Koded\Exceptions\KodedException;
 use Psr\SimpleCache\InvalidArgumentException;
-
+use Throwable;
 
 class CacheException extends KodedException implements InvalidArgumentException
 {
@@ -46,7 +43,7 @@ class CacheException extends KodedException implements InvalidArgumentException
     }
 
 
-    public static function generic(string $message, Exception $previous = null)
+    public static function generic(string $message, Throwable $previous = null)
     {
         return new self(Cache::E_PHP_EXCEPTION, [':message' => $message], $previous);
     }
