@@ -22,5 +22,7 @@ class ShmopClientTest extends SimpleCacheTest
 
         parent::setUp();
         $this->cache->clear();
+
+        $this->loadGlobalSkippedTests();
     }
 }

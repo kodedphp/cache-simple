@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 class FunctionsTest extends TestCase
 {
-
     public function test_should_throw_exception_on_invalid_client()
     {
         $this->expectException(CacheException::class);

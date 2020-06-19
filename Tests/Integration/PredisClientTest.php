@@ -24,5 +24,7 @@ class PredisClientTest extends SimpleCacheTest
     {
         parent::setUp();
         $this->cache->clear();
+
+        $this->loadGlobalSkippedTests();
     }
 }

@@ -9,7 +9,6 @@ use Psr\SimpleCache\CacheInterface;
 
 class FileClientTest extends SimpleCacheTest
 {
-
     use SimpleCacheIntegrationTrait;
 
     /**
@@ -29,5 +28,7 @@ class FileClientTest extends SimpleCacheTest
     {
         $this->dir = vfsStream::setup();
         parent::setUp();
+
+        $this->loadGlobalSkippedTests();
     }
 }

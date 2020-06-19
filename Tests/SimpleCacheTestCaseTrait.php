@@ -7,7 +7,6 @@ use Psr\SimpleCache\CacheInterface;
 
 trait SimpleCacheTestCaseTrait
 {
-
     /** @var Cache */
     protected $cache;
 

@@ -2,7 +2,7 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\CacheClientFactory;
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +29,7 @@ class MemcachedTest extends TestCase
             putenv('MEMCACHED_POOL=[["memcached", 11211]]');
         }
 
-        $this->cache = (new CacheClientFactory(new ConfigFactory))->new();
+        $this->cache = (new ClientFactory(new ConfigFactory))->new();
         $this->cache->clear();
     }
 }

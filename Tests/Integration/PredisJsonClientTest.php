@@ -4,7 +4,7 @@ namespace Koded\Caching;
 
 use Cache\IntegrationTests\SimpleCacheTest;
 use Koded\Caching\Tests\Integration\SimpleCacheIntegrationTrait;
-use Koded\Stdlib\Interfaces\Serializer;
+use Koded\Stdlib\Serializer;
 use Psr\SimpleCache\CacheInterface;
 
 class PredisJsonClientTest extends SimpleCacheTest
@@ -28,5 +28,7 @@ class PredisJsonClientTest extends SimpleCacheTest
     {
         parent::setUp();
         $this->cache->clear();
+
+        $this->loadGlobalSkippedTests();
     }
 }

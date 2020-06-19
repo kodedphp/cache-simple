@@ -2,14 +2,13 @@
 
 namespace Koded\Caching;
 
-use Koded\Caching\Client\CacheClientFactory;
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
-use Koded\Stdlib\Interfaces\Serializer;
+use Koded\Stdlib\Serializer;
 use PHPUnit\Framework\TestCase;
 
 class PredisConnectionTest extends TestCase
 {
-
     public function test_should_throw_exception_on_connection_error()
     {
         $this->expectException(CacheException::class);
@@ -19,14 +18,14 @@ class PredisConnectionTest extends TestCase
             $this->expectExceptionMessage('[Cache Exception] Failed to connect the Predis client');
         }
 
-        (new CacheClientFactory(new ConfigFactory([
+        (new ClientFactory(new ConfigFactory([
             'host' => 'invalid-redis-host'
         ])))->new();
     }
 
     public function test_predis_invalid_option_exception()
     {
-        $cache = (new CacheClientFactory(new ConfigFactory([
+        $cache = (new ClientFactory(new ConfigFactory([
             'serializer' => Serializer::JSON,
             'prefix' => new \stdClass(), // invalid?
 
@@ -44,7 +43,7 @@ class PredisConnectionTest extends TestCase
         $this->expectExceptionCode(0);
         $this->expectExceptionMessage('ERR Client sent AUTH, but no password is set');
 
-        (new CacheClientFactory(new ConfigFactory([
+        (new ClientFactory(new ConfigFactory([
             'auth' => 'fubar',
 
             'host' => getenv('REDIS_SERVER_HOST'),

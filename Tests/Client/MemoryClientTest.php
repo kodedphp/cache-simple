@@ -10,7 +10,6 @@ use function Koded\Stdlib\now;
 
 class MemoryClientTest extends TestCase
 {
-
     use SimpleCacheTestCaseTrait;
 
     public function test_global_ttl_when_null()
@@ -48,6 +47,6 @@ class MemoryClientTest extends TestCase
     protected function setUp(): void
     {
         putenv('CACHE_CLIENT=memory');
-        $this->cache = (new CacheClientFactory(new ConfigFactory))->new();
+        $this->cache = (new ClientFactory(new ConfigFactory))->new();
     }
 }

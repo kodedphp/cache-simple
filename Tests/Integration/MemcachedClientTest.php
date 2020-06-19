@@ -36,5 +36,7 @@ class MemcachedClientTest extends SimpleCacheTest
         $this->skippedTests = [
             'testBasicUsageWithLongKey' => 'Memcached max key length is 250 chars',
         ];
+
+        $this->loadGlobalSkippedTests();
     }
 }

@@ -28,5 +28,7 @@ class RedisClientTest extends SimpleCacheTest
 
         parent::setUp();
         $this->cache->clear();
+
+        $this->loadGlobalSkippedTests();
     }
 }

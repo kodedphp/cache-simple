@@ -15,6 +15,8 @@ class MemoryClientTest extends SimpleCacheTest
      */
     public function createSimpleCache()
     {
+        $this->loadGlobalSkippedTests();
+
         return simple_cache_factory('memory');
     }
 }

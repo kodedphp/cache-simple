@@ -4,17 +4,6 @@ namespace Koded\Caching\Tests\Integration;
 
 trait SimpleCacheIntegrationTrait
 {
-    protected function tearDown(): void
-    {
-        putenv('CACHE_CLIENT=');
-
-        if ($this->cache !== null) {
-            $this->cache->clear();
-        }
-
-        $this->cache = null;
-    }
-
     /** overwritten */
     public static function invalidKeys()
     {
@@ -41,5 +30,19 @@ trait SimpleCacheIntegrationTrait
         return $keys;
     }
 
+    protected function tearDown(): void
+    {
+        putenv('CACHE_CLIENT=');
 
+        if ($this->cache !== null) {
+            $this->cache->clear();
+        }
+
+        $this->cache = null;
+    }
+
+    private function loadGlobalSkippedTests(): void
+    {
+        $this->skippedTests['testSetMultipleWithIntegerArrayKey'] = 'string-numeric key is type casted internally to integer';
+    }
 }

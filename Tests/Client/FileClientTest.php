@@ -11,7 +11,6 @@ use function Koded\Stdlib\now;
 
 class FileClientTest extends TestCase
 {
-
     /**
      * @var vfsStreamDirectory
      */

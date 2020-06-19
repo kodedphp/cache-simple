@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 
 class MemcachedConfigurationTest extends TestCase
 {
-
     public function test_with_servers_array_and_removing_some_options()
     {
         $config = new MemcachedConfiguration([
@@ -36,7 +35,6 @@ class MemcachedConfigurationTest extends TestCase
         // these 2 should be removed
         $this->assertArrayNotHasKey(Memcached::OPT_DISTRIBUTION, $expected);
         $this->assertArrayNotHasKey(Memcached::OPT_SERVER_FAILURE_LIMIT, $expected);
-
     }
 
     public function test_with_env_variable()
