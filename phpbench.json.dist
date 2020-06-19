@@ -1,0 +1,10 @@
+{
+  "bootstrap": "./vendor/autoload.php",
+  "path": "Tests/PhpBench",
+  "retry_threshold": 5,
+  "reports": {
+    "default": {
+      "extends": "aggregate"
+    }
+  }
+}
