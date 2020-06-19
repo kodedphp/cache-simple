@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -13,7 +12,7 @@
 namespace Koded\Caching\Client;
 
 use Koded\Caching\Cache;
-use Koded\Stdlib\Interfaces\Serializer;
+use Koded\Stdlib\Serializer;
 use Predis\Client;
 use function Koded\Caching\verify_key;
 
