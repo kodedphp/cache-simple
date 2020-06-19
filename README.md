@@ -18,6 +18,11 @@ Requirements
 
 > The library is not tested on any Windows OS and may not work as expected there.
 
+The recommended installation method is via `composer`
+```shell script
+composer require koded/cache-simple
+```
+
 ### Redis
 
 There are two client flavors for Redis by using the
@@ -86,7 +91,7 @@ A bit verbose construction for the same instance is
 
 ```php
 $config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:', 'ttl' => 3000]);
-$cache = (new CacheClientFactory($config))->new('redis');
+$cache = (new ClientFactory($config))->new('redis');
 ```
 
 Configuration directives
@@ -128,7 +133,7 @@ $cache = simple_cache_factory('redis');
 
 ```php
 $cache = simple_cache_factory('redis', [
-    'binary' => \Koded\Stdlib\Interfaces\Serializer::MSGPACK
+    'binary' => \Koded\Stdlib\Serializer::MSGPACK
 ]);
 ```
 
@@ -256,7 +261,7 @@ $cache = simple_cache_factory('shmop', [
 
 ### FileConfiguration
 
-This is the slowest cache client, please avoid it for production environments.
+Please avoid it for production environments, or use it as a last option.
 
 If you do not provide the cache directory in the configuration, the PHP
 function [sys_get_temp_dir()][8] is used to store the cached files.
@@ -278,6 +283,37 @@ It is useful for development, but not for production.
 $cache = simple_cache_factory('memory');
 $cache = simple_cache_factory();  // also creates a MemoryClient
 ```
+
+Code quality
+------------
+
+```shell script
+vendor/bin/phpunit
+
+vendor/bin/phpbench run --report=default --group=factory
+vendor/bin/phpbench run --report=default --group=read-write
+```
+### Benchmarks
+
+The benchmarks are flaky and dependant on the environment. This table gives 
+a non accurate insight how client performs at write-read-delete operations.
+
+To find out what may be the fastest choice for your environment, run
+```shell script
+vendor/bin/phpbench run --report=default --group=read-write
+
++----------------+-----------------+-----+------+-----+------------+-------------+-------------+-------------+-------------+----------+--------+-------+
+| benchmark      | subject         | set | revs | its | mem_peak   | best        | mean        | mode        | worst       | stdev    | rstdev | diff  |
++----------------+-----------------+-----+------+-----+------------+-------------+-------------+-------------+-------------+----------+--------+-------+
+| ReadWriteBench | bench_memcached | 0   | 1    | 3   | 2,401,640b | 1,535.000μs | 1,559.333μs | 1,546.200μs | 1,594.000μs | 25.171μs | 1.61%  | 4.60x |
+| ReadWriteBench | bench_redis     | 0   | 1    | 3   | 2,401,640b | 1,549.000μs | 1,574.000μs | 1,565.037μs | 1,604.000μs | 22.730μs | 1.44%  | 4.64x |
+| ReadWriteBench | bench_predis    | 0   | 1    | 3   | 2,401,640b | 1,940.000μs | 1,964.333μs | 1,951.918μs | 1,998.000μs | 24.581μs | 1.25%  | 5.79x |
+| ReadWriteBench | bench_file      | 0   | 1    | 3   | 2,401,640b | 875.000μs   | 906.000μs   | 892.368μs   | 946.000μs   | 29.676μs | 3.28%  | 2.67x |
+| ReadWriteBench | bench_shmop     | 0   | 1    | 3   | 2,401,640b | 952.000μs   | 998.667μs   | 1,008.256μs | 1,041.000μs | 36.463μs | 3.65%  | 2.94x |
+| ReadWriteBench | bench_memory    | 0   | 1    | 3   | 2,401,640b | 335.000μs   | 339.333μs   | 336.722μs   | 346.000μs   | 4.784μs  | 1.41%  | 1.00x |
++----------------+-----------------+-----+------+-----+------------+-------------+-------------+-------------+-------------+----------+--------+-------+
+```
+
 
 License
 -------
