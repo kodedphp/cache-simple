@@ -9,28 +9,34 @@
     "memcached",
     "redis",
     "json",
+    "shmop",
     "file-cache",
     "psr-16"
   ],
   "authors": [
     {
       "name": "Mihail Binev",
-      "homepage": "http://kodeart.com"
+      "homepage": "https://kodeart.com"
     }
   ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "require": {
     "php": "^7.2",
-    "koded/stdlib": "~4",
+    "koded/stdlib": "v5.x-dev",
     "psr/simple-cache": "~1",
     "psr/log": "~1",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-memcached": "*",
+    "ext-redis": "*",
+    "ext-shmop": "*"
   },
   "suggest": {
     "ext-redis": "For caching in Redis",
     "ext-memcached": "For caching in Memcached",
     "predis/predis": "For using Redis without ext-redis extension",
     "ext-igbinary": "For Redis igbinary support",
-    "ext-msgpack": "For de/serializing the cache data",
+    "ext-msgpack": "For de/serializing cached data",
     "ext-shmop": "For shared-memory caching"
   },
   "autoload": {
@@ -49,6 +55,7 @@
     "mikey179/vfsstream": "~1",
     "predis/predis": "dev-master",
     "cache/integration-tests": "dev-master",
-    "symfony/phpunit-bridge": "^4.4@dev"
+    "symfony/phpunit-bridge": "^4.4@dev",
+    "phpbench/phpbench": "@dev"
   }
 }
