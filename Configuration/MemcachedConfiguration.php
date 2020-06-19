@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,22 +6,17 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching\Configuration;
-
-use Koded\Stdlib\Immutable;
-use Koded\Stdlib\Interfaces\Configuration;
 
 /**
  * Class MemcachedConfiguration
  *
  * @see https://github.com/kodedphp/stdlib/blob/master/Interfaces.php#L158
  */
-final class MemcachedConfiguration extends Immutable implements Configuration
+final class MemcachedConfiguration extends CacheConfiguration
 {
-
     /**
      * MemcachedConfiguration constructor.
      *

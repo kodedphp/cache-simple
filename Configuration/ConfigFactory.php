@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,13 +6,11 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching\Configuration;
 
-use Koded\Stdlib\{Arguments, Config};
-use Koded\Stdlib\Interfaces\Configuration;
+use Koded\Stdlib\{Config, Configuration};
 use Throwable;
 
 /**
@@ -24,11 +21,10 @@ use Throwable;
  */
 class ConfigFactory extends Config
 {
-
+    /** @noinspection PhpMissingParentConstructorInspection */
     public function __construct(array $parameters = [])
     {
-        parent::__construct();
-        $this->import($parameters);
+        $parameters and $this->import($parameters);
     }
 
     public function build(string $context): Configuration
@@ -37,7 +33,7 @@ class ConfigFactory extends Config
             $class = join('\\', [__NAMESPACE__, ucfirst($context) . 'Configuration']);
             return new $class($this->toArray());
         } catch (Throwable $e) {
-            return new class($this->toArray()) extends Arguments implements Configuration {};
+            return new class($this->toArray()) extends CacheConfiguration {};
         }
     }
 }
