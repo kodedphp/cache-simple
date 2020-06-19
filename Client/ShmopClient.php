@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,7 +6,6 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching\Client;
@@ -63,9 +61,7 @@ final class ShmopClient implements Cache
         $size = strlen($value);
         $filename = $this->filename($key, true);
 
-        try {
-            $resource = shmop_open(fileinode($filename), 'n', 0666, $size);
-        } catch (Exception $e) {
+        if (false === $resource = @shmop_open(fileinode($filename), 'n', 0666, $size)) {
             $resource = shmop_open(fileinode($filename), 'w', 0666, $size);
         }
 
