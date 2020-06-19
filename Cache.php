@@ -26,11 +26,7 @@ interface Cache extends CacheInterface
     /**
      * Returns the underlying cache client.
      *
-     * @return \Memcached
-     * | \Redis
-     * | \Predis\Client
-     * | \Koded\Caching\Client\FileClient
-     * | \Koded\Caching\Client\MemoryClient
+     * @return \Memcache | \Redis \Predis\Client \Koded\Caching\Client\FileClient \Koded\Caching\Client\MemoryClient
      */
     public function client();
 
