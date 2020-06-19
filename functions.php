@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,14 +6,13 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching;
 
 use DateInterval;
 use DateTimeInterface;
-use Koded\Caching\Client\CacheClientFactory;
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Throwable;
 use function Koded\Stdlib\now;
@@ -36,7 +34,7 @@ use function Koded\Stdlib\now;
 function simple_cache_factory(string $client = '', array $arguments = []): Cache
 {
     try {
-        return (new CacheClientFactory(new ConfigFactory($arguments)))->new($client);
+        return (new ClientFactory(new ConfigFactory($arguments)))->new($client);
     } catch (Throwable $e) {
         throw CacheException::from($e);
     }
@@ -55,14 +53,6 @@ function simple_cache_factory(string $client = '', array $arguments = []): Cache
  */
 function verify_key($name): void
 {
-    /*
-     * This thing is here because the bug in the integration test,
-     * $this->cache->setMultiple(['0' => 'value0']) in SimpleCacheTest.php:239
-     */
-    if (0 === $name) {
-        return;
-    }
-
     if ('' === $name
         || false === is_string($name)
         || preg_match('/[@\{\}\(\)\/\\\]/', $name)
@@ -100,7 +90,7 @@ function normalize_ttl($value): ?int
 }
 
 /**
- * Filters out the cache items keys and performs a validation on them.
+ * Filters out the cache item keys and performs a validation on them.
  *
  * @param iterable $iterable    The cache item
  * @param bool     $associative To return an associative array or sequential
