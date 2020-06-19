@@ -1,8 +1,8 @@
-bench
-build
-vendor
-.idea
-.DS_Store
+/bench
+/build
+/vendor
+/.idea
+/.DS_Store
 composer.lock
 .env
 *.cache
