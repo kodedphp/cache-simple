@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,7 +6,6 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching\Client;
@@ -16,26 +14,27 @@ use Error;
 use Exception;
 use Koded\Caching\{Cache, CacheException};
 use Koded\Caching\Configuration\{MemcachedConfiguration, PredisConfiguration, RedisConfiguration};
-use Koded\Stdlib\Interfaces\{Configuration, ConfigurationFactory, Serializer};
+use Koded\Stdlib\{Configuration, Serializer};
 use Koded\Stdlib\Serializer\SerializerFactory;
 use Psr\Log\{LoggerInterface, NullLogger};
 
 
-final class CacheClientFactory
+final class ClientFactory
 {
-    const CACHE_CLIENT = 'CACHE_CLIENT';
+    public const CACHE_CLIENT = 'CACHE_CLIENT';
 
-    private $conf;
+    private $factory;
 
-    public function __construct(ConfigurationFactory $conf)
+    public function __construct(Configuration $factory)
     {
-        $this->conf = $conf;
+        $this->factory = $factory;
     }
 
     /**
      * Create an instance of specific cache client.
      *
      * @param string $client The required cache client
+     *                       (memcached, redis, predis, shmop, file, memory)
      *
      * @return Cache An instance of the cache client
      * @throws CacheException
@@ -44,32 +43,47 @@ final class CacheClientFactory
     public function new(string $client = ''): Cache
     {
         $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: 'memory');
-        $config = $this->conf->build($client);
+        $config = $this->factory->build($client);
 
         switch ($client) {
             case 'memcached':
                 /** @var MemcachedConfiguration $config */
                 return $this->createMemcachedClient($config);
-
             case 'redis':
                 /** @var RedisConfiguration $config */
                 return $this->createRedisClient($config);
-
             case 'predis':
                 /** @var PredisConfiguration $config */
                 return $this->createPredisClient($config);
-
             case 'shmop':
-                return new ShmopClient((string)$config->get('dir'), $config->get('ttl'));
-
+                return new ShmopClient(
+                    (string)$config->get('dir'),
+                    $config->get('ttl')
+                );
             case 'file':
-                return new FileClient($this->getLogger($config), (string)$config->get('dir'), $config->get('ttl'));
-
+                return new FileClient(
+                    $this->getLogger($config),
+                    (string)$config->get('dir'),
+                    $config->get('ttl')
+                );
             case 'memory':
                 return new MemoryClient($config->get('ttl'));
         }
 
         throw CacheException::forUnsupportedClient($client);
+    }
+
+
+    private function createMemcachedClient(MemcachedConfiguration $conf): Cache
+    {
+        $client = new \Memcached($conf->get('id'));
+        $client->setOptions($conf->getOptions());
+
+        if (empty($client->getServerList())) {
+            $client->addServers($conf->getServers());
+        }
+
+        return new MemcachedClient($client, $conf->getTtl());
     }
 
 
@@ -80,16 +94,16 @@ final class CacheClientFactory
 
         if (Serializer::JSON === $serializer && $binary) {
             return new RedisJsonClient(
-                $this->newRedis($conf),
-                SerializerFactory::new((string)$binary, $conf->get('options')),
+                $this->newRedisClient($conf),
+                SerializerFactory::new((string)$binary, ...$conf->get('options', [0])),
                 (int)$conf->get('options'),
                 $conf->get('ttl')
             );
         }
 
         return new RedisClient(
-            $this->newRedis($conf),
-            SerializerFactory::new($serializer, $conf->get('options')),
+            $this->newRedisClient($conf),
+            SerializerFactory::new($serializer, ...$conf->get('options', [0])),
             $conf->get('ttl')
         );
     }
@@ -102,22 +116,22 @@ final class CacheClientFactory
 
         if (Serializer::JSON === $serializer && $binary) {
             return new PredisJsonClient(
-                $this->newPredis($conf),
-                SerializerFactory::new((string)$binary, $conf->get('options')),
+                $this->newPredisClient($conf),
+                SerializerFactory::new((string)$binary, ...$conf->get('options', [0])),
                 (int)$conf->get('options'),
                 $conf->get('ttl')
             );
         }
 
         return new PredisClient(
-            $this->newPredis($conf),
-            SerializerFactory::new($conf->get('serializer'), $conf->get('options')),
+            $this->newPredisClient($conf),
+            SerializerFactory::new($conf->get('serializer'), ...$conf->get('options', [0])),
             $conf->get('ttl')
         );
     }
 
 
-    private function newRedis(RedisConfiguration $conf): \Redis
+    private function newRedisClient(RedisConfiguration $conf): \Redis
     {
         try {
             $client = new \Redis;
@@ -143,7 +157,7 @@ final class CacheClientFactory
     }
 
 
-    private function newPredis(PredisConfiguration $conf): \Predis\Client
+    private function newPredisClient(PredisConfiguration $conf): \Predis\Client
     {
         try {
             $client = new \Predis\Client($conf->getConnectionParams(), $conf->getOptions());
@@ -164,19 +178,6 @@ final class CacheClientFactory
         } catch (Exception $e) {
             throw CacheException::from($e);
         }
-    }
-
-
-    private function createMemcachedClient(MemcachedConfiguration $conf): Cache
-    {
-        $client = new \Memcached($conf->get('id'));
-        $client->setOptions($conf->getOptions());
-
-        if (empty($client->getServerList())) {
-            $client->addServers($conf->getServers());
-        }
-
-        return new MemcachedClient($client, $conf->getTtl());
     }
 
     /**
