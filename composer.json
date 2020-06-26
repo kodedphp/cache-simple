@@ -26,10 +26,7 @@
     "koded/stdlib": "v5.x-dev",
     "psr/simple-cache": "~1",
     "psr/log": "~1",
-    "ext-json": "*",
-    "ext-memcached": "*",
-    "ext-redis": "*",
-    "ext-shmop": "*"
+    "ext-json": "*"
   },
   "suggest": {
     "ext-redis": "For caching in Redis",
