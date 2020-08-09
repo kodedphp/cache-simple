@@ -54,5 +54,10 @@
     "cache/integration-tests": "dev-master",
     "symfony/phpunit-bridge": "^4.4@dev",
     "phpbench/phpbench": "@dev"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "3.x-dev"
+    }
   }
 }
