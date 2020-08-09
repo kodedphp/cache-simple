@@ -58,6 +58,7 @@ class ClientFactoryTest extends TestCase
         ])))->new('redis');
 
         $this->assertInstanceOf(RedisClient::class, $client);
+        $this->assertTrue($client->client()->isConnected());
     }
 
     public function test_should_create_predis_client()
@@ -68,6 +69,7 @@ class ClientFactoryTest extends TestCase
         ])))->new('predis');
 
         $this->assertInstanceOf(PredisClient::class, $client);
+        $this->assertTrue($client->client()->isConnected());
     }
 
     public function test_should_create_file_client()

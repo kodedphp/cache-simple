@@ -134,7 +134,7 @@ final class CacheClientFactory
 
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\RedisException $e) {
-            if (strpos($e->getMessage(), ' AUTH ')) {
+            if (!strpos($e->getMessage(), ' AUTH ')) {
                 error_log(sprintf(PHP_EOL . '[Redis] %s: %s', get_class($e), $e->getMessage()));
                 error_log('[Redis] with conf: ' . $conf->toJSON());
                 throw CacheException::withConnectionErrorFor('Redis');
@@ -161,7 +161,7 @@ final class CacheClientFactory
 
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\Predis\Connection\ConnectionException $e) {
-            if (strpos($e->getMessage(), ' AUTH ')) {
+            if (!strpos($e->getMessage(), ' AUTH ')) {
                 error_log(sprintf(PHP_EOL . '[Predis] %s: %s', get_class($e), $e->getMessage()));
                 error_log('[Predis] with conf: ' . $conf->toJSON());
                 throw CacheException::withConnectionErrorFor('Predis');
