@@ -136,6 +136,7 @@ final class CacheClientFactory
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\RedisException $e) {
             error_log('[Redis] ' . $e->getMessage());
+            error_log('[Redis] with conf: ' . $conf->toJSON());
             throw CacheException::withConnectionErrorFor('Redis');
         } catch (Exception | Error $e) {
             throw CacheException::from($e);
@@ -160,6 +161,7 @@ final class CacheClientFactory
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\Predis\Connection\ConnectionException $e) {
             error_log('[Predis] ' . $e->getMessage());
+            error_log('[Predis] with conf: ' . $conf->toJSON());
             throw CacheException::withConnectionErrorFor('Predis');
         } catch (Exception $e) {
             throw CacheException::from($e);
