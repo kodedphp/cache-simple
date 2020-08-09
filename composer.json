@@ -20,7 +20,7 @@
   ],
   "require": {
     "php": "~7.2",
-    "koded/stdlib": "~4|v5.x-dev",
+    "koded/stdlib": "~4",
     "psr/simple-cache": "~1",
     "psr/log": "~1",
     "ext-json": "*"
@@ -55,5 +55,7 @@
     "branch-alias": {
       "dev-master": "3.x-dev"
     }
-  }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }
