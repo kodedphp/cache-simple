@@ -19,8 +19,8 @@
     }
   ],
   "require": {
-    "php": "^7.2",
-    "koded/stdlib": "~4",
+    "php": "~7.2",
+    "koded/stdlib": "~4|v5.x-dev",
     "psr/simple-cache": "~1",
     "psr/log": "~1",
     "ext-json": "*"
@@ -50,5 +50,10 @@
     "predis/predis": "dev-master",
     "cache/integration-tests": "dev-master",
     "symfony/phpunit-bridge": "^4.4@dev"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "3.x-dev"
+    }
   }
 }
