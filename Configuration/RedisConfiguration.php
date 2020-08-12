@@ -12,6 +12,7 @@
 
 namespace Koded\Caching\Configuration;
 
+use Koded\Caching\CacheException;
 use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\{Configuration, Serializer};
 
@@ -21,6 +22,12 @@ final class RedisConfiguration extends Immutable implements Configuration
 
     public function __construct(array $values)
     {
+        // @codeCoverageIgnoreStart
+        if (false === class_exists('\Redis', false)) {
+            throw CacheException::generic('Redis extension is not loaded on this machine.');
+        }
+        // @codeCoverageIgnoreEnd
+
         $values += [
             'serializer' => Serializer::PHP,
             'binary' => Serializer::PHP,
@@ -32,10 +39,11 @@ final class RedisConfiguration extends Immutable implements Configuration
             case Serializer::PHP:
                 $this->type = \Redis::SERIALIZER_PHP;
                 break;
-
+            // @codeCoverageIgnoreStart
             case Serializer::IGBINARY:
                 $this->type = \Redis::SERIALIZER_IGBINARY;
                 break;
+            // @codeCoverageIgnoreEnd
 
             default:
                 $this->type = \Redis::SERIALIZER_NONE;
@@ -51,7 +59,6 @@ final class RedisConfiguration extends Immutable implements Configuration
      * null  $reserved       should be null if $retry_interval is specified
      * int   $retry_interval retry interval in milliseconds.
      * ]
-     *
      */
     public function getConnectionParams(): array
     {

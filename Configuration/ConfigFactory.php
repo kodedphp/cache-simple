@@ -13,6 +13,7 @@
 namespace Koded\Caching\Configuration;
 
 use Koded\Stdlib\{Arguments, Config};
+use Koded\Caching\CacheException;
 use Koded\Stdlib\Interfaces\Configuration;
 use Throwable;
 
@@ -24,7 +25,6 @@ use Throwable;
  */
 class ConfigFactory extends Config
 {
-
     public function __construct(array $parameters = [])
     {
         parent::__construct();
@@ -36,6 +36,10 @@ class ConfigFactory extends Config
         try {
             $class = join('\\', [__NAMESPACE__, ucfirst($context) . 'Configuration']);
             return new $class($this->toArray());
+        // @codeCoverageIgnoreStart
+        } catch (CacheException $e) {
+            throw $e;
+        // @codeCoverageIgnoreEnd
         } catch (Throwable $e) {
             return new class($this->toArray()) extends Arguments implements Configuration {};
         }

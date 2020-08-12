@@ -12,6 +12,7 @@
 
 namespace Koded\Caching\Configuration;
 
+use Koded\Caching\CacheException;
 use Koded\Stdlib\Immutable;
 use Koded\Stdlib\Interfaces\Configuration;
 
@@ -22,7 +23,6 @@ use Koded\Stdlib\Interfaces\Configuration;
  */
 final class MemcachedConfiguration extends Immutable implements Configuration
 {
-
     /**
      * MemcachedConfiguration constructor.
      *
@@ -38,6 +38,12 @@ final class MemcachedConfiguration extends Immutable implements Configuration
      */
     public function __construct(array $options = [])
     {
+        // @codeCoverageIgnoreStart
+        if (false === class_exists('\Memcached', false)) {
+            throw CacheException::generic('Memcached extension is not loaded on this machine.');
+        }
+        // @codeCoverageIgnoreEnd
+
         parent::__construct([
             'id' => $options['id'] ?? null,
             'servers' => $options['servers'] ?? [],
@@ -111,7 +117,6 @@ final class MemcachedConfiguration extends Immutable implements Configuration
         if (null === $ttl = $this->get('ttl')) {
             return null;
         }
-
         return (int)$ttl;
     }
 }
