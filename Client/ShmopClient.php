@@ -45,7 +45,7 @@ final class ShmopClient implements Cache
             $resource = shmop_open(fileinode($filename), 'a', 0, 0);
             return unserialize(shmop_read($resource, 0, shmop_size($resource)));
         } finally {
-            shmop_close($resource);
+            @shmop_close($resource);
         }
     }
 
@@ -53,7 +53,6 @@ final class ShmopClient implements Cache
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
-
         if (1 > $expiration = $this->timestampWithGlobalTtl($ttl, Cache::DATE_FAR_FAR_AWAY)) {
             // The item is considered expired and must be deleted
             return $this->delete($key);
@@ -74,7 +73,7 @@ final class ShmopClient implements Cache
                 && false !== file_put_contents($filename . '-ttl', $expiration);
 
         } finally {
-            shmop_close($resource);
+            @shmop_close($resource);
         }
     }
 
@@ -84,7 +83,6 @@ final class ShmopClient implements Cache
         if (false === $this->has($key, $filename)) {
             return true;
         }
-
         return $this->expire($filename);
     }
 
@@ -108,7 +106,6 @@ final class ShmopClient implements Cache
             $this->expire($filename);
             return false;
         }
-
         return true;
     }
 
@@ -123,7 +120,6 @@ final class ShmopClient implements Cache
             chmod($filename, 0666);
             chmod($filename . '-ttl', 0666);
         }
-
         return $filename;
     }
 
@@ -158,7 +154,7 @@ final class ShmopClient implements Cache
             unlink($filename . '-ttl');
             return shmop_delete($resource);
         } finally {
-            shmop_close($resource);
+            @shmop_close($resource);
         }
     }
 }
