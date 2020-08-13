@@ -32,6 +32,10 @@ class ConfigFactory extends Config
         try {
             $class = join('\\', [__NAMESPACE__, ucfirst($context) . 'Configuration']);
             return new $class($this->toArray());
+        // @codeCoverageIgnoreStart
+        } catch (CacheException $e) {
+            throw $e;
+        // @codeCoverageIgnoreEnd
         } catch (Throwable $e) {
             return new class($this->toArray()) extends CacheConfiguration {};
         }

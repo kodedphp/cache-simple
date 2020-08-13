@@ -133,8 +133,9 @@ final class ClientFactory
 
     private function newRedisClient(RedisConfiguration $conf): \Redis
     {
+        $client = new \Redis;
+
         try {
-            $client = new \Redis;
             @$client->connect(...$conf->getConnectionParams());
 
             $client->setOption(\Redis::OPT_SERIALIZER, $conf->get('type'));
@@ -145,39 +146,45 @@ final class ClientFactory
                 $client->auth($auth);
             }
 
-            return $client;
-
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\RedisException $e) {
-            error_log('[Redis] ' . $e->getMessage());
-            throw CacheException::withConnectionErrorFor('Redis');
+            if (!strpos($e->getMessage(), ' AUTH ')) {
+                error_log(sprintf(PHP_EOL . '[Redis] %s: %s', get_class($e), $e->getMessage()));
+                error_log('[Redis] with conf: ' . $conf->toJSON());
+                throw CacheException::withConnectionErrorFor('Redis');
+            }
         } catch (Exception | Error $e) {
             throw CacheException::from($e);
         }
+
+        return $client;
     }
 
 
     private function newPredisClient(PredisConfiguration $conf): \Predis\Client
     {
-        try {
-            $client = new \Predis\Client($conf->getConnectionParams(), $conf->getOptions());
-            $client->connect();
+        $client = new \Predis\Client($conf->getConnectionParams(), $conf->getOptions());
 
+        try {
+            $client->connect();
             $client->select((int)$conf->get('db'));
 
             if ($auth = $conf->get('auth')) {
                 $client->auth($auth);
             }
 
-            return $client;
-
         } /** @noinspection PhpRedundantCatchClauseInspection */
         catch (\Predis\Connection\ConnectionException $e) {
-            error_log('[Predis] ' . $e->getMessage());
-            throw CacheException::withConnectionErrorFor('Predis');
+            if (!strpos($e->getMessage(), ' AUTH ')) {
+                error_log(sprintf(PHP_EOL . '[Predis] %s: %s', get_class($e), $e->getMessage()));
+                error_log('[Predis] with conf: ' . $conf->toJSON());
+                throw CacheException::withConnectionErrorFor('Predis');
+            }
         } catch (Exception $e) {
             throw CacheException::from($e);
         }
+
+        return $client;
     }
 
     /**

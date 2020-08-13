@@ -32,6 +32,12 @@ final class MemcachedConfiguration extends CacheConfiguration
      */
     public function __construct(array $options = [])
     {
+        // @codeCoverageIgnoreStart
+        if (false === class_exists('\Memcached', false)) {
+            throw CacheException::generic('Memcached extension is not loaded on this machine.');
+        }
+        // @codeCoverageIgnoreEnd
+
         parent::__construct([
             'id' => $options['id'] ?? null,
             'servers' => $options['servers'] ?? [],
@@ -105,7 +111,6 @@ final class MemcachedConfiguration extends CacheConfiguration
         if (null === $ttl = $this->get('ttl')) {
             return null;
         }
-
         return (int)$ttl;
     }
 }

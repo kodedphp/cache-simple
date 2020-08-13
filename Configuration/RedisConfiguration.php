@@ -18,6 +18,12 @@ final class RedisConfiguration extends CacheConfiguration
 
     public function __construct(array $values)
     {
+        // @codeCoverageIgnoreStart
+        if (false === class_exists('\Redis', false)) {
+            throw CacheException::generic('Redis extension is not loaded on this machine.');
+        }
+        // @codeCoverageIgnoreEnd
+
         $values += [
             'serializer' => Serializer::PHP,
             'binary' => Serializer::PHP,
@@ -29,10 +35,11 @@ final class RedisConfiguration extends CacheConfiguration
             case Serializer::PHP:
                 $this->type = \Redis::SERIALIZER_PHP;
                 break;
-
+            // @codeCoverageIgnoreStart
             case Serializer::IGBINARY:
                 $this->type = \Redis::SERIALIZER_IGBINARY;
                 break;
+            // @codeCoverageIgnoreEnd
 
             default:
                 $this->type = \Redis::SERIALIZER_NONE;
@@ -48,7 +55,6 @@ final class RedisConfiguration extends CacheConfiguration
      * null  $reserved       should be null if $retry_interval is specified
      * int   $retry_interval retry interval in milliseconds.
      * ]
-     *
      */
     public function getConnectionParams(): array
     {
