@@ -10,6 +10,8 @@
 
 namespace Koded\Caching\Configuration;
 
+use Koded\Caching\CacheException;
+
 /**
  * Class MemcachedConfiguration
  *

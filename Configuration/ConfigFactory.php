@@ -11,6 +11,7 @@
 namespace Koded\Caching\Configuration;
 
 use Koded\Stdlib\{Config, Configuration};
+use Koded\Caching\CacheException;
 use Throwable;
 
 /**

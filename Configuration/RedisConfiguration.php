@@ -10,6 +10,7 @@
 
 namespace Koded\Caching\Configuration;
 
+use Koded\Caching\CacheException;
 use Koded\Stdlib\Serializer;
 
 final class RedisConfiguration extends CacheConfiguration
