@@ -15,6 +15,9 @@ class RedisClientTest extends SimpleCacheTest
      */
     public function createSimpleCache()
     {
+        if (false === extension_loaded('redis')) {
+            $this->markTestSkipped('Memcached extension is not loaded.');
+        }
         return simple_cache_factory('redis', [
             'host' => getenv('REDIS_SERVER_HOST'),
         ]);

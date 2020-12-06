@@ -78,6 +78,13 @@ class MemcachedConfigurationTest extends TestCase
         $this->assertNull($config->getTtl());
     }
 
+    protected function setUp(): void
+    {
+        if (false === extension_loaded('memcached')) {
+            $this->markTestSkipped('Memcached extension is not loaded.');
+        }
+    }
+
     protected function tearDown(): void
     {
         putenv('MEMCACHED_POOL=');

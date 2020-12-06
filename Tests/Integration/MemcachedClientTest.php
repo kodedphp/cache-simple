@@ -15,6 +15,9 @@ class MemcachedClientTest extends SimpleCacheTest
      */
     public function createSimpleCache()
     {
+        if (false === extension_loaded('memcached')) {
+            $this->markTestSkipped('Memcached extension is not loaded.');
+        }
         return simple_cache_factory('memcached');
     }
 
