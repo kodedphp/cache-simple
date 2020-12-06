@@ -32,6 +32,8 @@ before_script:
   - echo "extension=redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - pecl install igbinary
   - pecl install msgpack
+  # travis loads xdebug 3 in PHP 7.3+ which mess up the builds
+  - phpenv config-rm xdebug.ini
 
 install:
   - composer update -o --prefer-source --no-interaction
