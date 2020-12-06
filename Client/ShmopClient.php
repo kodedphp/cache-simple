@@ -10,7 +10,6 @@
 
 namespace Koded\Caching\Client;
 
-use Exception;
 use Koded\Caching\{Cache, CacheException};
 use function Koded\Caching\verify_key;
 
@@ -22,8 +21,7 @@ final class ShmopClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 
-    /** @var string */
-    private $dir;
+    private string $dir;
 
     public function __construct(string $dir, ?int $ttl)
     {
@@ -38,13 +36,8 @@ final class ShmopClient implements Cache
         if (false === $this->has($key, $filename)) {
             return $default;
         }
-
-        try {
-            $resource = shmop_open(fileinode($filename), 'a', 0, 0);
-            return unserialize(shmop_read($resource, 0, shmop_size($resource)));
-        } finally {
-            @shmop_close($resource);
-        }
+        $resource = shmop_open(fileinode($filename), 'a', 0, 0);
+        return unserialize(shmop_read($resource, 0, shmop_size($resource)));
     }
 
 
@@ -59,18 +52,11 @@ final class ShmopClient implements Cache
         $value = serialize($value);
         $size = strlen($value);
         $filename = $this->filename($key, true);
-
         if (false === $resource = @shmop_open(fileinode($filename), 'n', 0666, $size)) {
             $resource = shmop_open(fileinode($filename), 'w', 0666, $size);
         }
-
-        try {
-            return shmop_write($resource, $value, 0) === $size
-                && false !== file_put_contents($filename . '-ttl', $expiration);
-
-        } finally {
-            @shmop_close($resource);
-        }
+        return shmop_write($resource, $value, 0) === $size
+            && false !== file_put_contents($filename . '-ttl', $expiration);
     }
 
 
@@ -97,7 +83,6 @@ final class ShmopClient implements Cache
         verify_key($key);
         $filename = $this->filename($key, false);
         $expiration = (int)(@file_get_contents($filename . '-ttl') ?: 0);
-
         if ($expiration <= time()) {
             $this->expire($filename);
             return false;
@@ -109,7 +94,6 @@ final class ShmopClient implements Cache
     private function filename(string $key, bool $create): string
     {
         $filename = $this->dir . 'shmop-' . sha1($key) . '.cache';
-
         if ($create) {
             touch($filename);
             touch($filename . '-ttl');
@@ -136,7 +120,6 @@ final class ShmopClient implements Cache
         if (false === is_dir($dir) && false === mkdir($dir, 0775, true)) {
             throw CacheException::forCreatingDirectory($dir);
         }
-
         $this->dir = $dir;
     }
 
@@ -145,12 +128,7 @@ final class ShmopClient implements Cache
         if (false === $resource = @shmop_open(fileinode($filename), 'w', 0, 0)) {
             return false;
         }
-
-        try {
-            unlink($filename . '-ttl');
-            return shmop_delete($resource);
-        } finally {
-            @shmop_close($resource);
-        }
+        unlink($filename . '-ttl');
+        return shmop_delete($resource);
     }
 }
