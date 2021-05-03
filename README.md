@@ -6,9 +6,9 @@ Koded - Simple Caching Library
 [![Code Coverage](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/koded/cache-simple.svg)](https://packagist.org/packages/koded/cache-simple)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.3-8892BF.svg)](https://php.net/)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.0-8892BF.svg)](https://php.net/)
 
-A [PSR-16][10] caching library for PHP7 using several caching technologies.
+A [PSR-16][10] caching library for PHP 8 using several caching technologies.
 It supports JSON caching for Redis.
 
 

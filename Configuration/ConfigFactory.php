@@ -25,7 +25,7 @@ class ConfigFactory extends Config
     /** @noinspection PhpMissingParentConstructorInspection */
     public function __construct(array $parameters = [])
     {
-        $parameters and $this->import($parameters);
+        $parameters && $this->import($parameters);
     }
 
     public function build(string $context): Configuration
@@ -37,7 +37,7 @@ class ConfigFactory extends Config
         } catch (CacheException $e) {
             throw $e;
         // @codeCoverageIgnoreEnd
-        } catch (Throwable $e) {
+        } catch (Throwable) {
             return new class($this->toArray()) extends CacheConfiguration {};
         }
     }

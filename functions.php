@@ -83,7 +83,7 @@ function normalize_ttl(mixed $value): ?int
     if ($value instanceof DateInterval) {
         return \date_create('@0', \timezone_open('UTC'))->add($value)->getTimestamp();
     }
-    throw CacheException::generic('Invalid TTL, given ' . var_export($value, true));
+    throw CacheException::generic('Invalid TTL, given ' . \var_export($value, true));
 }
 
 /**

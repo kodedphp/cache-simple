@@ -27,7 +27,7 @@ class CacheException extends KodedException implements InvalidArgumentException
 
     public static function forInvalidKey($key): static
     {
-        return new static(Cache::E_INVALID_KEY, [':key' => var_export($key, true), ':type' => gettype($key)]);
+        return new static(Cache::E_INVALID_KEY, [':key' => \var_export($key, true), ':type' => \gettype($key)]);
     }
 
     public static function forUnsupportedLogger(string $supported, string $given): static

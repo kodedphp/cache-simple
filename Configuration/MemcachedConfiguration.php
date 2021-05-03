@@ -96,9 +96,7 @@ final class MemcachedConfiguration extends CacheConfiguration
      */
     public function getOptions(): array
     {
-        return \array_filter($this->toArray()['options'], function($value) {
-            return null !== $value;
-        });
+        return \array_filter($this->toArray()['options'], fn($value) => null !== $value);
     }
 
     /**
