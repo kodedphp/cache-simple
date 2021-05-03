@@ -3,7 +3,7 @@
 namespace Tests\Koded\Caching;
 
 use Cache\IntegrationTests\SimpleCacheTest;
-use Koded\Caching\Tests\Integration\SimpleCacheIntegrationTrait;
+use Tests\Koded\Caching\Integration\SimpleCacheIntegrationTrait;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\simple_cache_factory;
 

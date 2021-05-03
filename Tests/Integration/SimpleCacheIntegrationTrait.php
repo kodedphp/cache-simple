@@ -1,6 +1,6 @@
 <?php
 
-namespace Koded\Caching\Tests\Integration;
+namespace Tests\Koded\Caching\Integration;
 
 trait SimpleCacheIntegrationTrait
 {
