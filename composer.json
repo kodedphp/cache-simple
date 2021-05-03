@@ -35,9 +35,7 @@
     "ext-shmop": "For shared-memory caching"
   },
   "autoload": {
-    "psr-4": {
-      "Koded\\Caching\\": ""
-    },
+    "classmap": [""],
     "files": [
       "functions.php"
     ],
