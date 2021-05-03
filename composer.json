@@ -19,8 +19,6 @@
       "homepage": "https://kodeart.com"
     }
   ],
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require": {
     "php": "^8",
     "koded/stdlib": "5.*",
@@ -64,5 +62,10 @@
     "branch-alias": {
       "dev-master": "3.x-dev"
     }
-  }
+  },
+  "config": {
+    "optimize-autoloader": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }
