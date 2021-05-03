@@ -22,7 +22,6 @@ trait MultiplesTrait
     public function getMultiple($keys, $default = null): iterable
     {
         $filtered = filter_keys($keys, false);
-
         return $this->internalMultiGet($filtered, $default);
     }
 
@@ -30,23 +29,19 @@ trait MultiplesTrait
     {
         $filtered = filter_keys($values, true);
         $ttl = normalize_ttl($ttl ?? $this->ttl);
-
         if ($ttl !== null && $ttl < 1) {
             // All items are considered expired and must be deleted
             return $this->deleteMultiple(array_keys($filtered));
         }
-
         return $this->internalMultiSet($filtered, $ttl);
     }
 
     public function deleteMultiple($keys): bool
     {
         $filtered = filter_keys($keys, false);
-
         if (empty($filtered)) {
             return true;
         }
-
         return $this->internalMultiDelete($filtered);
     }
 
@@ -68,7 +63,6 @@ trait MultiplesTrait
         foreach ($keys as $key) {
             $cached[$key] = $this->get($key, $default);
         }
-
         return $cached;
     }
 
@@ -98,7 +92,6 @@ trait MultiplesTrait
         foreach ($keys as $key) {
             $this->delete($key) && ++$deleted;
         }
-
         return count($keys) === $deleted;
     }
 }

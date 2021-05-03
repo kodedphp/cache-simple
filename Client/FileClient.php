@@ -23,12 +23,8 @@ final class FileClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 
-    /** @var string */
-    private $dir = '';
-
-    /** @var LoggerInterface */
-    private $logger;
-
+    private string $dir = '';
+    private LoggerInterface $logger;
 
     public function __construct(LoggerInterface $logger, string $dir, int $ttl = null)
     {
@@ -37,71 +33,55 @@ final class FileClient implements Cache
         $this->setDirectory($dir);
     }
 
-
     public function get($key, $default = null)
     {
         try {
             if ($this->has($key, $filename, $cache)) {
-                return unserialize($cache['value']);
+                return \unserialize($cache['value']);
             }
-
             return $default;
-
         } finally {
             unset($filename, $cache);
         }
     }
 
-
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
-
         if (1 > $expiration = $this->timestampWithGlobalTtl($ttl, Cache::DATE_FAR_FAR_AWAY)) {
             // The item is considered expired and must be deleted
             return $this->delete($key);
         }
-
         $filename = $this->filename($key, true);
-
-        return (bool)file_put_contents($filename, $this->data($key, $value, $expiration));
+        return (bool)\file_put_contents($filename, $this->data($key, $value, $expiration));
     }
-
 
     public function delete($key)
     {
         if (false === $this->has($key, $filename)) {
             return true;
         }
-
-        return unlink($filename);
+        return \unlink($filename);
     }
-
 
     public function clear()
     {
         return rmdir($this->dir);
     }
 
-
     public function has($key, &$filename = '', &$cache = null)
     {
         verify_key($key);
         $filename = $this->filename($key, false);
-
-        if (false === is_file($filename)) {
+        if (false === \is_file($filename)) {
             return false;
         }
-
         /** @noinspection PhpIncludeInspection */
         $cache = include $filename;
-
-        if ($cache['timestamp'] <= time()) {
-            unlink($filename);
-
+        if ($cache['timestamp'] <= \time()) {
+            \unlink($filename);
             return false;
         }
-
         return true;
     }
 
@@ -115,21 +95,17 @@ final class FileClient implements Cache
      */
     private function filename(string $key, bool $create): string
     {
-        $filename = sha1($key);
+        $filename = \sha1($key);
         $dir = $this->dir . $filename[0];
-
-        if ($create && false === is_dir($dir)) {
-            mkdir($dir, 0775, true)
+        if ($create && false === \is_dir($dir)) {
+            \mkdir($dir, 0775, true)
             || $this->logger->error('Failed to create cache directory in: {dir}', ['dir' => $dir]);
         }
-
-        $filename = $dir . '/' . substr($filename, 1) . '.php';
-
-        if ($create && false === is_file($filename)) {
-            touch($filename);
-            chmod($filename, 0666);
+        $filename = $dir . '/' . \substr($filename, 1) . '.php';
+        if ($create && false === \is_file($filename)) {
+            \touch($filename);
+            \chmod($filename, 0666);
         }
-
         return $filename;
     }
 
@@ -143,16 +119,14 @@ final class FileClient implements Cache
     private function setDirectory(string $directory): void
     {
         // Overrule shell misconfiguration or the web server
-        umask(umask() | 0002);
-        $dir = $directory ?: sys_get_temp_dir() . '/_cache';
-        $dir = rtrim($dir, '/') . '/';
-
-        if (false === is_dir($dir) && false === mkdir($dir, 0775, true)) {
+        \umask(\umask() | 0002);
+        $dir = $directory ?: \sys_get_temp_dir() . '/_cache';
+        $dir = \rtrim($dir, '/') . '/';
+        if (false === \is_dir($dir) && false === \mkdir($dir, 0775, true)) {
             $e = CacheException::forCreatingDirectory($dir);
             $this->logger->error($e->getMessage());
             throw $e;
         }
-
         $this->dir = $dir;
     }
 
@@ -161,16 +135,16 @@ final class FileClient implements Cache
      *
      * @param string   $key   The cache key
      * @param mixed    $value The value to be cached
-     * @param int|null $ttl   Time to live
+     * @param int      $ttl   Time to live
      *
      * @return string
      */
-    private function data(string $key, $value, int $ttl): string
+    private function data(string $key, mixed $value, int $ttl): string
     {
-        return '<?php return ' . var_export([
+        return '<?php return ' . \var_export([
                 'timestamp' => $ttl,
                 'key' => $key,
-                'value' => serialize($value),
+                'value' => \serialize($value),
             ], true) . ';';
     }
 }

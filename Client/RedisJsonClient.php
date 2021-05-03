@@ -31,9 +31,9 @@ final class RedisJsonClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 
-    private $suffix;
-    private $options;
-    private $serializer;
+    private string $suffix;
+    private int $options;
+    private Serializer $serializer;
 
     public function __construct(\Redis $client, Serializer $serializer, int $options, int $ttl = null)
     {
@@ -44,7 +44,6 @@ final class RedisJsonClient implements Cache
         $this->ttl = $ttl;
     }
 
-
     public function get($key, $default = null)
     {
         return $this->has($key)
@@ -52,48 +51,38 @@ final class RedisJsonClient implements Cache
             : $default;
     }
 
-
     public function set($key, $value, $ttl = null)
     {
         verify_key($key);
         $expiration = $this->secondsWithGlobalTtl($ttl);
-
         if (null === $ttl && 0 === $expiration) {
             return $this->client->set($key, json_serialize($value, $this->options))
                 && $this->client->set($key . $this->suffix, $this->serializer->serialize($value));
         }
-
         if ($expiration > 0) {
             return $this->client->setex($key, $expiration, json_serialize($value, $this->options))
                 && $this->client->setex($key . $this->suffix, $expiration, $this->serializer->serialize($value));
         }
-
         $this->client->del([$key, $key . $this->suffix]);
-
         return true;
     }
-
 
     public function delete($key)
     {
         if (false === $this->has($key)) {
             return true;
         }
-
         return 2 === $this->client->del([$key, $key . $this->suffix]);
     }
-
 
     public function clear()
     {
         return $this->client->flushDB();
     }
 
-
     public function has($key)
     {
         verify_key($key);
-
         return (bool)$this->client->exists($key)
             && (bool)$this->client->exists($key . $this->suffix);
     }
