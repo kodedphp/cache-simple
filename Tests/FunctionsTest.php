@@ -1,12 +1,16 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
 use DateInterval;
 use DateTime;
 use DateTimeImmutable;
+use Koded\Caching\CacheException;
 use Koded\Caching\Client\MemoryClient;
 use PHPUnit\Framework\TestCase;
+use function Koded\Caching\normalize_ttl;
+use function Koded\Caching\simple_cache_factory;
+use function Koded\Caching\verify_key;
 
 class FunctionsTest extends TestCase
 {
@@ -17,10 +21,10 @@ class FunctionsTest extends TestCase
         simple_cache_factory('qwerty');
     }
 
-    public function test_should_guard_a_proper_cache_key()
-    {
-        $this->assertNull(verify_key('Proper-Key:1'));
-    }
+//    public function test_should_guard_a_proper_cache_key()
+//    {
+//        $this->assertNull(verify_key('Proper-Key:1'));
+//    }
 
     public function test_should_reject_invalid_cache_key()
     {

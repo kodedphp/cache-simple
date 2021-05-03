@@ -1,8 +1,9 @@
 <?php
 
-namespace Koded\Caching\Client;
+namespace Tests\Koded\Caching\Client;
 
 use Koded\Caching\CacheException;
+use Koded\Caching\Client\FileClient;
 use Koded\Stdlib\Arguments;
 use org\bovigo\vfs\{vfsStream, vfsStreamDirectory, vfsStreamWrapper};
 use PHPUnit\Framework\TestCase;

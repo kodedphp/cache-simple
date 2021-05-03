@@ -1,7 +1,8 @@
 <?php
 
-namespace Koded\Caching\Configuration;
+namespace Tests\Koded\Caching\Configuration;
 
+use Koded\Caching\Configuration\MemcachedConfiguration;
 use Memcached;
 use PHPUnit\Framework\TestCase;
 

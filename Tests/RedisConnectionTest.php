@@ -1,7 +1,9 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
+use Koded\Caching\Cache;
+use Koded\Caching\CacheException;
 use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Serializer;
@@ -39,7 +41,7 @@ class RedisConnectionTest extends TestCase
         ])))->new();
     }
 
-    public function test_predis_auth_exception()
+    public function test_redis_auth_exception()
     {
         $redis = (new ClientFactory(new ConfigFactory([
             'auth' => 'fubar',

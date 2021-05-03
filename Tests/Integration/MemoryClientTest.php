@@ -1,10 +1,11 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
 use Cache\IntegrationTests\SimpleCacheTest;
 use Koded\Caching\Tests\Integration\SimpleCacheIntegrationTrait;
 use Psr\SimpleCache\CacheInterface;
+use function Koded\Caching\simple_cache_factory;
 
 class MemoryClientTest extends SimpleCacheTest
 {

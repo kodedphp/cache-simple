@@ -1,7 +1,8 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
+use Koded\Caching\CacheException;
 use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Stdlib\Serializer;
@@ -21,13 +22,17 @@ class PredisWithJsonSerializerTest extends TestCase
     {
         putenv('CACHE_CLIENT=predis');
 
-        $this->cache = (new ClientFactory(new ConfigFactory([
-            'host' => getenv('REDIS_SERVER_HOST'),
-            'port' => getenv('REDIS_SERVER_PORT'),
+        try {
+            $this->cache = (new ClientFactory(new ConfigFactory([
+                'host' => getenv('REDIS_SERVER_HOST'),
+                'port' => getenv('REDIS_SERVER_PORT'),
 
-            'serializer' => Serializer::JSON,
+                'serializer' => Serializer::JSON,
 
-        ])))->new();
+            ])))->new();
+        } catch (CacheException $e) {
+            $this->markTestSkipped($e->getMessage());
+        }
 
         $this->cache->clear();
     }

@@ -1,11 +1,13 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
 use Cache\IntegrationTests\SimpleCacheTest;
+use Koded\Caching\CacheException;
 use Koded\Caching\Tests\Integration\SimpleCacheIntegrationTrait;
 use Koded\Stdlib\Serializer;
 use Psr\SimpleCache\CacheInterface;
+use function Koded\Caching\simple_cache_factory;
 
 class RedisJsonClientTest extends SimpleCacheTest
 {
@@ -16,11 +18,15 @@ class RedisJsonClientTest extends SimpleCacheTest
      */
     public function createSimpleCache()
     {
-        return simple_cache_factory('redis', [
-            'host' => getenv('REDIS_SERVER_HOST'),
-            'serializer' => Serializer::JSON,
-            'binary' => Serializer::PHP
-        ]);
+        try {
+            return simple_cache_factory('redis', [
+                'host' => getenv('REDIS_SERVER_HOST'),
+                'serializer' => Serializer::JSON,
+                'binary' => Serializer::PHP
+            ]);
+        } catch (CacheException $e) {
+            $this->markTestSkipped($e->getMessage());
+        }
     }
 
     protected function setUp(): void

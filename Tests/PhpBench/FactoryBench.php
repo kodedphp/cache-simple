@@ -1,6 +1,6 @@
 <?php
 
-namespace Koded\Caching\Tests\PhpBench;
+namespace Tests\Koded\Caching\PhpBench;
 
 use function Koded\Caching\simple_cache_factory;
 

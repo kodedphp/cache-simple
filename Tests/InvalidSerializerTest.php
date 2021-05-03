@@ -1,6 +1,6 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
 use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
