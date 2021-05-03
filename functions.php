@@ -54,8 +54,8 @@ function simple_cache_factory(string $client = '', array $arguments = []): Cache
 function verify_key($name): void
 {
     if ('' === $name
-        || false === is_string($name)
-        || preg_match('/[@\{\}\(\)\/\\\]/', $name)
+        || false === \is_string($name)
+        || \preg_match('/[@\{\}\(\)\/\\\]/', $name)
     ) {
         throw CacheException::forInvalidKey($name);
     }
@@ -72,20 +72,17 @@ function verify_key($name): void
  *
  * @return int|null Returns the TTL is seconds or NULL
  */
-function normalize_ttl($value): ?int
+function normalize_ttl(mixed $value): ?int
 {
-    if (null === $value || is_int($value)) {
+    if (null === $value || \is_int($value)) {
         return $value;
     }
-
     if ($value instanceof DateTimeInterface) {
         return $value->getTimestamp() - now()->getTimestamp();
     }
-
     if ($value instanceof DateInterval) {
-        return date_create('@0', timezone_open('UTC'))->add($value)->getTimestamp();
+        return \date_create('@0', \timezone_open('UTC'))->add($value)->getTimestamp();
     }
-
     throw CacheException::generic('Invalid TTL, given ' . var_export($value, true));
 }
 
@@ -99,10 +96,9 @@ function normalize_ttl($value): ?int
  */
 function filter_keys($iterable, bool $associative): array
 {
-    if (false === is_iterable($iterable)) {
+    if (false === \is_iterable($iterable)) {
         throw CacheException::forInvalidKey($iterable);
     }
-
     $keys = [];
     foreach ($iterable as $k => $v) {
         if (false === $associative) {
@@ -110,10 +106,8 @@ function filter_keys($iterable, bool $associative): array
             $keys[] = $v;
             continue;
         }
-
         verify_key($k);
         $keys[$k] = $v;
     }
-
     return $keys;
 }
