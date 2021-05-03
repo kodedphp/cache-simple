@@ -41,7 +41,7 @@ final class MemoryClient implements Cache
             unset($this->storage[$key], $this->expiration[$key]);
         } else {
             // Loose the reference to the object
-            $this->storage[$key] = is_object($value) ? clone $value : $value;
+            $this->storage[$key] = \is_object($value) ? clone $value : $value;
             $this->expiration[$key] = $expiration;
         }
         return true;
@@ -66,7 +66,7 @@ final class MemoryClient implements Cache
     public function has($key)
     {
         verify_key($key);
-        if (false === array_key_exists($key, $this->expiration)) {
+        if (false === \array_key_exists($key, $this->expiration)) {
             return false;
         }
         if ($this->expiration[$key] <= now()->getTimestamp()) {

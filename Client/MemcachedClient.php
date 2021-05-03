@@ -74,7 +74,7 @@ final class MemcachedClient implements Cache
 
     protected function internalMultiGet(array $keys, $default = null): array
     {
-        return array_replace(array_fill_keys($keys, $default), $this->client->getMulti($keys) ?: []);
+        return \array_replace(\array_fill_keys($keys, $default), $this->client->getMulti($keys) ?: []);
     }
 
     protected function internalMultiSet(array $values, $ttl = null): bool
