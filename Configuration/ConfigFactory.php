@@ -31,7 +31,7 @@ class ConfigFactory extends Config
     public function build(string $context): Configuration
     {
         try {
-            $class = join('\\', [__NAMESPACE__, ucfirst($context) . 'Configuration']);
+            $class = \join('\\', [__NAMESPACE__, \ucfirst($context) . 'Configuration']);
             return new $class($this->toArray());
         // @codeCoverageIgnoreStart
         } catch (CacheException $e) {

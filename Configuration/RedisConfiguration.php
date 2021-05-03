@@ -15,12 +15,12 @@ use Koded\Stdlib\Serializer;
 
 final class RedisConfiguration extends CacheConfiguration
 {
-    private $type;
+    private int $type;
 
     public function __construct(array $values)
     {
         // @codeCoverageIgnoreStart
-        if (false === class_exists('\Redis', false)) {
+        if (false === \class_exists('\Redis', false)) {
             throw CacheException::generic('Redis extension is not loaded on this machine.');
         }
         // @codeCoverageIgnoreEnd
@@ -32,19 +32,11 @@ final class RedisConfiguration extends CacheConfiguration
 
         parent::__construct($values);
 
-        switch ($values['serializer']) {
-            case Serializer::PHP:
-                $this->type = \Redis::SERIALIZER_PHP;
-                break;
-            // @codeCoverageIgnoreStart
-            case Serializer::IGBINARY:
-                $this->type = \Redis::SERIALIZER_IGBINARY;
-                break;
-            // @codeCoverageIgnoreEnd
-
-            default:
-                $this->type = \Redis::SERIALIZER_NONE;
-        }
+        $this->type = match ($values['serializer']) {
+            Serializer::PHP => \Redis::SERIALIZER_PHP,
+            Serializer::IGBINARY => \Redis::SERIALIZER_IGBINARY,
+            default => \Redis::SERIALIZER_NONE,
+        };
     }
 
     /**
