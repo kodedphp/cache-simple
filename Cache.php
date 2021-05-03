@@ -14,14 +14,15 @@ use Psr\SimpleCache\CacheInterface;
 
 interface Cache extends CacheInterface
 {
-    public const E_INVALID_KEY = 1;
-    public const E_UNSUPPORTED_LOGGER = 2;
-    public const E_DIRECTORY_NOT_CREATED = 3;
-    public const E_PHP_EXCEPTION = 4;
-    public const E_CONNECTION_ERROR = 5;
-    public const E_UNSUPPORTED_CLIENT = 6;
-
     public const DATE_FAR_FAR_AWAY = 32503593600;
+
+    public const
+        E_INVALID_KEY = 1,
+        E_UNSUPPORTED_LOGGER = 2,
+        E_DIRECTORY_NOT_CREATED = 3,
+        E_PHP_EXCEPTION = 4,
+        E_CONNECTION_ERROR = 5,
+        E_UNSUPPORTED_CLIENT = 6;
 
     /**
      * Returns the underlying cache client.
