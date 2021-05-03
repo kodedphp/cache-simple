@@ -1,10 +1,12 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
-use Koded\Caching\Client\CacheClientFactory;
+use Koded\Caching\Cache;
+use Koded\Caching\CacheException;
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
-use Koded\Stdlib\Interfaces\Serializer;
+use Koded\Stdlib\Serializer;
 use PHPUnit\Framework\TestCase;
 
 class RedisConnectionTest extends TestCase
@@ -15,7 +17,7 @@ class RedisConnectionTest extends TestCase
         $this->expectExceptionCode(Cache::E_CONNECTION_ERROR);
         $this->expectExceptionMessage('[Cache Exception] Failed to connect the Redis client');
 
-        (new CacheClientFactory(new ConfigFactory([
+        (new ClientFactory(new ConfigFactory([
             'host' => 'invalid-redis-host'
         ])))->new('redis');
     }
@@ -29,7 +31,7 @@ class RedisConnectionTest extends TestCase
             $this->expectExceptionMessage('Redis::setOption() expects parameter 2 to be string, object given');
         }
 
-        (new CacheClientFactory(new ConfigFactory([
+        (new ClientFactory(new ConfigFactory([
             'serializer' => Serializer::JSON,
             'prefix' => new \stdClass(), // invalid prefix to test the catch block
 
@@ -39,9 +41,9 @@ class RedisConnectionTest extends TestCase
         ])))->new();
     }
 
-    public function test_predis_auth_exception()
+    public function test_redis_auth_exception()
     {
-        $redis = (new CacheClientFactory(new ConfigFactory([
+        $redis = (new ClientFactory(new ConfigFactory([
             'auth' => 'fubar',
 
             'host' => getenv('REDIS_SERVER_HOST'),

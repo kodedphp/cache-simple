@@ -1,16 +1,17 @@
 <?php
 
-namespace Koded\Caching\Client;
+namespace Tests\Koded\Caching\Client;
 
+use Koded\Caching\Client\ClientFactory;
+use Koded\Caching\Client\MemoryClient;
 use Koded\Caching\Configuration\ConfigFactory;
-use Koded\Caching\SimpleCacheTestCaseTrait;
 use PHPUnit\Framework\TestCase;
+use Tests\Koded\Caching\SimpleCacheTestCaseTrait;
 use function Koded\Caching\simple_cache_factory;
 use function Koded\Stdlib\now;
 
 class MemoryClientTest extends TestCase
 {
-
     use SimpleCacheTestCaseTrait;
 
     public function test_global_ttl_when_null()
@@ -48,6 +49,6 @@ class MemoryClientTest extends TestCase
     protected function setUp(): void
     {
         putenv('CACHE_CLIENT=memory');
-        $this->cache = (new CacheClientFactory(new ConfigFactory))->new();
+        $this->cache = (new ClientFactory(new ConfigFactory))->new();
     }
 }

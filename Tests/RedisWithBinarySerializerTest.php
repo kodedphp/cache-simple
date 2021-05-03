@@ -1,15 +1,14 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
-use Koded\Caching\Client\CacheClientFactory;
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
-use Koded\Stdlib\Interfaces\Serializer;
+use Koded\Stdlib\Serializer;
 use PHPUnit\Framework\TestCase;
 
 class RedisWithBinarySerializerTest extends TestCase
 {
-
     use SimpleCacheTestCaseTrait;
 
     /**
@@ -44,7 +43,7 @@ class RedisWithBinarySerializerTest extends TestCase
             $this->markTestSkipped('"igbinary" extension is not loaded.');
         }
 
-        $this->cache = (new CacheClientFactory(new ConfigFactory([
+        $this->cache = (new ClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),
 

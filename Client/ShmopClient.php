@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,12 +6,10 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching\Client;
 
-use Exception;
 use Koded\Caching\{Cache, CacheException};
 use function Koded\Caching\verify_key;
 
@@ -24,8 +21,7 @@ final class ShmopClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 
-    /** @var string */
-    private $dir;
+    private string $dir;
 
     public function __construct(string $dir, ?int $ttl)
     {
@@ -34,21 +30,14 @@ final class ShmopClient implements Cache
         $this->setDirectory($dir);
     }
 
-
     public function get($key, $default = null)
     {
         if (false === $this->has($key, $filename)) {
             return $default;
         }
-
-        try {
-            $resource = shmop_open(fileinode($filename), 'a', 0, 0);
-            return unserialize(shmop_read($resource, 0, shmop_size($resource)));
-        } finally {
-            @shmop_close($resource);
-        }
+        $resource = \shmop_open(\fileinode($filename), 'a', 0, 0);
+        return \unserialize(\shmop_read($resource, 0, \shmop_size($resource)));
     }
-
 
     public function set($key, $value, $ttl = null)
     {
@@ -57,26 +46,15 @@ final class ShmopClient implements Cache
             // The item is considered expired and must be deleted
             return $this->delete($key);
         }
-
-        $value = serialize($value);
-        $size = strlen($value);
+        $value = \serialize($value);
+        $size = \strlen($value);
         $filename = $this->filename($key, true);
-
-        try {
-            $resource = shmop_open(fileinode($filename), 'n', 0666, $size);
-        } catch (Exception $e) {
-            $resource = shmop_open(fileinode($filename), 'w', 0666, $size);
+        if (false === $resource = @\shmop_open(\fileinode($filename), 'n', 0666, $size)) {
+            $resource = \shmop_open(\fileinode($filename), 'w', 0666, $size);
         }
-
-        try {
-            return shmop_write($resource, $value, 0) === $size
-                && false !== file_put_contents($filename . '-ttl', $expiration);
-
-        } finally {
-            @shmop_close($resource);
-        }
+        return \shmop_write($resource, $value, 0) === $size
+            && false !== \file_put_contents($filename . '-ttl', $expiration);
     }
-
 
     public function delete($key)
     {
@@ -86,39 +64,34 @@ final class ShmopClient implements Cache
         return $this->expire($filename);
     }
 
-
     public function clear()
     {
-        foreach ((glob($this->dir . 'shmop-*.cache*') ?: []) as $filename) {
+        foreach ((\glob($this->dir . 'shmop-*.cache*') ?: []) as $filename) {
             $this->expire($filename);
         }
         return true;
     }
 
-
     public function has($key, &$filename = '')
     {
         verify_key($key);
         $filename = $this->filename($key, false);
-        $expiration = (int)(@file_get_contents($filename . '-ttl') ?: 0);
-
-        if ($expiration <= time()) {
+        $expiration = (int)(@\file_get_contents($filename . '-ttl') ?: 0);
+        if ($expiration <= \time()) {
             $this->expire($filename);
             return false;
         }
         return true;
     }
 
-
     private function filename(string $key, bool $create): string
     {
-        $filename = $this->dir . 'shmop-' . sha1($key) . '.cache';
-
+        $filename = $this->dir . 'shmop-' . \sha1($key) . '.cache';
         if ($create) {
-            touch($filename);
-            touch($filename . '-ttl');
-            chmod($filename, 0666);
-            chmod($filename . '-ttl', 0666);
+            \touch($filename);
+            \touch($filename . '-ttl');
+            \chmod($filename, 0666);
+            \chmod($filename . '-ttl', 0666);
         }
         return $filename;
     }
@@ -133,28 +106,22 @@ final class ShmopClient implements Cache
     private function setDirectory(string $directory): void
     {
         // Overrule shell misconfiguration or the web server
-        umask(umask() | 0002);
-        $dir = $directory ?: sys_get_temp_dir();
-        $dir = rtrim($dir, '/') . '/';
+        \umask(\umask() | 0002);
+        $dir = $directory ?: \sys_get_temp_dir();
+        $dir = \rtrim($dir, '/') . '/';
 
-        if (false === is_dir($dir) && false === mkdir($dir, 0775, true)) {
+        if (false === \is_dir($dir) && false === \mkdir($dir, 0775, true)) {
             throw CacheException::forCreatingDirectory($dir);
         }
-
         $this->dir = $dir;
     }
 
     private function expire(string $filename): bool
     {
-        if (false === $resource = @shmop_open(fileinode($filename), 'w', 0, 0)) {
+        if (false === $resource = @\shmop_open(fileinode($filename), 'w', 0, 0)) {
             return false;
         }
-
-        try {
-            unlink($filename . '-ttl');
-            return shmop_delete($resource);
-        } finally {
-            @shmop_close($resource);
-        }
+        \unlink($filename . '-ttl');
+        return \shmop_delete($resource);
     }
 }

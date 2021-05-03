@@ -1,17 +1,22 @@
 <?php
 
-namespace Koded\Caching\Client;
+namespace Tests\Koded\Caching\Client;
 
 use Koded\Caching\CacheException;
+use Koded\Caching\Client\ClientFactory;
+use Koded\Caching\Client\FileClient;
+use Koded\Caching\Client\MemcachedClient;
+use Koded\Caching\Client\MemoryClient;
+use Koded\Caching\Client\PredisClient;
+use Koded\Caching\Client\RedisClient;
 use Koded\Caching\Configuration\ConfigFactory;
 use PHPUnit\Framework\TestCase;
 
 class ClientFactoryTest extends TestCase
 {
-
     public function test_should_create_memory_client_without_configuration()
     {
-        $client = (new CacheClientFactory(new ConfigFactory))->new();
+        $client = (new ClientFactory(new ConfigFactory))->new();
         $this->assertInstanceOf(MemoryClient::class, $client);
     }
 
@@ -21,7 +26,7 @@ class ClientFactoryTest extends TestCase
             $this->markTestSkipped('Memcached is not installed on this environment.');
         }
 
-        $client = (new CacheClientFactory(new ConfigFactory))->new('memcached');
+        $client = (new ClientFactory(new ConfigFactory))->new('memcached');
         $this->assertInstanceOf(MemcachedClient::class, $client);
     }
 
@@ -34,7 +39,7 @@ class ClientFactoryTest extends TestCase
             $this->markTestSkipped('Memcached is not installed on this environment.');
         }
 
-        $client = (new CacheClientFactory(new ConfigFactory(['ttl' => 120])))->new('memcached');
+        $client = (new ClientFactory(new ConfigFactory(['ttl' => 120])))->new('memcached');
 
         $r = new \ReflectionClass($client);
         $ttl = $r->getProperty('ttl');
@@ -49,7 +54,7 @@ class ClientFactoryTest extends TestCase
             $this->markTestSkipped('Redis is not installed on this environment.');
         }
 
-        $client = (new CacheClientFactory(new ConfigFactory([
+        $client = (new ClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),
 
@@ -63,24 +68,30 @@ class ClientFactoryTest extends TestCase
 
     public function test_should_create_predis_client()
     {
-        $client = (new CacheClientFactory(new ConfigFactory([
-            'host' => getenv('REDIS_SERVER_HOST'),
-            'port' => getenv('REDIS_SERVER_PORT'),
-        ])))->new('predis');
+        try {
+            $client = (new ClientFactory(new ConfigFactory([
+                'host' => getenv('REDIS_SERVER_HOST'),
+                'port' => getenv('REDIS_SERVER_PORT'),
+            ])))->new('predis');
+            $client->client()->connect();
 
-        $this->assertInstanceOf(PredisClient::class, $client);
-        $this->assertTrue($client->client()->isConnected());
+            $this->assertInstanceOf(PredisClient::class, $client);
+            $this->assertTrue($client->client()->isConnected());
+
+        } catch (CacheException $e) {
+            $this->markTestSkipped($e->getMessage());
+        }
     }
 
     public function test_should_create_file_client()
     {
-        $client = (new CacheClientFactory(new ConfigFactory))->new('file');
+        $client = (new ClientFactory(new ConfigFactory))->new('file');
         $this->assertInstanceOf(FileClient::class, $client);
     }
 
     public function test_should_create_memory_client()
     {
-        $client = (new CacheClientFactory(new ConfigFactory))->new('memory');
+        $client = (new ClientFactory(new ConfigFactory))->new('memory');
         $this->assertInstanceOf(MemoryClient::class, $client);
     }
 
@@ -89,7 +100,7 @@ class ClientFactoryTest extends TestCase
         $this->expectException(CacheException::class);
         $this->expectExceptionMessage('The cache logger should be NULL or an instance of Psr\Log\LoggerInterface, given Closure');
 
-        (new CacheClientFactory(new ConfigFactory([
+        (new ClientFactory(new ConfigFactory([
             'logger' => function() { }
         ])))->new('file');
     }

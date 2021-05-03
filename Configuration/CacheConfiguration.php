@@ -10,6 +10,13 @@
 
 namespace Koded\Caching\Configuration;
 
-final class MemoryConfiguration extends CacheConfiguration
+use Koded\Stdlib\Config;
+
+abstract class CacheConfiguration extends Config
 {
+    /** @noinspection PhpMissingParentConstructorInspection */
+    public function __construct(array $parameters = [])
+    {
+        $parameters and $this->import($parameters);
+    }
 }

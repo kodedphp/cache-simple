@@ -1,6 +1,6 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
 use Koded\Caching\Client\FileClient;
 use org\bovigo\vfs\vfsStream;
@@ -9,7 +9,6 @@ use Psr\Log\NullLogger;
 
 class FileTest extends TestCase
 {
-
     use SimpleCacheTestCaseTrait;
 
     public function test_should_create_file_client_without_configuration()

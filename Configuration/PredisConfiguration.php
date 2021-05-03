@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,24 +6,20 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching\Configuration;
 
-use Koded\Stdlib\Immutable;
-use Koded\Stdlib\Interfaces\{Configuration, Serializer};
+use Koded\Stdlib\Serializer;
 
-final class PredisConfiguration extends Immutable implements Configuration
+final class PredisConfiguration extends CacheConfiguration
 {
-
     public function __construct(array $values)
     {
         $values += [
             'serializer' => Serializer::PHP,
             'binary' => Serializer::PHP,
         ];
-
         parent::__construct($values);
     }
 

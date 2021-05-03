@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,21 +6,18 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching\Configuration;
 
 use Koded\Caching\CacheException;
-use Koded\Stdlib\Immutable;
-use Koded\Stdlib\Interfaces\Configuration;
 
 /**
  * Class MemcachedConfiguration
  *
  * @see https://github.com/kodedphp/stdlib/blob/master/Interfaces.php#L158
  */
-final class MemcachedConfiguration extends Immutable implements Configuration
+final class MemcachedConfiguration extends CacheConfiguration
 {
     /**
      * MemcachedConfiguration constructor.
@@ -39,7 +35,7 @@ final class MemcachedConfiguration extends Immutable implements Configuration
     public function __construct(array $options = [])
     {
         // @codeCoverageIgnoreStart
-        if (false === class_exists('\Memcached', false)) {
+        if (false === \class_exists('\Memcached', false)) {
             throw CacheException::generic('Memcached extension is not loaded on this machine.');
         }
         // @codeCoverageIgnoreEnd
@@ -47,7 +43,7 @@ final class MemcachedConfiguration extends Immutable implements Configuration
         parent::__construct([
             'id' => $options['id'] ?? null,
             'servers' => $options['servers'] ?? [],
-            'options' => array_replace([
+            'options' => \array_replace([
                 \Memcached::OPT_DISTRIBUTION => \Memcached::DISTRIBUTION_CONSISTENT,
                 \Memcached::OPT_CONNECT_TIMEOUT => 10,
                 \Memcached::OPT_SERVER_FAILURE_LIMIT => 2,
@@ -76,11 +72,9 @@ final class MemcachedConfiguration extends Immutable implements Configuration
         if ($servers = $this->get('servers')) {
             return $servers;
         }
-
-        if ($servers = json_decode(getenv('MEMCACHED_POOL'), true)) {
+        if ($servers = \json_decode(\getenv('MEMCACHED_POOL'), true)) {
             return $servers;
         }
-
         return [
             ['127.0.0.1', 11211]
         ];
@@ -102,7 +96,7 @@ final class MemcachedConfiguration extends Immutable implements Configuration
      */
     public function getOptions(): array
     {
-        return array_filter($this->toArray()['options'], function($value) {
+        return \array_filter($this->toArray()['options'], function($value) {
             return null !== $value;
         });
     }

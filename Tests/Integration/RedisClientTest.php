@@ -1,10 +1,11 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
 use Cache\IntegrationTests\SimpleCacheTest;
-use Koded\Caching\Tests\Integration\SimpleCacheIntegrationTrait;
+use Tests\Koded\Caching\Integration\SimpleCacheIntegrationTrait;
 use Psr\SimpleCache\CacheInterface;
+use function Koded\Caching\simple_cache_factory;
 
 class RedisClientTest extends SimpleCacheTest
 {
@@ -15,6 +16,9 @@ class RedisClientTest extends SimpleCacheTest
      */
     public function createSimpleCache()
     {
+        if (false === extension_loaded('redis')) {
+            $this->markTestSkipped('Memcached extension is not loaded.');
+        }
         return simple_cache_factory('redis', [
             'host' => getenv('REDIS_SERVER_HOST'),
         ]);
@@ -28,5 +32,7 @@ class RedisClientTest extends SimpleCacheTest
 
         parent::setUp();
         $this->cache->clear();
+
+        $this->loadGlobalSkippedTests();
     }
 }

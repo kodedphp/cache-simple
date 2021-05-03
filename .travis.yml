@@ -1,6 +1,6 @@
 language: php
 os: linux
-dist: xenial
+dist: bionic
 
 notifications:
   email: false
@@ -10,9 +10,7 @@ cache:
     - $HOME/.composer/cache
 
 php:
-  - 7.2
-  - 7.3
-  - 7.4
+  - 8.0
   - nightly
 
 jobs:
@@ -28,12 +26,11 @@ env:
   - REDIS_SERVER_HOST=127.0.0.1 REDIS_SERVER_PORT=6379 MEMCACHED_POOL=[["127.0.0.1",11211]]
 
 before_script:
-  - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - echo "extension=redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - pecl install igbinary
   - pecl install msgpack
-  # travis loads xdebug 3 in PHP 7.3+ which mess up the builds
-  - phpenv config-rm xdebug.ini
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - echo "extension=redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 install:
   - composer update -o --prefer-source --no-interaction
@@ -42,5 +39,4 @@ script:
   - vendor/bin/phpunit --coverage-clover build/clover.xml
 
 after_script:
-  - wget https://scrutinizer-ci.com/ocular.phar
   - php ocular.phar code-coverage:upload --format=php-clover build/clover.xml

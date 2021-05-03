@@ -1,15 +1,14 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
-use Koded\Caching\Client\CacheClientFactory;
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Koded\Exceptions\SerializerException;
 use PHPUnit\Framework\TestCase;
 
 class InvalidSerializerTest extends TestCase
 {
-
     /**
      * @throws \Exception
      */
@@ -21,7 +20,7 @@ class InvalidSerializerTest extends TestCase
 
         putenv('CACHE_CLIENT=redis');
 
-        (new CacheClientFactory(new ConfigFactory([
+        (new ClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
             'serializer' => 'junk'
         ])))->new();

@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,30 +6,32 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching;
 
 use Psr\SimpleCache\CacheInterface;
 
-
 interface Cache extends CacheInterface
 {
+    public const DATE_FAR_FAR_AWAY = 32503593600;
 
-    const E_INVALID_KEY = 1;
-    const E_UNSUPPORTED_LOGGER = 2;
-    const E_DIRECTORY_NOT_CREATED = 3;
-    const E_PHP_EXCEPTION = 4;
-    const E_CONNECTION_ERROR = 5;
-    const E_UNSUPPORTED_CLIENT = 6;
-
-    const DATE_FAR_FAR_AWAY = 32503593600;
+    public const
+        E_INVALID_KEY = 1,
+        E_UNSUPPORTED_LOGGER = 2,
+        E_DIRECTORY_NOT_CREATED = 3,
+        E_PHP_EXCEPTION = 4,
+        E_CONNECTION_ERROR = 5,
+        E_UNSUPPORTED_CLIENT = 6;
 
     /**
      * Returns the underlying cache client.
      *
-     * @return \Memcached | \Redis | \Predis\Client | \Koded\Caching\Client\FileClient | \Koded\Caching\Client\MemoryClient
+     * @return \Memcached | \Redis
+     * | \Predis\Client
+     * | \Koded\Caching\Client\FileClient
+     * | \Koded\Caching\Client\MemoryClient
+     * | \Koded\Caching\Client\ShmopClient
      */
     public function client();
 

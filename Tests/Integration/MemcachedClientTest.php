@@ -1,10 +1,11 @@
 <?php
 
-namespace Koded\Caching;
+namespace Tests\Koded\Caching;
 
 use Cache\IntegrationTests\SimpleCacheTest;
-use Koded\Caching\Tests\Integration\SimpleCacheIntegrationTrait;
+use Tests\Koded\Caching\Integration\SimpleCacheIntegrationTrait;
 use Psr\SimpleCache\CacheInterface;
+use function Koded\Caching\simple_cache_factory;
 
 class MemcachedClientTest extends SimpleCacheTest
 {
@@ -15,6 +16,9 @@ class MemcachedClientTest extends SimpleCacheTest
      */
     public function createSimpleCache()
     {
+        if (false === extension_loaded('memcached')) {
+            $this->markTestSkipped('Memcached extension is not loaded.');
+        }
         return simple_cache_factory('memcached');
     }
 
@@ -36,5 +40,7 @@ class MemcachedClientTest extends SimpleCacheTest
         $this->skippedTests = [
             'testBasicUsageWithLongKey' => 'Memcached max key length is 250 chars',
         ];
+
+        $this->loadGlobalSkippedTests();
     }
 }

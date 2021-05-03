@@ -1,5 +1,4 @@
 <?php
-
 /*
  * This file is part of the Koded package.
  *
@@ -7,14 +6,13 @@
  *
  * Please view the LICENSE distributed with this source code
  * for the full copyright and license information.
- *
  */
 
 namespace Koded\Caching;
 
 use DateInterval;
 use DateTimeInterface;
-use Koded\Caching\Client\CacheClientFactory;
+use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Throwable;
 use function Koded\Stdlib\now;
@@ -36,7 +34,7 @@ use function Koded\Stdlib\now;
 function simple_cache_factory(string $client = '', array $arguments = []): Cache
 {
     try {
-        return (new CacheClientFactory(new ConfigFactory($arguments)))->new($client);
+        return (new ClientFactory(new ConfigFactory($arguments)))->new($client);
     } catch (Throwable $e) {
         throw CacheException::from($e);
     }
@@ -55,17 +53,9 @@ function simple_cache_factory(string $client = '', array $arguments = []): Cache
  */
 function verify_key($name): void
 {
-    /*
-     * This thing is here because the bug in the integration test,
-     * $this->cache->setMultiple(['0' => 'value0']) in SimpleCacheTest.php:239
-     */
-    if (0 === $name) {
-        return;
-    }
-
     if ('' === $name
-        || false === is_string($name)
-        || preg_match('/[@\{\}\(\)\/\\\]/', $name)
+        || false === \is_string($name)
+        || \preg_match('/[@\{\}\(\)\/\\\]/', $name)
     ) {
         throw CacheException::forInvalidKey($name);
     }
@@ -82,25 +72,22 @@ function verify_key($name): void
  *
  * @return int|null Returns the TTL is seconds or NULL
  */
-function normalize_ttl($value): ?int
+function normalize_ttl(mixed $value): ?int
 {
-    if (null === $value || is_int($value)) {
+    if (null === $value || \is_int($value)) {
         return $value;
     }
-
     if ($value instanceof DateTimeInterface) {
         return $value->getTimestamp() - now()->getTimestamp();
     }
-
     if ($value instanceof DateInterval) {
-        return date_create('@0', timezone_open('UTC'))->add($value)->getTimestamp();
+        return \date_create('@0', \timezone_open('UTC'))->add($value)->getTimestamp();
     }
-
     throw CacheException::generic('Invalid TTL, given ' . var_export($value, true));
 }
 
 /**
- * Filters out the cache items keys and performs a validation on them.
+ * Filters out the cache item keys and performs a validation on them.
  *
  * @param iterable $iterable    The cache item
  * @param bool     $associative To return an associative array or sequential
@@ -109,10 +96,9 @@ function normalize_ttl($value): ?int
  */
 function filter_keys($iterable, bool $associative): array
 {
-    if (false === is_iterable($iterable)) {
+    if (false === \is_iterable($iterable)) {
         throw CacheException::forInvalidKey($iterable);
     }
-
     $keys = [];
     foreach ($iterable as $k => $v) {
         if (false === $associative) {
@@ -120,10 +106,8 @@ function filter_keys($iterable, bool $associative): array
             $keys[] = $v;
             continue;
         }
-
         verify_key($k);
         $keys[$k] = $v;
     }
-
     return $keys;
 }

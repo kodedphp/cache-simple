@@ -6,10 +6,9 @@ Koded - Simple Caching Library
 [![Code Coverage](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/koded/cache-simple.svg)](https://packagist.org/packages/koded/cache-simple)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.2-8892BF.svg)](https://php.net/)
-[![Software license](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.3-8892BF.svg)](https://php.net/)
 
-A [PSR-16][10] simple caching library for PHP 7 using several caching technologies.
+A [PSR-16][10] caching library for PHP7 using several caching technologies.
 It supports JSON caching for Redis.
 
 
@@ -17,6 +16,11 @@ Requirements
 ------------
 
 > The library is not tested on any Windows OS and may not work as expected there.
+
+The recommended installation method is via [Composer][3]
+```shell script
+composer require koded/cache-simple
+```
 
 ### Redis
 
@@ -27,14 +31,14 @@ There are two client flavors for Redis by using the
 
 and they are not mutually exclusive.
 
-These clients supports JSON serialization for your cache, useful if you want to handle
+These clients supports JSON serialization for the cache, useful for handling
 the cached data in other programming languages.
 
 Since there is no Redis native support for JSON serialization,
 it's done in userland and that always introduces some overhead. **Be aware that the native
-PHP and Igbinary serializers are superior.**
+PHP and Igbinary functions are superior.**
 
-  - the `RedisClient` is preferred if you install the Redis extension
+  - the `RedisClient` is preferred if Redis extension is installed
   - the `PredisClient` can be used otherwise
 
 ```php
@@ -51,10 +55,6 @@ Please install the [Memcached extension][1].
 
 Usage
 -----
-
-Install the library from Packagist with [Composer][3].
-
-> composer require koded/cache-simple
 
 The factory function always creates a new instance of specific 
 `SimpleCacheInterface` client implementation.
@@ -86,7 +86,7 @@ A bit verbose construction for the same instance is
 
 ```php
 $config = new ConfigFactory(['serializer' => 'json', 'prefix' => 'test:', 'ttl' => 3000]);
-$cache = (new CacheClientFactory($config))->new('redis');
+$cache = (new ClientFactory($config))->new('redis');
 ```
 
 Configuration directives
@@ -128,7 +128,7 @@ $cache = simple_cache_factory('redis');
 
 ```php
 $cache = simple_cache_factory('redis', [
-    'binary' => \Koded\Stdlib\Interfaces\Serializer::MSGPACK
+    'binary' => \Koded\Stdlib\Serializer::MSGPACK
 ]);
 ```
 
@@ -143,8 +143,9 @@ Otherwise it defaults to PHP `un/serialize()` functions.
 The **default** options for [json_encode()][9] function are:
   - JSON_PRESERVE_ZERO_FRACTION
   - JSON_UNESCAPED_SLASHES
+  - JSON_THROW_ON_ERROR
 
-To set your desired options, use the `options` configuration directive:
+To set the desired options, use the `options` configuration directive:
 
 ```php
 $cache = simple_cache_factory('redis', [
@@ -152,6 +153,9 @@ $cache = simple_cache_factory('redis', [
     'options' => JSON_UNESCAPED_SLASHES | JSON_FORCE_OBJECT
 ]);
 ```
+JSON options are applied with bitmask operators. The above example will
+- remove `JSON_UNESCAPED_SLASHES` (because it's already set)
+- add `JSON_FORCE_OBJECT`
 
 ### MemcachedConfiguration
 
@@ -162,8 +166,8 @@ $cache = simple_cache_factory('redis', [
 | options                     | array    | no       | A list of Memcached options |
 | ttl                         | int      | no       | Global TTL (in seconds) |
 
-The following options are set **by default** when instance of `MemcachedConfiguration` is created,
-except for `OPT_PREFIX_KEY` which is there as a reminder that it may be set
+The following options are set **by default** when an instance of `MemcachedConfiguration` is created,
+except for `OPT_PREFIX_KEY` which is there as a reminder that it may be set.
 
 | Memcached option            | Default value                  |
 |:----------------------------|:-------------------------------|
@@ -175,10 +179,10 @@ except for `OPT_PREFIX_KEY` which is there as a reminder that it may be set
 | OPT_PREFIX_KEY              | null                           |
 
 
-> Options with value `NULL` will be removed.
+> Options with `NULL` value will be removed.
 
-There are many [Memcached options][4] that will suit the specific needs for your caching scenarios
-and this is something you need to figure it out by yourself.
+There are many [Memcached options][4] that may suit the specific needs for the caching scenarios
+and this is something the developer/s needs to figure it out.
 
 Examples:
 
@@ -196,9 +200,9 @@ Examples:
 
     // Memcached client options
     'options' => [
-        \Memcached::OPT_PREFIX_KEY            => 'i:',  // item prefix
-        \Memcached::OPT_REMOVE_FAILED_SERVERS => false, // change the default value
-        \Memcached::OPT_DISTRIBUTION          => null   // remove this directive
+        \Memcached::OPT_PREFIX_KEY            => 'i:',  // cache item prefix
+        \Memcached::OPT_REMOVE_FAILED_SERVERS => false, // changes the default value
+        \Memcached::OPT_DISTRIBUTION          => null   // remove this directive with NULL
     ],
 
     // the global expiration time (for ALL cached items)
@@ -256,10 +260,11 @@ $cache = simple_cache_factory('shmop', [
 
 ### FileConfiguration
 
-This is the slowest cache client, please avoid it for production environments.
+Please avoid it on production environments, or use it as a last option.
 
-If you do not provide the cache directory in the configuration, the PHP
-function [sys_get_temp_dir()][8] is used to store the cached files.
+If cache directory is not provided in the configuration, the PHP
+function [sys_get_temp_dir()][8] is used to store the cached files
+in the OS "temporary" directory.
 
 ```php
 $cache = simple_cache_factory('file', ['dir' => '/tmp']);
@@ -279,10 +284,43 @@ $cache = simple_cache_factory('memory');
 $cache = simple_cache_factory();  // also creates a MemoryClient
 ```
 
+Code quality
+------------
+
+```shell script
+vendor/bin/phpunit
+
+vendor/bin/phpbench run --report=default --group=factory
+vendor/bin/phpbench run --report=default --group=read-write
+```
+### Benchmarks
+
+The benchmarks are flaky and dependant on the environment. This table gives 
+a non accurate insight how client performs at write-read-delete operations.
+
+To find out what may be the fastest choice for your environment, run
+```
+vendor/bin/phpbench run --report=default --group=read-write
+
++----------------+-----------------+-----+------+-----+--------+-------+
+| benchmark      | subject         | set | revs | its | rstdev | diff  |
++----------------+-----------------+-----+------+-----+--------+-------+
+| ReadWriteBench | bench_memcached | 0   | 1    | 3   | 1.61%  | 4.60x |
+| ReadWriteBench | bench_redis     | 0   | 1    | 3   | 1.44%  | 4.64x |
+| ReadWriteBench | bench_predis    | 0   | 1    | 3   | 1.25%  | 5.79x |
+| ReadWriteBench | bench_file      | 0   | 1    | 3   | 3.28%  | 2.67x |
+| ReadWriteBench | bench_shmop     | 0   | 1    | 3   | 3.65%  | 2.94x |
+| ReadWriteBench | bench_memory    | 0   | 1    | 3   | 1.41%  | 1.00x |
++----------------+-----------------+-----+------+-----+--------+-------+
+```
+
+
 License
 -------
+[![Software license](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE)
 
 The code is distributed under the terms of [The 3-Clause BSD license](LICENSE).
+
 
 [1]: https://memcached.org
 [2]: https://redis.io
