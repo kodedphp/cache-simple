@@ -21,8 +21,8 @@
   ],
   "require": {
     "php": "^8",
-    "koded/stdlib": "^5",
-    "psr/simple-cache": "^1",
+    "koded/stdlib": "^5|^6",
+    "psr/simple-cache": "^3.0",
     "psr/log": "^1",
     "ext-json": "*"
   },
@@ -35,7 +35,11 @@
     "ext-shmop": "For shared-memory caching"
   },
   "autoload": {
-    "classmap": ["", "Client/", "Configuration/"],
+    "classmap": [
+      "",
+      "Client/",
+      "Configuration/"
+    ],
     "files": [
       "functions.php"
     ],
@@ -48,7 +52,7 @@
     "mikey179/vfsstream": "^1",
     "predis/predis": "^1",
     "cache/integration-tests": "dev-master",
-    "symfony/phpunit-bridge": "^4.4@dev",
+    "symfony/phpunit-bridge": "^6.0.x-dev",
     "phpbench/phpbench": "@dev"
   },
   "autoload-dev": {
