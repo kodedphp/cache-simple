@@ -1,0 +1,25 @@
+build:
+  nodes:
+    analysis:
+      tests:
+        stop_on_failure: true
+        override:
+          - php-scrutinizer-run
+      environment:
+        php:
+          version: '8.1.2'
+
+before_commands:
+  - 'composer update -o --prefer-source --no-interaction'
+
+filter:
+  excluded_paths:
+    - 'bench/*'
+    - 'build/*'
+    - 'tests/*'
+    - 'vendor/*'
+
+tools:
+  external_code_coverage: true
+  php_analyzer: true
+  php_code_sniffer: true
