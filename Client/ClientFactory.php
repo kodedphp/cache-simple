@@ -10,7 +10,6 @@
 
 namespace Koded\Caching\Client;
 
-use Error;
 use Exception;
 use Koded\Caching\{Cache, CacheException};
 use Memcached;
@@ -19,7 +18,7 @@ use Koded\Stdlib\{Configuration, Serializer};
 use Koded\Stdlib\Serializer\SerializerFactory;
 use Psr\Log\{LoggerInterface, NullLogger};
 use Redis;
-use RedisException;
+use Throwable;
 use function error_log;
 use function getenv;
 use function sprintf;
@@ -115,15 +114,18 @@ final class ClientFactory
             if ($auth = $conf->get('auth')) {
                 $client->auth($auth);
             }
+            if ($message = $client->getLastError()) {
+                // [NOTE] Redis module complains if auth is set,
+                // but <Redis v5 or less> does not have auth
+                throw new Exception($message);
+            }
             return $client;
 
         } /** @noinspection PhpRedundantCatchClauseInspection */
-        catch (RedisException $e) {
+        catch (Throwable $e) {
             error_log(sprintf(PHP_EOL . '[Redis] %s: %s', $e::class, $e->getMessage()));
             error_log('[Redis] with conf: ' . $conf->delete('auth')->toJSON());
             throw CacheException::withConnectionErrorFor('Redis');
-        } catch (Exception | Error $e) {
-            throw CacheException::from($e);
         }
     }
 
@@ -140,7 +142,7 @@ final class ClientFactory
             return $client;
 
         } /** @noinspection PhpRedundantCatchClauseInspection */
-        catch (\Predis\Response\ServerException | Exception $e) {
+        catch (Throwable $e) {
             error_log(sprintf(PHP_EOL . '[Predis] %s: %s', $e::class, $e->getMessage()));
             error_log('[Predis] with conf: ' . $conf->delete('auth')->toJSON());
             throw CacheException::withConnectionErrorFor('Predis');
