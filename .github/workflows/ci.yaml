@@ -19,7 +19,7 @@ env:
 jobs:
   tests:
     runs-on: ubuntu-latest
-    name: PHP ${{ matrix.php }} - Redis ${{ matrix.redis }}
+    name: PHP ${{ matrix.php }} with Redis v${{ matrix.redis }}
 
     strategy:
       fail-fast: false
