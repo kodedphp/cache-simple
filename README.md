@@ -6,7 +6,7 @@ Koded - Simple Caching Library
 [![Code Coverage](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kodedphp/cache-simple/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/kodedphp/cache-simple/?branch=master)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/koded/cache-simple.svg)](https://packagist.org/packages/koded/cache-simple)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.0-8892BF.svg)](https://php.net/)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.1-8892BF.svg)](https://php.net/)
 
 A [PSR-16][10] caching library for PHP 8 using several caching technologies.
 It supports JSON caching for Redis.
@@ -289,31 +289,38 @@ Code quality
 
 ```shell script
 vendor/bin/phpunit
+```
 
+```shell script
 vendor/bin/phpbench run --report=default --group=factory
 vendor/bin/phpbench run --report=default --group=read-write
 ```
+or
+```shell script
+vendor/bin/phpbench run --report=benchmark --group=read-write
+```
+
 ### Benchmarks
 
 The benchmarks are flaky and dependant on the environment. This table gives 
-a non accurate insight how client performs at write-read-delete operations.
+a non-accurate insight how client performs at write-read-delete operations,
+and should have an informative comparison.
 
 To find out what may be the fastest choice for your environment, run
 ```
 vendor/bin/phpbench run --report=default --group=read-write
 
-+----------------+-----------------+-----+------+-----+--------+-------+
-| benchmark      | subject         | set | revs | its | rstdev | diff  |
-+----------------+-----------------+-----+------+-----+--------+-------+
-| ReadWriteBench | bench_memcached | 0   | 1    | 3   | 1.61%  | 4.60x |
-| ReadWriteBench | bench_redis     | 0   | 1    | 3   | 1.44%  | 4.64x |
-| ReadWriteBench | bench_predis    | 0   | 1    | 3   | 1.25%  | 5.79x |
-| ReadWriteBench | bench_file      | 0   | 1    | 3   | 3.28%  | 2.67x |
-| ReadWriteBench | bench_shmop     | 0   | 1    | 3   | 3.65%  | 2.94x |
-| ReadWriteBench | bench_memory    | 0   | 1    | 3   | 1.41%  | 1.00x |
-+----------------+-----------------+-----+------+-----+--------+-------+
++-----------------+-----------+-----------+-----------+--------+
+| subject         | best      | mean      | worst     | rstdev |
++-----------------+-----------+-----------+-----------+--------+
+| bench_predis    | 1.354ms   | 1.403ms   | 1.431ms   | ±2.49% |
+| bench_redis     | 581.000μs | 592.667μs | 609.000μs | ±2.01% |
+| bench_memcached | 581.000μs | 593.333μs | 606.000μs | ±1.72% |
+| bench_file      | 355.000μs | 367.667μs | 385.000μs | ±3.45% |
+| bench_shmop     | 349.000μs | 364.000μs | 374.000μs | ±2.97% |
+| bench_memory    | 77.000μs  | 79.667μs  | 82.000μs  | ±2.58% |
++-----------------+-----------+-----------+-----------+--------+
 ```
-
 
 License
 -------
