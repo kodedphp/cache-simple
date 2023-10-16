@@ -13,6 +13,8 @@ namespace Koded\Caching\Configuration;
 use Koded\Stdlib\{Config, Configuration};
 use Koded\Caching\CacheException;
 use Throwable;
+use function join;
+use function ucfirst;
 
 /**
  * Class ConfigFactory
@@ -22,16 +24,16 @@ use Throwable;
  */
 class ConfigFactory extends Config
 {
-    /** @noinspection PhpMissingParentConstructorInspection */
     public function __construct(array $parameters = [])
     {
+        parent::__construct();
         $parameters && $this->import($parameters);
     }
 
     public function build(string $context): Configuration
     {
         try {
-            $class = \join('\\', [__NAMESPACE__, \ucfirst($context) . 'Configuration']);
+            $class = join('\\', [__NAMESPACE__, ucfirst($context) . 'Configuration']);
             return new $class($this->toArray());
         // @codeCoverageIgnoreStart
         } catch (CacheException $e) {

@@ -13,21 +13,23 @@ namespace Koded\Caching\Client;
 use Error;
 use Exception;
 use Koded\Caching\{Cache, CacheException};
+use Memcached;
 use Koded\Caching\Configuration\{MemcachedConfiguration, PredisConfiguration, RedisConfiguration};
 use Koded\Stdlib\{Configuration, Serializer};
 use Koded\Stdlib\Serializer\SerializerFactory;
 use Psr\Log\{LoggerInterface, NullLogger};
+use Redis;
+use RedisException;
+use function error_log;
+use function getenv;
+use function sprintf;
+use function strtolower;
 
 final class ClientFactory
 {
     public const CACHE_CLIENT = 'CACHE_CLIENT';
 
-    private Configuration $factory;
-
-    public function __construct(Configuration $factory)
-    {
-        $this->factory = $factory;
-    }
+    public function __construct(private Configuration $factory) {}
 
     /**
      * Create an instance of specific cache client.
@@ -41,7 +43,7 @@ final class ClientFactory
      */
     public function new(string $client = ''): Cache
     {
-        $client = \strtolower($client ?: \getenv(self::CACHE_CLIENT) ?: 'memory');
+        $client = strtolower($client ?: getenv(self::CACHE_CLIENT) ?: 'memory');
         $config = $this->factory->build($client);
 
         return match ($client) {
@@ -57,7 +59,7 @@ final class ClientFactory
 
     private function createMemcachedClient(MemcachedConfiguration|Configuration $conf): Cache
     {
-        $client = new \Memcached($conf->get('id'));
+        $client = new Memcached($conf->get('id'));
         $client->setOptions($conf->getOptions());
         if (empty($client->getServerList())) {
             $client->addServers($conf->getServers());
@@ -102,29 +104,27 @@ final class ClientFactory
         );
     }
 
-    private function newRedisClient(RedisConfiguration $conf): \Redis
+    private function newRedisClient(RedisConfiguration $conf): Redis
     {
-        $client = new \Redis;
+        $client = new Redis;
         try {
             @$client->connect(...$conf->getConnectionParams());
-            $client->setOption(\Redis::OPT_SERIALIZER, $conf->get('type'));
-            $client->setOption(\Redis::OPT_PREFIX, $conf->get('prefix'));
+            $client->setOption(Redis::OPT_SERIALIZER, $conf->get('type'));
+            $client->setOption(Redis::OPT_PREFIX, $conf->get('prefix'));
             $client->select((int)$conf->get('db'));
             if ($auth = $conf->get('auth')) {
                 $client->auth($auth);
             }
+            return $client;
 
         } /** @noinspection PhpRedundantCatchClauseInspection */
-        catch (\RedisException $e) {
-            if (!\strpos($e->getMessage(), ' AUTH ')) {
-                \error_log(\sprintf(PHP_EOL . '[Redis] %s: %s', \get_class($e), $e->getMessage()));
-                \error_log('[Redis] with conf: ' . $conf->toJSON());
-                throw CacheException::withConnectionErrorFor('Redis');
-            }
+        catch (RedisException $e) {
+            error_log(sprintf(PHP_EOL . '[Redis] %s: %s', $e::class, $e->getMessage()));
+            error_log('[Redis] with conf: ' . $conf->delete('auth')->toJSON());
+            throw CacheException::withConnectionErrorFor('Redis');
         } catch (Exception | Error $e) {
             throw CacheException::from($e);
         }
-        return $client;
     }
 
     private function newPredisClient(PredisConfiguration $conf): \Predis\Client
@@ -137,18 +137,14 @@ final class ClientFactory
             if ($auth = $conf->get('auth')) {
                 $client->auth($auth);
             }
+            return $client;
 
         } /** @noinspection PhpRedundantCatchClauseInspection */
-        catch (\Predis\Connection\ConnectionException $e) {
-            if (!\strpos($e->getMessage(), ' AUTH ')) {
-                \error_log(\sprintf(PHP_EOL . '[Predis] %s: %s', \get_class($e), $e->getMessage()));
-                \error_log('[Predis] with conf: ' . $conf->toJSON());
-                throw CacheException::withConnectionErrorFor('Predis');
-            }
-        } catch (Exception $e) {
-            throw CacheException::from($e);
+        catch (\Predis\Response\ServerException | Exception $e) {
+            error_log(sprintf(PHP_EOL . '[Predis] %s: %s', $e::class, $e->getMessage()));
+            error_log('[Predis] with conf: ' . $conf->delete('auth')->toJSON());
+            throw CacheException::withConnectionErrorFor('Predis');
         }
-        return $client;
     }
 
     private function getLogger(Configuration $conf): LoggerInterface
@@ -157,6 +153,6 @@ final class ClientFactory
         if ($logger instanceof LoggerInterface) {
             return $logger;
         }
-        throw CacheException::forUnsupportedLogger(LoggerInterface::class, \get_class($logger));
+        throw CacheException::forUnsupportedLogger(LoggerInterface::class, $logger::class);
     }
 }

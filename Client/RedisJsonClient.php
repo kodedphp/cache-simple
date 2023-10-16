@@ -44,14 +44,14 @@ final class RedisJsonClient implements Cache
         $this->ttl = $ttl;
     }
 
-    public function get($key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         return $this->has($key)
             ? $this->serializer->unserialize($this->client->get($key . $this->suffix))
             : $default;
     }
 
-    public function set($key, $value, $ttl = null)
+    public function set(string $key, mixed $value, null|int|\DateInterval $ttl = null): bool
     {
         verify_key($key);
         $expiration = $this->secondsWithGlobalTtl($ttl);
@@ -67,7 +67,7 @@ final class RedisJsonClient implements Cache
         return true;
     }
 
-    public function delete($key)
+    public function delete(string $key): bool
     {
         if (false === $this->has($key)) {
             return true;
@@ -75,12 +75,12 @@ final class RedisJsonClient implements Cache
         return 2 === $this->client->del([$key, $key . $this->suffix]);
     }
 
-    public function clear()
+    public function clear(): bool
     {
         return $this->client->flushDB();
     }
 
-    public function has($key)
+    public function has(string $key): bool
     {
         verify_key($key);
         return (bool)$this->client->exists($key)

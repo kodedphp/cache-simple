@@ -32,14 +32,14 @@ final class PredisClient implements Cache
         $this->ttl = $ttl;
     }
 
-    public function get($key, $default = null)
+    public function get(string $key, mixed $default = null): mixed
     {
         return $this->has($key)
             ? $this->serializer->unserialize($this->client->get($key))
             : $default;
     }
 
-    public function set($key, $value, $ttl = null)
+    public function set(string $key, mixed $value, null|int|\DateInterval $ttl = null): bool
     {
         verify_key($key);
         $expiration = $this->secondsWithGlobalTtl($ttl);
@@ -54,7 +54,7 @@ final class PredisClient implements Cache
     }
 
 
-    public function delete($key)
+    public function delete(string $key): bool
     {
         if (false === $this->has($key)) {
             return true;
@@ -62,12 +62,12 @@ final class PredisClient implements Cache
         return 1 === $this->client->del($key);
     }
 
-    public function clear()
+    public function clear(): bool
     {
         return 'OK' === $this->client->flushdb()->getPayload();
     }
 
-    public function has($key)
+    public function has(string $key): bool
     {
         verify_key($key);
         return 1 === $this->client->exists($key);

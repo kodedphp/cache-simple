@@ -10,7 +10,9 @@
 
 namespace Koded\Caching\Client;
 
-use function Koded\Caching\{filter_keys, normalize_ttl};
+use function array_keys;
+use function Koded\Caching\filter_keys;
+use function Koded\Caching\normalize_ttl;
 
 /**
  * Trait MultiplesTrait implements all "multi" operations
@@ -19,24 +21,24 @@ use function Koded\Caching\{filter_keys, normalize_ttl};
  */
 trait MultiplesTrait
 {
-    public function getMultiple($keys, $default = null): iterable
+    public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         $filtered = filter_keys($keys, false);
         return $this->internalMultiGet($filtered, $default);
     }
 
-    public function setMultiple($values, $ttl = null): bool
+    public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null): bool
     {
         $filtered = filter_keys($values, true);
         $ttl = normalize_ttl($ttl ?? $this->ttl);
         if ($ttl !== null && $ttl < 1) {
             // All items are considered expired and must be deleted
-            return $this->deleteMultiple(\array_keys($filtered));
+            return $this->deleteMultiple(array_keys($filtered));
         }
         return $this->internalMultiSet($filtered, $ttl);
     }
 
-    public function deleteMultiple($keys): bool
+    public function deleteMultiple(iterable $keys): bool
     {
         $filtered = filter_keys($keys, false);
         if (empty($filtered)) {
@@ -62,19 +64,21 @@ trait MultiplesTrait
 
     private function internalMultiSet(array $values, ?int $ttl): bool
     {
-        $cached = 0;
+        $cached = $count = 0;
         foreach ($values as $key => $value) {
+            $count++;
             $this->set($key, $value, $ttl) && ++$cached;
         }
-        return \count($values) === $cached;
+        return $count === $cached;
     }
 
     private function internalMultiDelete(array $keys): bool
     {
-        $deleted = 0;
+        $deleted = $count = 0;
         foreach ($keys as $key) {
+            $count++;
             $this->delete($key) && ++$deleted;
         }
-        return \count($keys) === $deleted;
+        return $count === $deleted;
     }
 }

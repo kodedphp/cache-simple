@@ -14,9 +14,9 @@ use Koded\Stdlib\Config;
 
 abstract class CacheConfiguration extends Config
 {
-    /** @noinspection PhpMissingParentConstructorInspection */
     public function __construct(array $parameters = [])
     {
+        parent::__construct();
         $parameters && $this->import($parameters);
     }
 }
