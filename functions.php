@@ -15,7 +15,14 @@ use DateTimeInterface;
 use Koded\Caching\Client\ClientFactory;
 use Koded\Caching\Configuration\ConfigFactory;
 use Throwable;
+use function date_create;
+use function is_int;
+use function is_iterable;
+use function is_string;
 use function Koded\Stdlib\now;
+use function preg_match;
+use function timezone_open;
+use function var_export;
 
 /**
  * Factory function for SimpleCache.
@@ -44,18 +51,18 @@ function simple_cache_factory(string $client = '', array $arguments = []): Cache
  * Guards the cache key value.
  *
  * Differs from PSR-16 by allowing the ":" in the reserved characters list.
- * The colon is a wide accepted convention for Redis to "group" the key.
+ * The colon is a wide accepted delimiter for Redis to "group" the keys.
  *
  * @param string $name The cache key
  *
  * @throws CacheException
  * @see https://github.com/php-cache/integration-tests/issues/92
  */
-function verify_key($name): void
+function verify_key(mixed $name): void
 {
     if ('' === $name
-        || false === \is_string($name)
-        || \preg_match('/[@\{\}\(\)\/\\\]/', $name)
+        || false === is_string($name)
+        || preg_match('/[@\{\}\(\)\/\\\]/', $name)
     ) {
         throw CacheException::forInvalidKey($name);
     }
@@ -74,16 +81,18 @@ function verify_key($name): void
  */
 function normalize_ttl(mixed $value): ?int
 {
-    if (null === $value || \is_int($value)) {
+    if (null === $value || is_int($value)) {
         return $value;
     }
     if ($value instanceof DateTimeInterface) {
         return $value->getTimestamp() - now()->getTimestamp();
     }
     if ($value instanceof DateInterval) {
-        return \date_create('@0', \timezone_open('UTC'))->add($value)->getTimestamp();
+        return date_create('@0', timezone_open('UTC'))
+            ->add($value)
+            ->getTimestamp();
     }
-    throw CacheException::generic('Invalid TTL, given ' . \var_export($value, true));
+    throw CacheException::generic('Invalid TTL, given ' . var_export($value, true));
 }
 
 /**
@@ -94,9 +103,9 @@ function normalize_ttl(mixed $value): ?int
  *
  * @return array Valid cache name keys
  */
-function filter_keys($iterable, bool $associative): array
+function filter_keys(mixed $iterable, bool $associative): array
 {
-    if (false === \is_iterable($iterable)) {
+    if (/*!is_array($iterable) ||*/ false === is_iterable($iterable)) {
         throw CacheException::forInvalidKey($iterable);
     }
     $keys = [];
