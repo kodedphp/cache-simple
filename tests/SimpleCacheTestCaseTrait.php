@@ -17,8 +17,6 @@ trait SimpleCacheTestCaseTrait
 
     /**
      * @dataProvider simpleData
-     *
-     * @param $data
      */
     public function test_get_multi_with_default_value($data)
     {
@@ -33,8 +31,6 @@ trait SimpleCacheTestCaseTrait
 
     /**
      * @dataProvider simpleData
-     *
-     * @param $data
      */
     public function test_delete_multi_with_non_existent_key($data)
     {

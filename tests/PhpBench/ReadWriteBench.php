@@ -13,9 +13,9 @@ use function Koded\Stdlib\rmdir as clear_directory;
 final class ReadWriteBench
 {
     /** @var Cache */
-    private $memcached;
-    private $redis;
     private $predis;
+    private $redis;
+    private $memcached;
     private $file;
     private $shmop;
     private $memory;
@@ -38,9 +38,9 @@ final class ReadWriteBench
             putenv('REDIS_SERVER_HOST=redis');
         }
 
-        $this->memcached = simple_cache_factory('memcached');
-        $this->redis = simple_cache_factory('redis', ['host' => getenv('REDIS_SERVER_HOST'), 'db' => 1]);
         $this->predis = simple_cache_factory('predis', ['host' => getenv('REDIS_SERVER_HOST'), 'db' => 2]);
+        $this->redis = simple_cache_factory('redis', ['host' => getenv('REDIS_SERVER_HOST'), 'db' => 1]);
+        $this->memcached = simple_cache_factory('memcached');
         $this->file = simple_cache_factory('file', ['dir' => $this->dir]);
         $this->shmop = simple_cache_factory('shmop', ['dir' => $this->dir]);
         $this->memory = simple_cache_factory();
@@ -54,12 +54,12 @@ final class ReadWriteBench
        $this->clearDirectory();
     }
 
-    public function bench_memcached()
+    public function bench_predis()
     {
-        assert($this->memcached->set($this->key, $this->data), __FUNCTION__);
+        assert($this->predis->set($this->key, $this->data), __FUNCTION__);
 
-        assert(null !== $this->memcached->get($this->key), __FUNCTION__);
-        assert($this->memcached->delete($this->key), __FUNCTION__);
+        assert(null !== $this->predis->get($this->key), __FUNCTION__);
+        assert($this->predis->delete($this->key), __FUNCTION__);
     }
 
     public function bench_redis()
@@ -70,12 +70,12 @@ final class ReadWriteBench
         assert($this->memcached->delete($this->key), __FUNCTION__);
     }
 
-    public function bench_predis()
+    public function bench_memcached()
     {
-        assert($this->predis->set($this->key, $this->data), __FUNCTION__);
+        assert($this->memcached->set($this->key, $this->data), __FUNCTION__);
 
-        assert(null !== $this->predis->get($this->key), __FUNCTION__);
-        assert($this->predis->delete($this->key), __FUNCTION__);
+        assert(null !== $this->memcached->get($this->key), __FUNCTION__);
+        assert($this->memcached->delete($this->key), __FUNCTION__);
     }
 
     public function bench_file()

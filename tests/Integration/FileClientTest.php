@@ -1,13 +1,15 @@
 <?php
 
-namespace Tests\Koded\Caching;
+namespace Tests\Koded\Caching\Integration;
 
 use Cache\IntegrationTests\SimpleCacheTest;
-use Tests\Koded\Caching\Integration\SimpleCacheIntegrationTrait;
 use org\bovigo\vfs\{vfsStream, vfsStreamDirectory};
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\simple_cache_factory;
 
+/**
+ * @group integration
+ */
 class FileClientTest extends SimpleCacheTest
 {
     use SimpleCacheIntegrationTrait;
@@ -25,6 +27,7 @@ class FileClientTest extends SimpleCacheTest
     protected function setUp(): void
     {
         $this->dir = vfsStream::setup();
+
         parent::setUp();
 
         $this->loadGlobalSkippedTests();

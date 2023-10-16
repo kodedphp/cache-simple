@@ -21,9 +21,9 @@ final class FactoryBench
         }
     }
 
-    public function bench_memcached()
+    public function bench_predis()
     {
-        simple_cache_factory('memcached');
+        simple_cache_factory('predis', ['host' => getenv('REDIS_SERVER_HOST')]);
     }
 
     public function bench_redis()
@@ -31,9 +31,9 @@ final class FactoryBench
         simple_cache_factory('redis', ['host' => getenv('REDIS_SERVER_HOST')]);
     }
 
-    public function bench_predis()
+    public function bench_memcached()
     {
-        simple_cache_factory('predis', ['host' => getenv('REDIS_SERVER_HOST')]);
+        simple_cache_factory('memcached');
     }
 
     public function bench_shmop()

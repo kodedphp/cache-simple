@@ -57,8 +57,6 @@ class ClientFactoryTest extends TestCase
         $client = (new ClientFactory(new ConfigFactory([
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),
-
-            'auth' => 'fubar',
             'binary' => 'msgpack'
         ])))->new('redis');
 
@@ -73,6 +71,7 @@ class ClientFactoryTest extends TestCase
                 'host' => getenv('REDIS_SERVER_HOST'),
                 'port' => getenv('REDIS_SERVER_PORT'),
             ])))->new('predis');
+
             $client->client()->connect();
 
             $this->assertInstanceOf(PredisClient::class, $client);

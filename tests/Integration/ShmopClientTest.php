@@ -1,11 +1,13 @@
 <?php
 
-namespace Tests\Koded\Caching;
+namespace Tests\Koded\Caching\Integration;
 
 use Cache\IntegrationTests\SimpleCacheTest;
-use Tests\Koded\Caching\Integration\SimpleCacheIntegrationTrait;
 use function Koded\Caching\simple_cache_factory;
 
+/**
+ * @group integration
+ */
 class ShmopClientTest extends SimpleCacheTest
 {
     use SimpleCacheIntegrationTrait;
@@ -26,7 +28,6 @@ class ShmopClientTest extends SimpleCacheTest
 
         parent::setUp();
         $this->cache->clear();
-
         $this->loadGlobalSkippedTests();
     }
 }

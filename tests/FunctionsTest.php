@@ -21,11 +21,6 @@ class FunctionsTest extends TestCase
         simple_cache_factory('qwerty');
     }
 
-//    public function test_should_guard_a_proper_cache_key()
-//    {
-//        $this->assertNull(verify_key('Proper-Key:1'));
-//    }
-
     public function test_should_reject_invalid_cache_key()
     {
         $invalidKey = 'w#4T /5 tH1~';

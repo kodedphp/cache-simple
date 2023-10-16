@@ -1,14 +1,16 @@
 <?php
 
-namespace Tests\Koded\Caching;
+namespace Tests\Koded\Caching\Integration;
 
 use Cache\IntegrationTests\SimpleCacheTest;
 use Koded\Caching\CacheException;
-use Tests\Koded\Caching\Integration\SimpleCacheIntegrationTrait;
 use Koded\Stdlib\Serializer;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\simple_cache_factory;
 
+/**
+ * @group integration
+ */
 class PredisJsonClientTest extends SimpleCacheTest
 {
     use SimpleCacheIntegrationTrait;
@@ -36,7 +38,6 @@ class PredisJsonClientTest extends SimpleCacheTest
     {
         parent::setUp();
         $this->cache->clear();
-
         $this->loadGlobalSkippedTests();
     }
 }

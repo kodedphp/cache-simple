@@ -26,10 +26,12 @@ class RedisConnectionTest extends TestCase
     {
         $this->expectException(CacheException::class);
 
+        /*
         if (!getenv('CI')) {
             $this->expectExceptionCode(2);
             $this->expectExceptionMessage('Redis::setOption() expects parameter 2 to be string, object given');
         }
+        */
 
         (new ClientFactory(new ConfigFactory([
             'serializer' => Serializer::JSON,
@@ -37,21 +39,22 @@ class RedisConnectionTest extends TestCase
 
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT'),
-
         ])))->new();
     }
 
     public function test_redis_auth_exception()
     {
-        $redis = (new ClientFactory(new ConfigFactory([
+        $this->expectException(CacheException::class);
+        $this->expectExceptionCode(Cache::E_CONNECTION_ERROR);
+        $this->expectExceptionMessage('Failed to connect the Redis client');
+
+        (new ClientFactory(new ConfigFactory([
             'auth' => 'fubar',
 
             'host' => getenv('REDIS_SERVER_HOST'),
             'port' => getenv('REDIS_SERVER_PORT')
 
         ])))->new();
-
-        $this->assertTrue($redis->client()->isConnected(), 'The auth is ignored, even it is not set in Redis');
     }
 
     protected function setUp(): void

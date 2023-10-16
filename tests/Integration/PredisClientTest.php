@@ -1,13 +1,15 @@
 <?php
 
-namespace Tests\Koded\Caching;
+namespace Tests\Koded\Caching\Integration;
 
 use Cache\IntegrationTests\SimpleCacheTest;
 use Koded\Caching\CacheException;
-use Tests\Koded\Caching\Integration\SimpleCacheIntegrationTrait;
 use Psr\SimpleCache\CacheInterface;
 use function Koded\Caching\simple_cache_factory;
 
+/**
+ * @group integration
+ */
 class PredisClientTest extends SimpleCacheTest
 {
     use SimpleCacheIntegrationTrait;
@@ -32,7 +34,6 @@ class PredisClientTest extends SimpleCacheTest
     {
         parent::setUp();
         $this->cache->clear();
-
         $this->loadGlobalSkippedTests();
     }
 }
