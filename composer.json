@@ -19,11 +19,17 @@
       "homepage": "https://kodeart.com"
     }
   ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/kodeart/cache-integration-tests"
+    }
+  ],
   "require": {
-    "php": "^8",
-    "koded/stdlib": "^5|^6",
+    "php": "^8.1",
+    "koded/stdlib": "^6.3",
     "psr/simple-cache": "^3.0",
-    "psr/log": "^1",
+    "psr/log": "^3",
     "ext-json": "*"
   },
   "suggest": {
@@ -44,20 +50,20 @@
       "functions.php"
     ],
     "exclude-from-classmap": [
-      "Tests/"
+      "tests/"
     ]
   },
   "require-dev": {
-    "phpunit/phpunit": "^8",
+    "phpunit/phpunit": "^9",
     "mikey179/vfsstream": "^1",
-    "predis/predis": "^1",
+    "predis/predis": "^2",
     "cache/integration-tests": "dev-master",
     "symfony/phpunit-bridge": "^6.0.x-dev",
-    "phpbench/phpbench": "@dev"
+    "phpbench/phpbench": "^1"
   },
   "autoload-dev": {
     "psr-4": {
-      "Tests\\Koded\\Caching\\": "Tests"
+      "Tests\\Koded\\Caching\\": "tests"
     }
   },
   "extra": {
