@@ -14,7 +14,7 @@ env:
   CI: true
   REDIS_SERVER_HOST: 127.0.0.1
   REDIS_SERVER_PORT: 6379
-  MEMCACHED_POOL: [["127.0.0.1",11211]]
+  MEMCACHED_POOL: '[["127.0.0.1",11211]]'
 
 jobs:
   tests:
