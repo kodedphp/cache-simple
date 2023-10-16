@@ -1,10 +1,12 @@
 {
-  "bootstrap": "./vendor/autoload.php",
-  "path": "Tests/PhpBench",
-  "retry_threshold": 5,
-  "reports": {
+  "$schema": "./vendor/phpbench/phpbench/phpbench.schema.json",
+  "runner.bootstrap": "./vendor/autoload.php",
+  "runner.path": "Tests/PhpBench",
+  "runner.retry_threshold": 5,
+  "report.generators": {
     "default": {
-      "extends": "aggregate"
+      "extends": "aggregate",
+      "cols": ["subject","best","mean","worst","rstdev"]
     }
   }
 }
