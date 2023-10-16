@@ -67,6 +67,6 @@ jobs:
 
       - name: Create coverage report and send it
         uses: sudo-bot/action-scrutinizer@latest
-        if: ${{ matrix.php == '8.2' && matrix.redis == '7' && github.repository == 'kodeart/cache-simple' }}
+        if: ${{ matrix.php == '8.2' && matrix.redis == '7' && github.repository == 'kodedphp/cache-simple' }}
         with:
           cli-args: "--format=php-clover build/clover.xml"
