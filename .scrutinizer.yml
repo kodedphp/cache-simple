@@ -7,16 +7,17 @@ build:
           - php-scrutinizer-run
       environment:
         php:
-          version: '8.0.1'
+          version: '8.1.2'
 
 before_commands:
   - 'composer update -o --prefer-source --no-interaction'
 
 filter:
   excluded_paths:
-    - 'Tests/*'
-    - 'vendor/*'
+    - 'bench/*'
     - 'build/*'
+    - 'tests/*'
+    - 'vendor/*'
 
 tools:
   external_code_coverage: true
