@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.5/phpunit.xsd"
-         bootstrap="Tests/autoload.php"
-         stopOnFailure="false"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="tests/autoload.php"
+         stopOnFailure="true"
          verbose="true"
          colors="true">
-    <testsuites>
-        <testsuite name="Koded Simple Caching Library (PSR-16)">
-            <directory>Tests</directory>
-        </testsuite>
-    </testsuites>
-
-    <filter>
-        <whitelist>
-            <directory suffix=".php">./</directory>
-            <exclude>
-                <directory>vendor</directory>
-                <directory>Tests</directory>
-            </exclude>
-        </whitelist>
-    </filter>
-
-    <php>
-        <ini name="date.timezone" value="UTC"/>
-
-        <env name="REDIS_SERVER_HOST" value="redis"/>
-        <env name="REDIS_SERVER_PORT" value="6379"/>
-    </php>
+  <coverage>
+    <include>
+      <directory suffix=".php">./</directory>
+    </include>
+    <exclude>
+      <directory>vendor</directory>
+      <directory>tests</directory>
+    </exclude>
+  </coverage>
+  <testsuites>
+    <testsuite name="Koded Simple Caching Library (PSR-16)">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <ini name="date.timezone" value="UTC"/>
+    <env name="REDIS_SERVER_HOST" value="redis"/>
+    <env name="REDIS_SERVER_PORT" value="6379"/>
+    <ini name="memory_limit" value="256M" />
+  </php>
 </phpunit>
