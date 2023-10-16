@@ -65,7 +65,7 @@ jobs:
           composer-options: '--no-progress --no-interaction'
 
       - name: Run unit tests
-        if: ${{ matrix.php != '8.2' && matrix.redis != '7' }}
+        if: ${{ matrix.php != '8.2' || matrix.redis != '7' }}
         run: vendor/bin/phpunit
 
       - name: Create coverage report
