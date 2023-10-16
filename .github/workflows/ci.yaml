@@ -56,7 +56,7 @@ jobs:
           extensions: redis, memcached, msgpack, igbinary, shmop, zip
           ini-values: opcache.enable=0
           tools: composer:v2
-          coverage: pcov
+          coverage: xdebug
 
       - name: Install composer and update
         uses: ramsey/composer-install@v2
@@ -67,7 +67,11 @@ jobs:
       - name: Run unit tests
         run: vendor/bin/phpunit
 
-      - name: Create coverage report and send it
+      - name: Create coverage report
+        if: ${{ matrix.php == '8.2' && matrix.redis == '7' && github.repository == 'kodedphp/cache-simple' }}
+        run: vendor/bin/phpunit --coverage-clover build/clover.xml
+
+      - name: Send coverage
         uses: sudo-bot/action-scrutinizer@latest
         if: ${{ matrix.php == '8.2' && matrix.redis == '7' && github.repository == 'kodedphp/cache-simple' }}
         with:
