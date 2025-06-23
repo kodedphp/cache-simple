@@ -74,6 +74,9 @@
   "config": {
     "optimize-autoloader": true
   },
+  "provide": {
+    "psr/simple-cache-implementation": "^3.0"
+  },
   "minimum-stability": "dev",
   "prefer-stable": true
 }
