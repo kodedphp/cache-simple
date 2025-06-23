@@ -50,7 +50,7 @@ class CacheException extends KodedException implements InvalidArgumentException
         ]);
     }
 
-    public static function generic(string $message, Throwable $previous = null): static
+    public static function generic(string $message, ?Throwable $previous = null): static
     {
         return new static(Cache::E_PHP_EXCEPTION, [
             ':message' => $message

@@ -25,7 +25,7 @@ final class MemoryClient implements Cache
     private array $storage = [];
     private array $expiration = [];
 
-    public function __construct(int $ttl = null)
+    public function __construct(null|int $ttl = null)
     {
         $this->ttl = $ttl;
     }

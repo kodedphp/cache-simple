@@ -23,7 +23,7 @@ final class MemcachedClient implements Cache
 {
     use ClientTrait, MultiplesTrait;
 
-    public function __construct(Memcached $client, int $ttl = null)
+    public function __construct(Memcached $client, null|int $ttl = null)
     {
         $this->ttl = $ttl;
         $this->client = $client;

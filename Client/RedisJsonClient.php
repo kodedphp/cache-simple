@@ -35,7 +35,7 @@ final class RedisJsonClient implements Cache
     private int $options;
     private Serializer $serializer;
 
-    public function __construct(\Redis $client, Serializer $serializer, int $options, int $ttl = null)
+    public function __construct(\Redis $client, Serializer $serializer, int $options, null|int $ttl = null)
     {
         $this->suffix = '__' . $serializer->type() . '__';
         $this->serializer = $serializer;

@@ -25,7 +25,7 @@ final class PredisClient implements Cache
 
     private Serializer $serializer;
 
-    public function __construct(\Predis\Client $client, Serializer $serializer, int $ttl = null)
+    public function __construct(\Predis\Client $client, Serializer $serializer, null|int $ttl = null)
     {
         $this->client = $client;
         $this->serializer = $serializer;

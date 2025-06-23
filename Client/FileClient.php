@@ -42,7 +42,7 @@ final class FileClient implements Cache
     private string $dir = '';
     private LoggerInterface $logger;
 
-    public function __construct(LoggerInterface $logger, string $dir, int $ttl = null)
+    public function __construct(LoggerInterface $logger, string $dir, null|int $ttl = null)
     {
         $this->ttl = $ttl;
         $this->logger = $logger;

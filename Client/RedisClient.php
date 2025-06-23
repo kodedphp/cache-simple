@@ -24,7 +24,7 @@ final class RedisClient implements Cache
 
     private Serializer $serializer;
 
-    public function __construct(\Redis $client, Serializer $serializer, int $ttl = null)
+    public function __construct(\Redis $client, Serializer $serializer, null|int $ttl = null)
     {
         $this->client = $client;
         $this->serializer = $serializer;
