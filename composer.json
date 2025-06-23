@@ -27,7 +27,7 @@
   ],
   "require": {
     "php": "^8.1",
-    "koded/stdlib": "^6.3",
+    "koded/stdlib": "^6.4",
     "psr/simple-cache": "^3.0",
     "psr/log": "^3",
     "ext-json": "*"
